@@ -6,9 +6,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class MatrixProduct {
-
-    static File file = new File("javameasures.txt");
+ 
+    static File file = new File("javameasurements.txt");
     static FileWriter writer;
+    
     void onMult(int lin, int col) throws IOException {
         double temp;
         int i, j, k;
@@ -32,6 +33,7 @@ public class MatrixProduct {
                     temp += pha[i * lin + k] * phb[k * col + j];
                 phc[i * lin + j] = temp;
             }
+        
         long end = System.nanoTime();
         System.out.print("Dimensions: " + lin + 'x' + col + "\n");
         writer.write("Dimensions: " + lin + 'x' + col + "\n");
@@ -45,6 +47,7 @@ public class MatrixProduct {
                 writer.write(phc[j] + " ");
             }
         }
+
         System.out.print("\n");
         writer.write("\n\n");
         return;
@@ -89,12 +92,9 @@ public class MatrixProduct {
                 writer.write(phc[j] + " ");
             }
         }
+
         writer.write("\n\n");
         System.out.print("\n");
-        return;
-    }
-
-    void onMultBlock(int lin, int col, int blockSize) {
         return;
     }
 
@@ -112,9 +112,10 @@ public class MatrixProduct {
                 return;
             }
         }
+
         writer = new FileWriter(file, true);
 
-        do{
+        do {
             Scanner sc = new Scanner(System.in);
             MatrixProduct mp = new MatrixProduct();
             System.out.print("1. Multiplication\n");
@@ -201,7 +202,8 @@ public class MatrixProduct {
                         break;
                 }
             }
-        }while (op != 0);
+        } while (op != 0);
+        
         writer.close();
     }
 }

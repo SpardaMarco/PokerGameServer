@@ -11,7 +11,7 @@ using namespace std;
 
 #define SYSTEMTIME clock_t
 
-ofstream outfile("measures.txt", ios_base::app);
+ofstream outfile("cppmeasurements.txt", ios_base::app);
 
 void OnMult(int m_ar, int m_br)
 {
@@ -136,6 +136,7 @@ void OnMultLine(int m_ar, int m_br)
 			outfile << phc[j] << " ";
 		}
 	}
+	
 	cout << endl;
 	outfile << endl;
 
