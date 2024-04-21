@@ -66,13 +66,8 @@ public class Server {
 
                 SSLSocket socket = (SSLSocket) serverSocket.accept();
 
-                socket.startHandshake();
+                new Authenticator(socket).run();
 
-                socket.addHandshakeCompletedListener(event -> {
-
-                    System.out.println("Handshake finished!");
-                    new Authenticator(socket).run();
-                });
             }
 
         } catch (IOException e) {

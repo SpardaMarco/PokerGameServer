@@ -9,10 +9,13 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.Scanner;
 
 public class Client {
 
-    public static void main(String[] args) {
+    final static String INPUT_REQ = "INPUT_REQUEST";
+
+    public static void main(String[] args) throws Exception {
         if (args.length < 2) {
             System.out.println("Usage: java Client <host> <port>");
             return;
@@ -21,63 +24,58 @@ public class Client {
         String host = args[0];
         int port = Integer.parseInt(args[1]);
 
-        SSLSocketFactory socketFactory = null;
-        try {
+        SSLSocket socket = connect(host, port);
+        authenticate(socket);
+    }
 
-            FileInputStream trustStoreInputStream = new FileInputStream("connection/client/truststore.jks");
-            KeyStore trustStore = KeyStore.getInstance("JKS");
-            trustStore.load(trustStoreInputStream, "client_keystore".toCharArray());
+    private static SSLSocket connect(String host, int port) throws Exception {
 
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init(trustStore);
+        SSLContext sslContext = getSSLContext();
 
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
-
-            socketFactory = sslContext.getSocketFactory();
-
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (CertificateException e) {
-            throw new RuntimeException(e);
-        } catch (KeyStoreException ex) {
-            throw new RuntimeException(ex);
-        } catch (NoSuchAlgorithmException ex) {
-            throw new RuntimeException(ex);
-        } catch (KeyManagementException e) {
-            throw new RuntimeException(e);
-        }
+        SSLSocketFactory socketFactory = sslContext.getSocketFactory();
+        SSLSocket socket = (SSLSocket) socketFactory.createSocket();
 
         SocketAddress socketAddress = new InetSocketAddress(host, port);
+        socket.connect(socketAddress);
+        socket.startHandshake();
 
-        try (SSLSocket socket = (SSLSocket) socketFactory.createSocket()) {
+        return socket;
+    }
 
-            socket.connect(socketAddress);
+    private static SSLContext getSSLContext() throws Exception {
+        FileInputStream trustStoreInputStream = new FileInputStream("connection/client/truststore.jks");
+        KeyStore trustStore = KeyStore.getInstance("JKS");
+        trustStore.load(trustStoreInputStream, "client_keystore".toCharArray());
 
-            socket.addHandshakeCompletedListener(event -> {
-                System.out.println("Handshake finished!");
-            });
+        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        trustManagerFactory.init(trustStore);
 
-            OutputStream output = socket.getOutputStream();
-            PrintWriter writer = new PrintWriter(output, true);
-            InputStream input = socket.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
+        return sslContext;
+    }
 
-            reader.lines().forEach(System.out::println);
+    private static void authenticate(SSLSocket socket) throws Exception {
+        OutputStream output = socket.getOutputStream();
+        PrintWriter writer = new PrintWriter(output, true);
+        InputStream input = socket.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
-            writer.println("admin");
+        handleServerIO(reader, writer);
+    }
 
-            reader.lines().forEach(System.out::println);
+    private static void handleServerIO(BufferedReader reader, PrintWriter writer) throws Exception {
 
-            writer.println("admin");
-
-            reader.lines().forEach(System.out::println);
-
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        while(true) {
+            String streamOutput = reader.readLine();
+            if (streamOutput != null) {
+                if (streamOutput.equals(INPUT_REQ)) {
+                    String userInput = new Scanner(System.in).nextLine();
+                    writer.println(userInput);
+                } else {
+                    System.out.println(streamOutput);
+                }
+            }
         }
     }
 }
