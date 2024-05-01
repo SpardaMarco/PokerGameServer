@@ -1,34 +1,57 @@
 package connection.server;
 
-import connection.server.authenticator.Authenticator;
+import connection.protocol.Channel;
 
 import javax.net.ssl.*;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.*;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.*;
 
 public class Server {
-
-    private static Queue<String> playersQueue = new LinkedList<>();
-
-    private static Dictionary<String, SSLSocket> connections = new Hashtable<>();
-
+    private Queue<String> playersQueue = new LinkedList<>();
+    private Dictionary<String, Channel> connections = new Hashtable<>();
+    private int port;
+    private boolean loggingEnabled;
     public static void main(String[] args) {
 
         if (args.length < 1) {
-            System.out.println("Usage: java TimeServer <port>");
+            System.out.println("Usage: java TimeServer <port> [-l]");
             return;
         }
 
         int port = Integer.parseInt(args[0]);
 
+        if (args.length == 2 && args[1].equals("-l")) {
+            new Server(port, true).init();
+        } else if (args.length == 2) {
+            System.out.println("Usage: java TimeServer <port> [-l]");
+        } else {
+            new Server(port, false).init();
+        }
+    }
+
+    private Server(int port, boolean loggingEnabled) {
+        this.port = port;
+        this.loggingEnabled = loggingEnabled;
+    }
+
+    private void init() {
+        SSLServerSocketFactory serverSocketFactory = getServerSocketFactory();
+        try (SSLServerSocket serverSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(port)) {
+
+            System.out.println("Server is listening on port " + port);
+
+            while (true) {
+                SSLSocket socket = (SSLSocket) serverSocket.accept();
+                new Authenticator(new Channel(socket), this).start();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private SSLServerSocketFactory getServerSocketFactory() {
         SSLServerSocketFactory serverSocketFactory;
         try {
             FileInputStream keyStoreInputStream = new FileInputStream("connection/server/server_keystore.p12");
@@ -42,42 +65,20 @@ public class Server {
             sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
 
             serverSocketFactory = sslContext.getServerSocketFactory();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        } catch (UnrecoverableKeyException e) {
-            throw new RuntimeException(e);
-        } catch (KeyStoreException e) {
-            throw new RuntimeException(e);
-        } catch (KeyManagementException e) {
-            throw new RuntimeException(e);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (CertificateException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        try (SSLServerSocket serverSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(port)) {
-
-            System.out.println("Server is listening on port " + port);
-
-            while (true) {
-
-                SSLSocket socket = (SSLSocket) serverSocket.accept();
-
-                new Authenticator(socket).run();
-
-            }
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return serverSocketFactory;
     }
 
-    public static void queuePlayer(String player, SSLSocket socket) {
+    public synchronized void queuePlayer(String player, Channel socket) {
 
-       playersQueue.add(player);
-       connections.put(player, socket);
+        playersQueue.add(player);
+        connections.put(player, socket);
+
+        if (this.loggingEnabled) {
+            System.out.println("Player " + player + " has joined the game");
+            System.out.println("Players in queue: " + playersQueue.size());
+        }
     }
 }
