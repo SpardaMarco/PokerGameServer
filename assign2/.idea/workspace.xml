@@ -5,10 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9fc124c3-2bcd-425c-92b3-823a29a43789" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitattributes" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/modules/assign2.main.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gradlew" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/connection/server/DatabaseInterface.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/connection/server/database/DatabaseInitializer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
@@ -30,9 +42,9 @@
       <change beforePath="$PROJECT_DIR$/src/connection/protocol/Channel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/protocol/Channel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/connection/protocol/Flag.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/protocol/Flag.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/connection/server/Authenticator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/server/Authenticator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/server/DatabaseInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/server/DatabaseInterface.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/server/DatabaseInterface.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/connection/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/server/Server.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/server/database/DatabaseInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/server/database/DatabaseInitializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/server/database/DatabaseInitializer.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/connection/server/database/poker.db" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/poker.db" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/connection/server/database/poker.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/poker.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/connection/server/server_keystore.p12" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/server_keystore.p12" afterDir="false" />
@@ -185,7 +197,7 @@
       <option name="presentableId" value="Default" />
       <updated>1714771489340</updated>
       <workItem from="1714771490441" duration="46000" />
-      <workItem from="1714771549281" duration="3629000" />
+      <workItem from="1714771549281" duration="4075000" />
     </task>
     <servers />
   </component>
@@ -204,6 +216,11 @@
           <url>file://$PROJECT_DIR$/src/main/java/connection/server/database/DatabaseInitializer.java</url>
           <line>22</line>
           <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/connection/server/DatabaseInterface.java</url>
+          <line>42</line>
+          <option name="timeStamp" value="7" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/src/main/java/connection/server/database/DatabaseInitializer.java</url>
