@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="9fc124c3-2bcd-425c-92b3-823a29a43789" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules/assign2.main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/.empty" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/.idea/src.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/.idea/uiDesigner.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/certification/certificate_commands.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/certification/certificate_commands.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/certification/passwords" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/certification/passwords" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/certification/server_certificate.cer" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/certification/server_certificate.cer" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/certification/server_certificate.pem" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/certification/server_certificate.pem" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/certification/server_certificate_request.csr" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/certification/server_certificate_request.csr" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/certification/server_private_key.pem" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/certification/server_private_key.pem" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/client/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/client/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/client/truststore.jks" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/client_keystore.jks" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/protocol/Channel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/protocol/Channel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/protocol/Flag.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/protocol/Flag.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/server/Authenticator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/server/Authenticator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/server/DatabaseInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/server/DatabaseInterface.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/server/Server.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/server/database/DatabaseInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/server/database/DatabaseInitializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/server/database/poker.db" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/poker.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/server/database/poker.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/poker.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/connection/server/server_keystore.p12" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/server_keystore.p12" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/.empty" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/.idea/src.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/.idea/uiDesigner.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/certification/certificate_commands.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/certification/passwords" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/certification/server_certificate.cer" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/certification/server_certificate.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/certification/server_certificate_request.csr" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/certification/server_private_key.pem" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/client/Client.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/client/truststore.jks" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/protocol/Channel.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/protocol/Flag.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/server/Authenticator.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/server/DatabaseInterface.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/server/Server.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/server/database/DatabaseInitializer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/server/server_keystore.p12" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <projects_view>
+          <tree_state>
+            <expand />
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="2fyRmO1Qf0sMhJnncKONRbGwega" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Gradle.assign2 [:Client.main()].executor": "Run",
+    "Gradle.assign2 [:DatabaseInitializer.main()].executor": "Run",
+    "Gradle.assign2 [:Server.main()].executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Ramos\Documents\Obsidian\Studies\Parallel_Distributed_Computing\g15\assign2\src\main\resources" />
+      <recent name="C:\Users\Ramos\Documents\Obsidian\Studies\Parallel_Distributed_Computing\g15\assign2\src\main\java\connection\client" />
+      <recent name="C:\Users\Ramos\Documents\Obsidian\Studies\Parallel_Distributed_Computing\g15\assign2\src\main\java\connection\server" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.Client">
+    <configuration name="Client" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="connection.client.Client" />
+      <module name="assign2.main" />
+      <option name="PROGRAM_PARAMETERS" value="localhost 8000" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="connection.client.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="DatabaseInitializer" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="connection.server.database.DatabaseInitializer" />
+      <module name="assign2.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="connection.server.database.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Server" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="connection.server.Server" />
+      <module name="assign2.main" />
+      <option name="PROGRAM_PARAMETERS" value="8000 -l" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="connection.server.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.Server" />
+      <item itemvalue="Application.Client" />
+      <item itemvalue="Application.DatabaseInitializer" />
+    </list>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="jdk-21.0.2-openjdk-21.0.2-4caba194b151-4f524021" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="9fc124c3-2bcd-425c-92b3-823a29a43789" name="Changes" comment="" />
+      <created>1714771489340</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1714771489340</updated>
+      <workItem from="1714771490441" duration="46000" />
+      <workItem from="1714771549281" duration="3629000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/connection/client/Client.java</url>
+          <line>58</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/connection/server/database/DatabaseInitializer.java</url>
+          <line>22</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/src/main/java/connection/server/database/DatabaseInitializer.java</url>
+          <line>17</line>
+          <properties class="connection.server.database.DatabaseInitializer" method="main">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
