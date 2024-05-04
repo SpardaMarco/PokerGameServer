@@ -10,11 +10,11 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class Server {
-    private Queue<String> playersQueue = new LinkedList<>();
-    private Dictionary<String, Channel> connections = new Hashtable<>();
-    private int port;
-    private boolean loggingEnabled;
-    private DatabaseInterface database = new DatabaseInterface();
+    private final Queue<String> playersQueue = new LinkedList<>();
+    private final Dictionary<String, Channel> connections = new Hashtable<>();
+    private final int port;
+    private final boolean loggingEnabled;
+    private final DatabaseInterface database = new DatabaseInterface();
     public static void main(String[] args) throws SQLException {
 
         if (args.length < 1) {
