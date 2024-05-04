@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class Server {
+
     private final Queue<String> playersQueue = new LinkedList<>();
     private final Dictionary<String, Channel> connections = new Hashtable<>();
     private final int port;
@@ -43,6 +44,13 @@ public class Server {
     }
 
     private void init() {
+
+        try {
+            database.authenticateUser("user1", "password1");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
         SSLServerSocketFactory serverSocketFactory = getServerSocketFactory();
         try (SSLServerSocket serverSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(port)) {
 

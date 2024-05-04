@@ -7,9 +7,9 @@ import java.sql.SQLException;
 
 public class Authenticator extends Thread {
 
-    private Channel channel;
-    private Server server;
-    private DatabaseInterface database;
+    private final Channel channel;
+    private final Server server;
+    private final DatabaseInterface database;
 
     public Authenticator(Channel channel, Server server) throws SQLException {
         this.channel = channel;
