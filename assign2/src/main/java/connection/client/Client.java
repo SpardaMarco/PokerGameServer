@@ -10,8 +10,7 @@ import java.net.URL;
 import java.security.KeyStore;
 import java.util.Scanner;
 
-import static connection.protocol.Flag.CONNECTION_END;
-import static connection.protocol.Flag.INPUT_REQ;
+import static connection.protocol.Flag.*;
 
 public class Client {
     private final Channel channel;
@@ -36,6 +35,12 @@ public class Client {
     }
 
     private void init() {
+        String session = getSession();
+        if (session != null) {
+            channel.sendRecoverSession(session);
+        } else {
+            channel.sendNewConnection();
+        }
         handleServerIO();
     }
 
@@ -77,9 +82,36 @@ public class Client {
                 channel.sendMessage(userInput);
             } else if (CONNECTION_END.equals(incoming)) {
                 System.out.println("Server ended the connection.");
-            } else {
+            } else if (NEW_SESSION.equals(incoming)) {
+                String token = channel.getResponse();
+                saveSession(token);
+            }
+            else {
                 System.out.println(incoming);
             }
+        }
+    }
+
+    private String getSession() {
+        try {
+            String path = System.getProperty("user.dir") + "/src/main/java/connection/client/";
+            File file = new File(path + "session.txt");
+            Scanner scanner = new Scanner(file);
+            return scanner.nextLine();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private void saveSession(String token) {
+        try {
+            String path = System.getProperty("user.dir") + "/src/main/java/connection/client/";
+            File file = new File(path + "session.txt");
+            FileWriter writer = new FileWriter(file);
+            writer.write(token);
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

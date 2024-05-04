@@ -1,9 +1,12 @@
 package connection.server;
 
 import connection.protocol.Channel;
+import connection.server.database.DatabaseInterface;
+import org.mindrot.jbcrypt.BCrypt;
 
-import java.awt.image.ConvolveOp;
 import java.sql.SQLException;
+
+import static connection.protocol.Flag.*;
 
 public class Authenticator extends Thread {
 
@@ -20,36 +23,114 @@ public class Authenticator extends Thread {
     @Override
     public void run() {
 
-        int attempts = 0;
-        while (authenticateUser())
-            if (++attempts == 3) {
-                channel.sendConnectionEnd("Too many failed attempts. Closing connection.");
-                channel.close();
-                return;
-            }
+        String incoming = channel.getResponse();
+        if (incoming == null) {
+            channel.sendConnectionEnd("Connection closed.");
+            channel.close();
+            return;
+        } else if (RECOVER_SESSION.equals(incoming)) {
+            handleRecoverSession();
+        } else if (NEW_CONNECTION.equals(incoming)) {
+            handleNewConnection();
+        } else {
+            channel.sendConnectionEnd("Invalid request. Closing connection.");
+            channel.close();
+        }
     }
 
-    private boolean authenticateUser() {
+    private void handleRecoverSession() {
+        String token = channel.getResponse();
+
+        String username = database.recoverSession(token);
+        if (username != null) {
+            channel.sendMessage("Welcome back " + username + "!");
+            server.queuePlayer(username, channel);
+        } else {
+            channel.sendConnectionEnd("Session expired. Closing connection.");
+            channel.close();
+        }
+    }
+
+    private void handleNewConnection(){
+        channel.sendMessage("Welcome to PokerLegends!");
+        String username = authenticateUser();
+        if (username != null) {
+            channel.sendMessage("Welcome " + username + "!");
+            generateSession(username);
+        }
+    }
+
+    private String authenticateUser() {
+
         String username = channel.sendInputRequest(
-                "Welcome to Poker!",
                 "Please enter your username:"
         );
+        try {
+            if (database.userExists(username)) {
+                return loginUser(username);
+            } else {
+                return registerUser(username);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String registerUser(String username) {
+        String password = channel.sendInputRequest(
+                "User not found. Setting up new account.",
+                "Please enter your password:"
+        );
+        database.registerUser(username, password);
+        channel.sendMessage("Registration successful!");
+        return username;
+    }
+
+    private String loginUser(String username) {
+
+        channel.sendMessage("User found. Please enter your password.");
+        int attempts = 3;
+        while (!checkPasssword(username, attempts--))
+            if (attempts == 0) {
+                channel.sendConnectionEnd("Too many failed attempts. Closing connection.");
+                channel.close();
+                return null;
+            }
+        return username;
+    }
+
+    private boolean checkPasssword(String username, int attempt) {
 
         String password = channel.sendInputRequest("Please enter your password:");
 
         try {
             if (database.authenticateUser(username, password)) {
-                channel.sendMessage("Welcome admin!");
-                server.queuePlayer(username, channel);
-                return false;
-            } else {
-                channel.sendMessage("Invalid credentials. Please try again.");
+                channel.sendMessage("Login successful!");
                 return true;
+            } else {
+                channel.sendMessage(String.format(
+                        "Invalid credentials. Please try again. (%s attempts remaining)",
+                        attempt
+                ));
+                return false;
             }
         } catch (SQLException e) {
             channel.sendConnectionEnd("An error occurred. Closing connection.");
             channel.close();
             throw new RuntimeException(e);
         }
+    }
+
+    private void generateSession(String username) {
+
+        String token = BCrypt.hashpw(username, BCrypt.gensalt());
+        long durationSeconds = 24 * 3600;
+
+        if (database.createSession(username, token, durationSeconds)) {
+            channel.sendNewSession(token, "Session created successfully!");
+        }
+
+        server.queuePlayer(username, channel);
     }
 }

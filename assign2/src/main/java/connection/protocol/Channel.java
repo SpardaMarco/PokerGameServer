@@ -33,7 +33,8 @@ public class Channel {
     }
 
     private void sendFlaggedMessage(Flag flag, String... message) {
-        sendMessage(String.join("\n", message));
+        if (message.length > 0)
+            sendMessage(String.join("\n", message));
         sendMessage(flag.toString());
     }
 
@@ -44,6 +45,20 @@ public class Channel {
 
     public void sendConnectionEnd(String... message) {
         sendFlaggedMessage(Flag.CONNECTION_END, message);
+    }
+
+    public void sendNewConnection() {
+        sendFlaggedMessage(Flag.NEW_CONNECTION);
+    }
+
+    public void sendNewSession(String sessionToken, String... message) {
+        sendFlaggedMessage(Flag.NEW_SESSION, message);
+        sendMessage(sessionToken);
+    }
+
+    public void sendRecoverSession(String sessionToken) {
+        sendFlaggedMessage(Flag.RECOVER_SESSION);
+        sendMessage(sessionToken);
     }
 
     public void close() {

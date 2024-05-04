@@ -1,6 +1,7 @@
 package connection.server;
 
 import connection.protocol.Channel;
+import connection.server.database.DatabaseInterface;
 
 import javax.net.ssl.*;
 import java.io.IOException;

@@ -2,7 +2,10 @@ package connection.protocol;
 
 public enum Flag {
     INPUT_REQ("INPUT_REQ"),
-    CONNECTION_END("CONNECTION_END");
+    CONNECTION_END("CONNECTION_END"),
+    NEW_CONNECTION("NEW_CONNECTION"),
+    NEW_SESSION("NEW_SESSION"),
+    RECOVER_SESSION("RECOVER_SESSION");
     private final String value;
     Flag(String value) {
         this.value = value;
