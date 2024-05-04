@@ -5,71 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9fc124c3-2bcd-425c-92b3-823a29a43789" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitattributes" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/assign2.main.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradlew" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/connection/server/DatabaseInterface.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/connection/server/database/DatabaseInitializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/.empty" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/.idea/src.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/.idea/uiDesigner.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/certification/certificate_commands.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/certification/certificate_commands.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/certification/passwords" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/certification/passwords" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/certification/server_certificate.cer" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/certification/server_certificate.cer" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/certification/server_certificate.pem" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/certification/server_certificate.pem" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/certification/server_certificate_request.csr" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/certification/server_certificate_request.csr" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/certification/server_private_key.pem" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/certification/server_private_key.pem" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/client/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/client/Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/client/truststore.jks" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/client_keystore.jks" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/protocol/Channel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/protocol/Channel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/protocol/Flag.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/protocol/Flag.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/server/Authenticator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/server/Authenticator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/server/DatabaseInterface.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/server/Server.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/server/database/DatabaseInitializer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/server/database/poker.db" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/poker.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/server/database/poker.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/poker.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/connection/server/server_keystore.p12" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/server_keystore.p12" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/.empty" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/.idea/src.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/.idea/uiDesigner.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/certification/certificate_commands.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/certification/passwords" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/certification/server_certificate.cer" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/certification/server_certificate.pem" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/certification/server_certificate_request.csr" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/certification/server_private_key.pem" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/client/Client.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/client/truststore.jks" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/protocol/Channel.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/protocol/Flag.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/server/Authenticator.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/server/DatabaseInterface.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/server/Server.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/server/database/DatabaseInitializer.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/out/production/src/connection/server/server_keystore.p12" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,6 +32,9 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$PROJECT_DIR$/../../../../../../../../Program Files/Java/jdk-21/lib/src.zip!/java.base/java/nio/file/InvalidPathException.java" root0="SKIP_INSPECTION" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -123,7 +63,13 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
     "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "sqlite"
+    ]
   }
 }]]></component>
   <component name="RecentsManager">
@@ -197,7 +143,8 @@
       <option name="presentableId" value="Default" />
       <updated>1714771489340</updated>
       <workItem from="1714771490441" duration="46000" />
-      <workItem from="1714771549281" duration="4075000" />
+      <workItem from="1714771549281" duration="4224000" />
+      <workItem from="1714831610207" duration="202000" />
     </task>
     <servers />
   </component>
@@ -233,5 +180,9 @@
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>
