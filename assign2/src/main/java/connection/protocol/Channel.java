@@ -1,7 +1,10 @@
 package connection.protocol;
 
+import org.json.JSONObject;
+
 import java.io.*;
 import java.net.Socket;
+import java.util.HashMap;
 
 import static connection.protocol.Flag.INPUT_REQ;
 
@@ -28,11 +31,11 @@ public class Channel {
         }
     }
 
-    public void sendMessage(String message) {
-        writer.println(message);
+    public void sendMessage(JSONObject json) {
+        writer.println(json.toString());
     }
 
-    private void sendFlaggedMessage(Flag flag, String... message) {
+    private void sendFlaggedMessage(Flag flag) {
         if (message.length > 0)
             sendMessage(String.join("\n", message));
         sendMessage(flag.toString());
@@ -43,22 +46,26 @@ public class Channel {
         return getResponse();
     }
 
-    public void sendConnectionEnd(String... message) {
-        sendFlaggedMessage(Flag.CONNECTION_END, message);
+    public void sendEndConnection(String... message) {
+        sendFlaggedMessage(Flag.END_CONNECTION, message);
     }
 
     public void sendNewConnection() {
         sendFlaggedMessage(Flag.NEW_CONNECTION);
     }
 
-    public void sendNewSession(String sessionToken, String... message) {
-        sendFlaggedMessage(Flag.NEW_SESSION, message);
-        sendMessage(sessionToken);
+    public void sendNewSession(String sessionToken) {
+        JSONObject json = new JSONObject();
+        json.put("flag", Flag.NEW_SESSION);
+        json.put("token", sessionToken);
+        sendMessage(json);
     }
 
     public void sendRecoverSession(String sessionToken) {
-        sendFlaggedMessage(Flag.RECOVER_SESSION);
-        sendMessage(sessionToken);
+        JSONObject json = new JSONObject();
+        json.put("flag", Flag.RECOVER_SESSION);
+        json.put("sessionToken", sessionToken);
+        sendMessage(json);
     }
 
     public void close() {

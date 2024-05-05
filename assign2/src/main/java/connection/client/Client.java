@@ -6,7 +6,6 @@ import javax.net.ssl.*;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.URL;
 import java.security.KeyStore;
 import java.util.Scanner;
 
@@ -80,7 +79,7 @@ public class Client {
             if (INPUT_REQ.equals(incoming)) {
                 String userInput = new Scanner(System.in).nextLine();
                 channel.sendMessage(userInput);
-            } else if (CONNECTION_END.equals(incoming)) {
+            } else if (END_CONNECTION.equals(incoming)) {
                 System.out.println("Server ended the connection.");
             } else if (NEW_SESSION.equals(incoming)) {
                 String token = channel.getResponse();

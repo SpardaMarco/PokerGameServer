@@ -25,7 +25,7 @@ public class Authenticator extends Thread {
 
         String incoming = channel.getResponse();
         if (incoming == null) {
-            channel.sendConnectionEnd("Connection closed.");
+            channel.sendEndConnection("Connection closed.");
             channel.close();
             return;
         } else if (RECOVER_SESSION.equals(incoming)) {
@@ -33,7 +33,7 @@ public class Authenticator extends Thread {
         } else if (NEW_CONNECTION.equals(incoming)) {
             handleNewConnection();
         } else {
-            channel.sendConnectionEnd("Invalid request. Closing connection.");
+            channel.sendEndConnection("Invalid request. Closing connection.");
             channel.close();
         }
     }
@@ -46,7 +46,7 @@ public class Authenticator extends Thread {
             channel.sendMessage("Welcome back " + username + "!");
             server.queuePlayer(username, channel);
         } else {
-            channel.sendConnectionEnd("Session expired. Closing connection.");
+            channel.sendEndConnection("Session expired. Closing connection.");
             channel.close();
         }
     }
@@ -93,7 +93,7 @@ public class Authenticator extends Thread {
         int attempts = 3;
         while (!checkPasssword(username, attempts--))
             if (attempts == 0) {
-                channel.sendConnectionEnd("Too many failed attempts. Closing connection.");
+                channel.sendEndConnection("Too many failed attempts. Closing connection.");
                 channel.close();
                 return null;
             }
@@ -116,7 +116,7 @@ public class Authenticator extends Thread {
                 return false;
             }
         } catch (SQLException e) {
-            channel.sendConnectionEnd("An error occurred. Closing connection.");
+            channel.sendEndConnection("An error occurred. Closing connection.");
             channel.close();
             throw new RuntimeException(e);
         }
@@ -128,7 +128,7 @@ public class Authenticator extends Thread {
         long durationSeconds = 24 * 3600;
 
         if (database.createSession(username, token, durationSeconds)) {
-            channel.sendNewSession(token, "Session created successfully!");
+            channel.sendNewSession(token);
         }
 
         server.queuePlayer(username, channel);
