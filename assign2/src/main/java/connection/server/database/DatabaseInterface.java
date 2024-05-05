@@ -48,7 +48,7 @@ public class DatabaseInterface {
         return BCrypt.checkpw(password, hashedPassword);
     }
 
-    public void registerUser(String username, String password) {
+    public boolean registerUser(String username, String password) {
 
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
         String query = "INSERT INTO users (username, password) VALUES (?, ?)";
@@ -57,19 +57,20 @@ public class DatabaseInterface {
             stmt.setString(1, username);
             stmt.setString(2, hashedPassword);
             stmt.executeUpdate();
+            return true;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return false;
         }
     }
 
-    public boolean createSession(String username, String sessionToken, long durationSeconds) {
+    public boolean createSession(String username, String sessionToken, long duration) {
 
         String query = "UPDATE users SET session_token = ?, session_expiration = ? WHERE username = ?";
 
         try {
             PreparedStatement stmt = database.prepareStatement(query);
             stmt.setString(1, sessionToken);
-            stmt.setLong(2, System.currentTimeMillis() + durationSeconds * 1000);
+            stmt.setDate(2, new Date(System.currentTimeMillis() + duration));
             stmt.setString(3, username);
             stmt.executeUpdate();
             return true;
@@ -85,7 +86,7 @@ public class DatabaseInterface {
         try {
             PreparedStatement stmt = database.prepareStatement(query);
             stmt.setString(1, sessionToken);
-            stmt.setLong(2, System.currentTimeMillis());
+            stmt.setDate(2, new Date(System.currentTimeMillis()));
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return rs.getString("username");

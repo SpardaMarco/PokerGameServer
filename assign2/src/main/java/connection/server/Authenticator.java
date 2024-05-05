@@ -1,20 +1,21 @@
 package connection.server;
 
-import connection.protocol.Channel;
+import connection.protocol.message.Message;
+import connection.protocol.channels.ServerChannel;
 import connection.server.database.DatabaseInterface;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
 
-import static connection.protocol.Flag.*;
-
 public class Authenticator extends Thread {
 
-    private final Channel channel;
+    private final ServerChannel channel;
     private final Server server;
     private final DatabaseInterface database;
 
-    public Authenticator(Channel channel, Server server) throws SQLException {
+    private int authenticationAttempts = 3;
+
+    public Authenticator(ServerChannel channel, Server server) throws SQLException {
         this.channel = channel;
         this.server = server;
         this.database = server.getDatabase();
@@ -23,114 +24,113 @@ public class Authenticator extends Thread {
     @Override
     public void run() {
 
-        String incoming = channel.getResponse();
-        if (incoming == null) {
-            channel.sendEndConnection("Connection closed.");
-            channel.close();
-            return;
-        } else if (RECOVER_SESSION.equals(incoming)) {
-            handleRecoverSession();
-        } else if (NEW_CONNECTION.equals(incoming)) {
-            handleNewConnection();
-        } else {
-            channel.sendEndConnection("Invalid request. Closing connection.");
-            channel.close();
+        handleRequests();
+    }
+
+    private void handleRequests() {
+        Message request;
+        while (channel.isOpen() && (request = channel.getRequest()) != null) {
+            switch (request.getState()) {
+                case AUTHENTICATION -> handleAuthentication(request);
+                case CONNECTION_RECOVERY -> handleRecovery(request);
+                case null, default -> {terminateConnection("Invalid request"); return;}
+            }
         }
     }
 
-    private void handleRecoverSession() {
-        String token = channel.getResponse();
+    private void terminateConnection(String body) {
+        channel.requestConnectionEnd(body);
+        channel.close();
+        this.interrupt();
+    }
 
+    private void handleRecovery(Message message) {
+
+        if (!message.hasAttribute("sessionToken")) {
+            channel.rejectConnectionRecovery("Missing session token");
+            return;
+        }
+        String token = message.getAttribute("sessionToken");
         String username = database.recoverSession(token);
         if (username != null) {
-            channel.sendMessage("Welcome back " + username + "!");
-            server.queuePlayer(username, channel);
+            String newToken = generateSession(username);
+            if (newToken != null)
+                channel.acceptConnectionRecovery("Session successfully recovered", username, newToken);
+            else
+                rejectAuthentication("Something went wrong while generating session");
         } else {
-            channel.sendEndConnection("Session expired. Closing connection.");
-            channel.close();
+            channel.rejectConnectionRecovery("Invalid or expired session token");
         }
     }
 
-    private void handleNewConnection(){
-        channel.sendMessage("Welcome to PokerLegends!");
-        String username = authenticateUser();
-        if (username != null) {
-            channel.sendMessage("Welcome " + username + "!");
-            generateSession(username);
+    private void handleAuthentication(Message request) {
+        String username = authenticateUser(request);
+
+        if (username != null)
+            server.queuePlayer(username, channel);
+    }
+
+    private String authenticateUser(Message request) {
+
+        if (!(request.hasAttribute("username") && request.hasAttribute("password"))) {
+            channel.rejectAuthentication("Missing username or password");
+            return null;
         }
-    }
 
-    private String authenticateUser() {
-
-        String username = channel.sendInputRequest(
-                "Please enter your username:"
-        );
-        try {
-            if (database.userExists(username)) {
-                return loginUser(username);
-            } else {
-                return registerUser(username);
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String registerUser(String username) {
-        String password = channel.sendInputRequest(
-                "User not found. Setting up new account.",
-                "Please enter your password:"
-        );
-        database.registerUser(username, password);
-        channel.sendMessage("Registration successful!");
-        return username;
-    }
-
-    private String loginUser(String username) {
-
-        channel.sendMessage("User found. Please enter your password.");
-        int attempts = 3;
-        while (!checkPasssword(username, attempts--))
-            if (attempts == 0) {
-                channel.sendEndConnection("Too many failed attempts. Closing connection.");
-                channel.close();
-                return null;
-            }
-        return username;
-    }
-
-    private boolean checkPasssword(String username, int attempt) {
-
-        String password = channel.sendInputRequest("Please enter your password:");
+        String username = request.getAttribute("username");
+        String password = request.getAttribute("password");
 
         try {
-            if (database.authenticateUser(username, password)) {
-                channel.sendMessage("Login successful!");
-                return true;
-            } else {
-                channel.sendMessage(String.format(
-                        "Invalid credentials. Please try again. (%s attempts remaining)",
-                        attempt
-                ));
-                return false;
-            }
+            return database.userExists(username) ? loginUser(username, password) : registerUser(username, password);
+
         } catch (SQLException e) {
-            channel.sendEndConnection("An error occurred. Closing connection.");
-            channel.close();
-            throw new RuntimeException(e);
+            rejectAuthentication("Something went wrong while authenticating user");
+            return null;
         }
     }
 
-    private void generateSession(String username) {
+    private String registerUser(String username, String password) throws SQLException {
+
+        if (database.registerUser(username, password))
+            return loginUser(username, password);
+        else
+            rejectAuthentication("Something went wrong while registering user");
+
+        return null;
+    }
+
+    private String loginUser(String username, String password) throws SQLException {
+
+        if (database.authenticateUser(username, password)) {
+            String token = generateSession(username);
+            if (token != null) {
+                channel.acceptAuthentication("User successfully authenticated", token);
+                return username;
+            }
+            else
+                rejectAuthentication("Something went wrong while generating session");
+        }
+        else
+            rejectAuthentication("Invalid username or password");
+
+        return null;
+
+    }
+
+    private void rejectAuthentication(String body) {
+        if (--authenticationAttempts == 0)
+            terminateConnection("Too many failed authentication attempts");
+        else
+            channel.rejectAuthentication(body);
+    }
+
+    private String generateSession(String username) {
 
         String token = BCrypt.hashpw(username, BCrypt.gensalt());
-        long durationSeconds = 24 * 3600;
-
-        if (database.createSession(username, token, durationSeconds)) {
-            channel.sendNewSession(token);
+        long durationMillis = 24 * 3600 * 1000;
+        if (database.createSession(username, token, durationMillis)) {
+            return token;
         }
-
-        server.queuePlayer(username, channel);
+        return null;
     }
 }

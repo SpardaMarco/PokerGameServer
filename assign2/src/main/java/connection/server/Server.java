@@ -1,11 +1,13 @@
 package connection.server;
 
 import connection.protocol.Channel;
+import connection.protocol.channels.ServerChannel;
 import connection.server.database.DatabaseInterface;
 
 import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketException;
 import java.security.*;
 import java.sql.SQLException;
 import java.util.*;
@@ -46,22 +48,19 @@ public class Server {
 
     private void init() {
 
-        try {
-            database.authenticateUser("user1", "password1");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
         SSLServerSocketFactory serverSocketFactory = getServerSocketFactory();
         try (SSLServerSocket serverSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(port)) {
 
             System.out.println("Server is listening on port " + port);
 
-            while (true) {
-                SSLSocket socket = (SSLSocket) serverSocket.accept();
-                new Authenticator(new Channel(socket), this).start();
-            }
-        } catch (IOException | SQLException e) {
+            SSLSocket socket = (SSLSocket) serverSocket.accept();
+            new Authenticator(new ServerChannel(socket), this).start();
+
+        }
+        catch (SocketException e) {
+            System.out.println("Socket connection closed");
+        }
+        catch (IOException | SQLException e) {
             throw new RuntimeException(e);
         }
     }

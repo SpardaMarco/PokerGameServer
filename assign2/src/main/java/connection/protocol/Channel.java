@@ -1,14 +1,18 @@
 package connection.protocol;
 
+import connection.protocol.message.Message;
+import connection.protocol.message.State;
+import connection.protocol.message.Status;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.HashMap;
+import java.util.Map;
 
-import static connection.protocol.Flag.INPUT_REQ;
+import static connection.protocol.message.State.*;
+import static connection.protocol.message.Status.*;
 
-public class Channel {
+public abstract class Channel {
 
     Socket socket;
     BufferedReader reader;
@@ -22,50 +26,58 @@ public class Channel {
         writer = new PrintWriter(output, true);
     }
 
-    public String getResponse() {
+    protected void sendMessage(Message message) {
+        writer.println(message);
+    }
 
+    protected void sendMessage(State state, Status status, String body, Map<String, Object> data) {
+        sendMessage(new Message(state, status, body, data));
+    }
+
+    private Message getMessage() {
         try {
-            return reader.readLine();
+            String line = reader.readLine();
+            JSONObject json = new JSONObject(line);
+            return new Message(json);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
-    public void sendMessage(JSONObject json) {
-        writer.println(json.toString());
+    protected Message getMessage(State expectedState, boolean isRequestExpected) {
+        Message message = getMessage();
+
+        if (message != null) {
+            if (message.isConnectionEndRequest()) {
+                this.acceptConnectionEnd();
+                System.out.printf("Connection closed by the other party.\nReason: %s\n", message.getBody());
+                this.close();
+                return null;
+            }
+
+            if (expectedState != null && message.getState() != expectedState) {
+                throw new RuntimeException("Unexpected state in message:\n" + message);
+            }
+            if (isRequestExpected == !message.isRequest()) {
+                throw new RuntimeException("Expected request but got response:\n" + message);
+            } else if (!isRequestExpected && message.isRequest()) {
+                throw new RuntimeException("Expected response but got request:\n" + message);
+            }
+        }
+        return message;
     }
 
-    private void sendFlaggedMessage(Flag flag) {
-        if (message.length > 0)
-            sendMessage(String.join("\n", message));
-        sendMessage(flag.toString());
+    public Message getResponse(State expectedState) {
+        return getMessage(expectedState, false);
     }
 
-    public String sendInputRequest(String... message) {
-        sendFlaggedMessage(INPUT_REQ, message);
-        return getResponse();
+    public Message requestConnectionEnd(String body) {
+        sendMessage(new Message(CONNECTION_END, REQUEST, body, null));
+        return getResponse(CONNECTION_END);
     }
 
-    public void sendEndConnection(String... message) {
-        sendFlaggedMessage(Flag.END_CONNECTION, message);
-    }
-
-    public void sendNewConnection() {
-        sendFlaggedMessage(Flag.NEW_CONNECTION);
-    }
-
-    public void sendNewSession(String sessionToken) {
-        JSONObject json = new JSONObject();
-        json.put("flag", Flag.NEW_SESSION);
-        json.put("token", sessionToken);
-        sendMessage(json);
-    }
-
-    public void sendRecoverSession(String sessionToken) {
-        JSONObject json = new JSONObject();
-        json.put("flag", Flag.RECOVER_SESSION);
-        json.put("sessionToken", sessionToken);
-        sendMessage(json);
+    protected void acceptConnectionEnd() {
+        sendMessage(new Message(CONNECTION_END, OK, null, null));
     }
 
     public void close() {
