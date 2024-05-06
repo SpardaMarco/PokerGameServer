@@ -41,7 +41,6 @@ public class Authenticator extends Thread {
     private void terminateConnection(String body) {
         channel.requestConnectionEnd(body);
         channel.close();
-        this.interrupt();
     }
 
     private void handleRecovery(Message message) {

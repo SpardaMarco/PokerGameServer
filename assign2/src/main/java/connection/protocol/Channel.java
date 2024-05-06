@@ -54,7 +54,6 @@ public abstract class Channel {
                 this.close();
                 return null;
             }
-
             if (expectedState != null && message.getState() != expectedState) {
                 throw new RuntimeException("Unexpected state in message:\n" + message);
             }
@@ -72,12 +71,12 @@ public abstract class Channel {
     }
 
     public Message requestConnectionEnd(String body) {
-        sendMessage(new Message(CONNECTION_END, REQUEST, body, null));
+        sendMessage(CONNECTION_END, REQUEST, body, null);
         return getResponse(CONNECTION_END);
     }
 
     protected void acceptConnectionEnd() {
-        sendMessage(new Message(CONNECTION_END, OK, null, null));
+        sendMessage(CONNECTION_END, OK, null, null);
     }
 
     public void close() {
