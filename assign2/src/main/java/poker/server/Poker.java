@@ -1,17 +1,8 @@
 package poker.server;
 import poker.common.*;
 import java.util.*;
+import static poker.common.PokerConstants.*;
 public class Poker {
-    private final int HAND_SIZE = 2;
-    private final int NUM_PLAYERS = 6;
-    private final int NUM_FLOP_CARDS = 3;
-    private final int NUM_TURN_CARDS = 1;
-    private final int NUM_RIVER_CARDS = 1;
-    private final int NUM_COMMUNITY_CARDS = NUM_FLOP_CARDS + NUM_TURN_CARDS + NUM_RIVER_CARDS;
-    private final int HANDS_PER_BLIND = 5;
-    private final int BLIND_INCREASE = 2;
-    private final int STARTING_MONEY = 10000;
-    private final int MAX_NUM_HANDS = 20;
     private int handsPlayed;
     private int smallBlindBet;
     private int bigBlindBet;
