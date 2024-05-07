@@ -2,8 +2,8 @@ package poker.client;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
+
 import poker.common.*;
 import poker.server.*;
 
