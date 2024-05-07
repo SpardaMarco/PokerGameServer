@@ -12,14 +12,23 @@ public class PokerPlayer {
     public static enum PLAYER_ACTION {
         FOLD, CHECK, BET, CALL, ALL_IN
     }
-    
+
     public PokerPlayer(String name, int money) {
         this.username = name;
         this.money = money;
-        hand = new ArrayList<Card>(2);
-        state = PLAYER_STATE.WAITING;
-        bet = 0;
+        this.hand = new ArrayList<Card>(2);
+        this.state = PLAYER_STATE.WAITING;
+        this.bet = 0;
     }
+
+    public PokerPlayer(String name, int money, PLAYER_STATE state, int bet) {
+        this.username = name;
+        this.money = money;
+        this.hand = new ArrayList<Card>(2);
+        this.state = state;
+        this.bet = bet;
+    }
+
 
     public String getUsername() {
         return username;

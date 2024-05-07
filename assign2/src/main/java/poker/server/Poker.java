@@ -257,40 +257,53 @@ public class Poker {
         this.afterPlayerAction();
     }
 
-    public String showPlayerHand(PokerPlayer player) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Hand: ");
-        for (Card card : player.getHand()) {
-            sb.append(card.toString() + " ");
+    public GameStateToSend getGameStateToSend(int playerAsking) {
+        ArrayList<PokerPlayer> playersToSend = new ArrayList<>();
+        ArrayList<PokerPlayer> winnersToSend = new ArrayList<>();
+        ArrayList<Card> communityCardsToSend = new ArrayList<>();
+        ArrayList<HandRank> handRanksToSend = new ArrayList<>();
+        if (this.isGameOver) {
+            winnersToSend = this.getGameWinners();
+        } else if (this.isHandOver) {
+            for (PokerPlayer player : players) {
+                handRanksToSend.add(handAnalyzer.analyzeHand(player));
+            }
+            playersToSend.addAll(players);
+            winnersToSend = this.getHandWinners();
+        } else {
+            for (PokerPlayer player : players) {
+                if (player.getUsername().equals(players.get(playerAsking).getUsername())) {
+                    playersToSend.add(player);
+                } else {
+                    PokerPlayer p = new PokerPlayer(player.getUsername(), player.getMoney(), player.getState(), player.getBet());
+                    playersToSend.add(p);
+                }
+            }
         }
-        if (player.getState() == PokerPlayer.PLAYER_STATE.FOLDED) {
-            sb.append(" (FOLDED)");
+        switch (this.state) {
+            case PREFLOP:
+                break;
+            case FLOP:
+                communityCardsToSend.add(this.communityCards.get(0));
+                communityCardsToSend.add(this.communityCards.get(1));
+                communityCardsToSend.add(this.communityCards.get(2));
+                break;
+            case TURN:
+                communityCardsToSend.add(this.communityCards.get(0));
+                communityCardsToSend.add(this.communityCards.get(1));
+                communityCardsToSend.add(this.communityCards.get(2));
+                communityCardsToSend.add(this.communityCards.get(3));
+                break;
+            case RIVER:
+                communityCardsToSend.add(this.communityCards.get(0));
+                communityCardsToSend.add(this.communityCards.get(1));
+                communityCardsToSend.add(this.communityCards.get(2));
+                communityCardsToSend.add(this.communityCards.get(3));
+                communityCardsToSend.add(this.communityCards.get(4));
+                break;
         }
-        return sb.toString();
-    }
 
-    public String showCommunityCards() {
-        if (this.state == GameState.PREFLOP) return "";
-        StringBuilder sb = new StringBuilder();
-        sb.append("Flop: ");
-        for (int i = 0; i < NUM_FLOP_CARDS; i++) {
-            sb.append(this.communityCards.get(i).toString()).append(" ");
-        }
-        if (this.state == GameState.FLOP) return sb.toString();
-        sb.append("\nTurn: ");
-        for (int i = NUM_FLOP_CARDS; i < NUM_FLOP_CARDS + NUM_TURN_CARDS; i++) {
-            sb.append(this.communityCards.get(i).toString()).append(" ");
-        }
-        if (this.state == GameState.TURN) return sb.toString();
-        sb.append("\nRiver: ");
-        for (int i = NUM_FLOP_CARDS + NUM_TURN_CARDS; i < NUM_COMMUNITY_CARDS; i++) {
-            sb.append(this.communityCards.get(i).toString()).append(" ");
-        }
-        return sb.toString();
-    }
-
-    public String showPlayerInfo(PokerPlayer player) {
-        return player.toString();
+        return new GameStateToSend(playersToSend, winnersToSend, communityCardsToSend, handRanksToSend, state, isGameOver, isHandOver, playerAsking, currPlayer, smallBlind, bigBlind, smallBlindBet, bigBlindBet, handsPlayed);
     }
 }
 
