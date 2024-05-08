@@ -21,6 +21,10 @@ public class QueueManager extends Thread {
         notify();
     }
 
+    public void addPlayerToMainQueue(String player, Channel socket) {
+        server.queuePlayer(player, socket);
+    }
+
     @Override
     public void run() {
         while (true) {
@@ -57,7 +61,9 @@ public class QueueManager extends Thread {
             }
 
             if (!this.playersRequeuing.isEmpty()) {
-                // TBD: Logic to requeue players
+                for (Map.Entry<String, ServerChannel> entry : this.playersRequeuing.entrySet()) {
+                    new Requeuer(this, entry.getKey(), entry.getValue()).start();
+                }
             }
         }
     }
