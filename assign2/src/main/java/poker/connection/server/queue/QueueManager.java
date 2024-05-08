@@ -2,9 +2,10 @@ package poker.connection.server.queue;
 
 import poker.Server;
 import poker.connection.protocol.Channel;
+import poker.connection.protocol.Connection;
 import poker.connection.protocol.channels.ServerChannel;
 import poker.game.common.PokerConstants;
-import poker.utils.VirtualThread;
+import poker.connection.utils.VirtualThread;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -12,6 +13,7 @@ import java.util.*;
 public class QueueManager extends VirtualThread {
     private final Server server;
     private final Map<String, ServerChannel> playersRequeuing = new Hashtable<>();
+    private final Queue<Connection> playersQueue = new LinkedList<>();
 
     public QueueManager(Server server) {
         this.server = server;

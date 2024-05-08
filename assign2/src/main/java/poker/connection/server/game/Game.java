@@ -7,7 +7,7 @@ import poker.connection.protocol.message.Message;
 import poker.game.common.GameStateToSend;
 import poker.game.common.PokerPlayer;
 import poker.game.server.Poker;
-import poker.utils.VirtualThread;
+import poker.connection.utils.VirtualThread;
 
 import java.util.ArrayList;
 import java.util.HashMap;

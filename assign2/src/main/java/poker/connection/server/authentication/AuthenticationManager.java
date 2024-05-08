@@ -2,7 +2,7 @@ package poker.connection.server.authentication;
 
 import poker.Server;
 import poker.connection.protocol.channels.ServerChannel;
-import poker.utils.VirtualThread;
+import poker.connection.utils.VirtualThread;
 
 import javax.net.ssl.*;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package poker.utils;
+package poker.connection.utils;
 
 public abstract class VirtualThread {
 
