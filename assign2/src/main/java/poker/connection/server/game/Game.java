@@ -9,6 +9,7 @@ import poker.game.common.PokerPlayer;
 import poker.game.server.Poker;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -133,6 +134,12 @@ public class Game extends Thread {
     }
 
     private void finishGame() {
-//        server.getQueueManager().requeuePlayers(playerUsernames, playerConnections);
+        Map<String, ServerChannel> connections = new HashMap<>();
+        playerTokensLock.lock();
+        for (int i = 0; i < playerConnections.size(); i++) {
+            connections.put(playerUsernames.get(i), playerConnections.get(i));
+        }
+        playerTokensLock.unlock();
+//        server.getQueueManager().requeuePlayers(playerUsernames, connections);
     }
 }
