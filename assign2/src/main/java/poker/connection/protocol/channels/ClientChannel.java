@@ -7,8 +7,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Map;
 
-import static poker.connection.protocol.message.State.AUTHENTICATION;
-import static poker.connection.protocol.message.State.CONNECTION_RECOVERY;
+import static poker.connection.protocol.message.State.*;
 import static poker.connection.protocol.message.Status.REQUEST;
 
 public class ClientChannel extends Channel {
@@ -29,5 +28,9 @@ public class ClientChannel extends Channel {
                 "sessionToken", sessionToken)
         );
         return getResponse(CONNECTION_RECOVERY);
+    }
+
+    public Message getGameStartRequest() {
+       return getRequest(MATCH_START);
     }
 }

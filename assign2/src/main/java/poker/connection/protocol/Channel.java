@@ -101,6 +101,22 @@ public abstract class Channel {
         return getMessage(expectedState, false, timeout);
     }
 
+    public Message getRequest() {
+        return getMessage(null, true, null);
+    }
+
+    public Message getRequest(Integer timeout) {
+        return getMessage(null, true, timeout);
+    }
+
+    public Message getRequest(State expectedState) {
+        return getMessage(expectedState, true, null);
+    }
+
+    public Message getRequest(State expectedState, Integer timeout) {
+        return getMessage(expectedState, true, timeout);
+    }
+
     public Message requestConnectionEnd(String body) {
         sendMessage(CONNECTION_END, REQUEST, body, null);
         return getResponse(CONNECTION_END, 1);

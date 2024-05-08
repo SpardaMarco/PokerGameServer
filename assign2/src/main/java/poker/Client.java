@@ -43,27 +43,4 @@ public class Client {
 
         System.out.println("Connection ended");
     }
-
-    public String getSessionToken() {
-        try {
-            String path = System.getProperty("user.dir") + "/src/main/java/poker/connection/client/";
-            File file = new File(path + "session.txt");
-            Scanner scanner = new Scanner(file);
-            return scanner.nextLine();
-        } catch (IOException e) {
-            return null;
-        }
-    }
-
-    public void saveSessionToken(String token) {
-        try {
-            String path = System.getProperty("user.dir") + "/src/main/java/poker/connection/client/";
-            File file = new File(path + "session.txt");
-            FileWriter writer = new FileWriter(file);
-            writer.write(token);
-            writer.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

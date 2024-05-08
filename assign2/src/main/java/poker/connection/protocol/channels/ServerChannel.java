@@ -44,13 +44,6 @@ public class ServerChannel extends Channel {
         return getMessage(MATCH_MOVE, false);
     }
 
-    public Message getRequest() {
-        return getMessage(null, true, null);
-    }
-    public Message getRequest(Integer timeout) {
-        return getMessage(null, true, timeout);
-    }
-
     public Message getRequest(State expectedState) {
         return getRequest(expectedState, null);
     }
