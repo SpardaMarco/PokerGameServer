@@ -1,11 +1,11 @@
 package poker.connection.server.authentication;
 
+import org.mindrot.jbcrypt.BCrypt;
 import poker.Server;
 import poker.connection.protocol.Connection;
-import poker.connection.protocol.message.Message;
 import poker.connection.protocol.channels.ServerChannel;
+import poker.connection.protocol.message.Message;
 import poker.connection.server.database.DatabaseInterface;
-import org.mindrot.jbcrypt.BCrypt;
 import poker.connection.utils.VirtualThread;
 
 import java.sql.SQLException;
@@ -34,7 +34,10 @@ public class Authenticator extends VirtualThread {
             switch (request.getState()) {
                 case AUTHENTICATION -> handleAuthentication(request);
                 case CONNECTION_RECOVERY -> handleRecovery(request);
-                case null, default -> {terminateConnection("Invalid request"); return;}
+                case null, default -> {
+                    terminateConnection("Invalid request");
+                    return;
+                }
             }
         }
     }
@@ -103,12 +106,11 @@ public class Authenticator extends VirtualThread {
             String token = generateSession(username);
             if (token != null) {
                 channel.acceptAuthentication("User successfully authenticated", token);
-                return new Connection(username, token, channel);
-            }
-            else
+                int rank = database.getUserRank(username);
+                return new Connection(username, token, channel, rank);
+            } else
                 rejectAuthentication("Something went wrong while generating session");
-        }
-        else
+        } else
             rejectAuthentication("Invalid username or password");
 
         return null;

@@ -13,6 +13,7 @@ import java.util.*;
 public class QueueManager extends VirtualThread {
     private final Server server;
     private final Queue<Connection> playersRequeuing = new LinkedList<>();
+    private final Map<String, Game> rooms = new HashMap<>();
 
     public QueueManager(Server server) {
         this.server = server;
@@ -23,12 +24,24 @@ public class QueueManager extends VirtualThread {
         notify();
     }
 
-    public synchronized void removePlayerFromRequeue(Connection connection) {
-        this.playersRequeuing.remove(connection);
-    }
+    public synchronized void removePlayerFromRequeue(Connection connection) {this.playersRequeuing.remove(connection); }
 
     public void addPlayerToMainQueue(Connection connection) {
         server.queuePlayer(connection);
+    }
+
+    public synchronized void assignPlayerToRoom(Connection connection, Game game) { this.rooms.put(connection.getUsername(), game); }
+
+    public synchronized void removePlayerFromRoom(Connection connection) { this.rooms.remove(connection.getUsername()); }
+
+    public void startGame(ArrayList<Connection> connections) {
+        Game game = new Game(server, connections);
+
+        for (Connection connection : connections) {
+            assignPlayerToRoom(connection, game);
+        }
+
+        game.start();
     }
 
     @Override
@@ -62,7 +75,7 @@ public class QueueManager extends VirtualThread {
                         }
                     }
 
-                    new Game(server, connections).start();
+                    startGame(connections);
                 }
             }
 

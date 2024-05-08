@@ -6,11 +6,13 @@ public class Connection {
     private final String username;
     private final String token;
     private final ServerChannel channel;
+    private int rank;
 
-    public Connection(String username, String token, ServerChannel channel) {
+    public Connection(String username, String token, ServerChannel channel, int rank) {
         this.username = username;
         this.token = token;
         this.channel = channel;
+        this.rank = rank;
     }
 
     public String getUsername() {
@@ -24,4 +26,13 @@ public class Connection {
     public ServerChannel getChannel() {
         return channel;
     }
+
+    public int getRank() {
+        return rank;
+    }
+
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
+
 }
