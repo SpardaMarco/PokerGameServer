@@ -94,13 +94,13 @@ public class Poker {
         return player.getUsername().equals(this.players.get(bigBlind).getUsername());
     }
 
-    private boolean isPlayerOut(int playerIndex) {
+    private boolean isPlayerInactive(int playerIndex) {
         return this.players.get(playerIndex).getState() == PokerPlayer.PLAYER_STATE.FOLDED || this.players.get(playerIndex).getState() == PokerPlayer.PLAYER_STATE.ALL_IN || this.players.get(playerIndex).getState() == PokerPlayer.PLAYER_STATE.OUT_OF_MONEY;
     }
 
     private int getNextActivePlayer(int playerIndex) {
         int nextPlayer = (playerIndex + 1) % NUM_PLAYERS;
-        while (isPlayerOut(nextPlayer)) {
+        while (isPlayerInactive(nextPlayer)) {
             nextPlayer = (nextPlayer + 1) % NUM_PLAYERS;
         }
         return nextPlayer;
@@ -229,7 +229,7 @@ public class Poker {
         }
 
         this.currPlayer = this.smallBlind;
-        if (isPlayerOut(this.currPlayer)) {
+        if (isPlayerInactive(this.currPlayer)) {
             this.currPlayer = getNextActivePlayer(this.currPlayer);
         }
 
