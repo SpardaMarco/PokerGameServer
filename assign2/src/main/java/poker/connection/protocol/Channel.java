@@ -63,7 +63,16 @@ public abstract class Channel {
     }
 
     protected Message getMessage(State expectedState, boolean isRequestExpected) {
-        Message message = getMessage();
+        return getMessage(expectedState, isRequestExpected, null);
+    }
+
+    protected Message getMessage(State expectedState, boolean isRequestExpected, Integer timeout) {
+
+        Message message;
+        if (timeout != null)
+            message = getMessage(timeout);
+        else
+            message = getMessage();
 
         if (message != null) {
             if (message.isConnectionEndRequest()) {
@@ -85,12 +94,16 @@ public abstract class Channel {
     }
 
     public Message getResponse(State expectedState) {
-        return getMessage(expectedState, false);
+        return getMessage(expectedState, false, null);
+    }
+
+    public Message getResponse(State expectedState, Integer timeout) {
+        return getMessage(expectedState, false, timeout);
     }
 
     public Message requestConnectionEnd(String body) {
         sendMessage(CONNECTION_END, REQUEST, body, null);
-        return getResponse(CONNECTION_END);
+        return getResponse(CONNECTION_END, 1);
     }
 
     protected void acceptConnectionEnd() {
