@@ -80,7 +80,7 @@ public abstract class Channel {
                 this.close();
                 return null;
             }
-            if (message.isConnectionCheck()){
+            if (message.isConnectionCheckRequest()){
                 sendMessage(CONNECTION_CHECK, OK, null, null);
                 return getMessage(expectedState, isRequestExpected, timeout);
             }

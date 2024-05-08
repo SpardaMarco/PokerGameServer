@@ -67,8 +67,8 @@ public class Message {
         return state.equals(CONNECTION_END);
     }
 
-    public boolean isConnectionCheck() {
-        return state.equals(CONNECTION_CHECK);
+    public boolean isConnectionCheckRequest() {
+        return state.equals(CONNECTION_CHECK) && isRequest();
     }
 
     public boolean isOk() {
