@@ -35,6 +35,15 @@ public class ServerChannel extends Channel {
         sendMessage(AUTHENTICATION, ERROR, body, null);
     }
 
+    public void sendGameState(String body, Map<String, Object> data) {
+        sendMessage(MATCH_DISPLAY, REQUEST, body, data);
+    }
+
+    public Message getPlayerMove(String body) {
+        sendMessage(MATCH_MOVE, REQUEST, body, null);
+        return getMessage(MATCH_MOVE, false);
+    }
+
     public Message getRequest() {
         return getMessage(null, true, null);
     }
@@ -53,4 +62,5 @@ public class ServerChannel extends Channel {
     public Message getAuthenticationRequest() {
         return getRequest(AUTHENTICATION);
     }
+
 }

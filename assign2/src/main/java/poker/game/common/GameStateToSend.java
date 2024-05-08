@@ -1,4 +1,5 @@
 package poker.game.common;
+
 import java.util.ArrayList;
 
 public class GameStateToSend {
@@ -54,11 +55,11 @@ public class GameStateToSend {
         return this.state;
     }
 
-    public boolean IsGameOver() {
+    public boolean isGameOver() {
         return this.isGameOver;
     }
 
-    public boolean IsHandOver() {
+    public boolean isHandOver() {
         return this.isHandOver;
     }
 
