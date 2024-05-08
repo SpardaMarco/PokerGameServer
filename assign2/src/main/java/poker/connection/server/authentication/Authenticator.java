@@ -1,14 +1,16 @@
 package poker.connection.server.authentication;
 
 import poker.Server;
+import poker.connection.protocol.Connection;
 import poker.connection.protocol.message.Message;
 import poker.connection.protocol.channels.ServerChannel;
 import poker.connection.server.database.DatabaseInterface;
 import org.mindrot.jbcrypt.BCrypt;
+import poker.connection.utils.VirtualThread;
 
 import java.sql.SQLException;
 
-public class Authenticator extends Thread {
+public class Authenticator extends VirtualThread {
     private final Server server;
     private final ServerChannel channel;
     private final DatabaseInterface database;
@@ -22,7 +24,7 @@ public class Authenticator extends Thread {
     }
 
     @Override
-    public void run() {
+    protected void run() {
         handleRequests();
     }
 
@@ -63,13 +65,13 @@ public class Authenticator extends Thread {
     }
 
     private void handleAuthentication(Message request) {
-        String username = authenticateUser(request);
+        Connection connection = authenticateUser(request);
 
-        if (username != null)
-            server.queuePlayer(username, channel);
+        if (connection != null)
+            server.queuePlayer(connection);
     }
 
-    private String authenticateUser(Message request) {
+    private Connection authenticateUser(Message request) {
         if (!(request.hasAttribute("username") && request.hasAttribute("password"))) {
             channel.rejectAuthentication("Missing username or password");
             return null;
@@ -87,7 +89,7 @@ public class Authenticator extends Thread {
         }
     }
 
-    private String registerUser(String username, String password) throws SQLException {
+    private Connection registerUser(String username, String password) throws SQLException {
         if (database.registerUser(username, password))
             return loginUser(username, password);
         else
@@ -96,12 +98,12 @@ public class Authenticator extends Thread {
         return null;
     }
 
-    private String loginUser(String username, String password) throws SQLException {
+    private Connection loginUser(String username, String password) throws SQLException {
         if (database.authenticateUser(username, password)) {
             String token = generateSession(username);
             if (token != null) {
                 channel.acceptAuthentication("User successfully authenticated", token);
-                return username;
+                return new Connection(username, token, channel);
             }
             else
                 rejectAuthentication("Something went wrong while generating session");

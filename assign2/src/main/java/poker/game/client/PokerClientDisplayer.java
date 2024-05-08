@@ -9,10 +9,11 @@ import static poker.game.common.PokerConstants.*;
 import java.util.ArrayList;
 
 public class PokerClientDisplayer {
+
     public void display(GameStateToSend gameState) {
-        if (gameState.IsGameOver()) {
+        if (gameState.isGameOver()) {
             displayGameOver(gameState);
-        } else if (gameState.IsHandOver()) {
+        } else if (gameState.isHandOver()) {
             displayHandOver(gameState);
         } else {
             displayGameState(gameState);

@@ -122,7 +122,7 @@ public class Client {
         if (response.isOk()) {
             System.out.println("Connection successfully terminated");
         } else {
-            System.out.println("Something went wrong while terminating application.connection");
+            System.out.println("Something went wrong while terminating connection");
         }
 
         return CONNECTION_END;
@@ -135,7 +135,7 @@ public class Client {
 
     private String getSessionToken() {
         try {
-            String path = System.getProperty("user.dir") + "/src/main/java/application.connection/client/";
+            String path = System.getProperty("user.dir") + "/src/main/java/poker/connection/client/";
             File file = new File(path + "session.txt");
             Scanner scanner = new Scanner(file);
             return scanner.nextLine();
@@ -146,7 +146,7 @@ public class Client {
 
     private void saveSessionToken(String token) {
         try {
-            String path = System.getProperty("user.dir") + "/src/main/java/application.connection/client/";
+            String path = System.getProperty("user.dir") + "/src/main/java/poker/connection/client/";
             File file = new File(path + "session.txt");
             FileWriter writer = new FileWriter(file);
             writer.write(token);

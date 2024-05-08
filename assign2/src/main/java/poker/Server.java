@@ -1,6 +1,7 @@
 package poker;
 
 import poker.connection.protocol.Channel;
+import poker.connection.protocol.Connection;
 import poker.connection.server.authentication.AuthenticationManager;
 import poker.connection.server.database.DatabaseInterface;
 import poker.connection.server.queue.QueueManager;
@@ -54,13 +55,15 @@ public class Server {
         queueManager.start();
     }
 
-    public synchronized void queuePlayer(String player, Channel socket) {
-        playersQueue.add(player);
-        connections.put(player, socket);
-        queueManager.notify();
+    public synchronized void queuePlayer(Connection connection) {
+        playersQueue.add(connection.getUsername());
+        connections.put(connection.getUsername(), connection.getChannel());
+        synchronized (queueManager) {
+            queueManager.notify();
+        }
 
         if (this.loggingEnabled) {
-            System.out.println("Player " + player + " has joined the game");
+            System.out.println("Player " + connection.getUsername() + " has joined the game");
             System.out.println("Players in queue: " + playersQueue.size());
         }
     }
