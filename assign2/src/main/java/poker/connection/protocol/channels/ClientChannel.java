@@ -2,12 +2,14 @@ package poker.connection.protocol.channels;
 
 import poker.connection.protocol.Channel;
 import poker.connection.protocol.message.Message;
+import poker.game.common.OutboundGameState;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Map;
 
 import static poker.connection.protocol.message.State.*;
+import static poker.connection.protocol.message.Status.OK;
 import static poker.connection.protocol.message.Status.REQUEST;
 
 public class ClientChannel extends Channel {
@@ -30,7 +32,8 @@ public class ClientChannel extends Channel {
         return getResponse(CONNECTION_RECOVERY);
     }
 
-    public Message getGameStartRequest() {
-       return getRequest(MATCH_START);
+    public void handleGameStartRequest() {
+       getRequest(MATCH_START);
+       sendMessage(MATCH_START, OK, null, null);
     }
 }

@@ -2,7 +2,7 @@ package poker.game.common;
 
 import java.util.ArrayList;
 
-public class GameStateToSend {
+public class OutboundGameState {
     ArrayList<PokerPlayer> players;
     ArrayList<PokerPlayer> winners;
     ArrayList<Card> communityCards;
@@ -18,7 +18,7 @@ public class GameStateToSend {
     int bigBlindBet;
     int handsPlayed;
 
-    public GameStateToSend(ArrayList<PokerPlayer> players, ArrayList<PokerPlayer> winners, ArrayList<Card> communityCards, ArrayList<HandRank> handRanks, GameState state, boolean isGameOver, boolean isHandOver, int player, int currPlayer, int smallBlind, int bigBlind, int smallBlindBet, int bigBlindBet, int handsPlayed) {
+    public OutboundGameState(ArrayList<PokerPlayer> players, ArrayList<PokerPlayer> winners, ArrayList<Card> communityCards, ArrayList<HandRank> handRanks, GameState state, boolean isGameOver, boolean isHandOver, int player, int currPlayer, int smallBlind, int bigBlind, int smallBlindBet, int bigBlindBet, int handsPlayed) {
         this.players = players;
         this.winners = winners;
         this.communityCards = communityCards;
