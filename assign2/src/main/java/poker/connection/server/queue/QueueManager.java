@@ -2,18 +2,24 @@ package poker.connection.server.queue;
 
 import poker.Server;
 import poker.connection.protocol.Channel;
+import poker.connection.protocol.channels.ServerChannel;
 import poker.game.common.PokerConstants;
 import poker.utils.VirtualThread;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class QueueManager extends VirtualThread {
     private final Server server;
+    private final Map<String, ServerChannel> playersRequeuing = new Hashtable<>();
 
     public QueueManager(Server server) {
         this.server = server;
+    }
+
+    public synchronized void requeuePlayers(Map<String, ServerChannel> connections) {
+        this.playersRequeuing.putAll(connections);
+        notify();
     }
 
     @Override
@@ -49,6 +55,10 @@ public class QueueManager extends VirtualThread {
                     }
                 }
                 // TBD: Send information to the game thread
+            }
+
+            if (!this.playersRequeuing.isEmpty()) {
+                // TBD: Logic to requeue players
             }
         }
     }

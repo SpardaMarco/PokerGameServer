@@ -43,6 +43,8 @@ public class Server {
 
     public Map<String, Channel> getConnections() { return connections; }
 
+    public QueueManager getQueueManager() { return queueManager; }
+
     public DatabaseInterface getDatabase() {
         return database;
     }
