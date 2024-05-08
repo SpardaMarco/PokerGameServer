@@ -2,67 +2,79 @@ package poker.connection.server.game;
 
 import com.google.gson.Gson;
 import poker.Server;
+import poker.connection.protocol.Connection;
 import poker.connection.protocol.channels.ServerChannel;
 import poker.connection.protocol.message.Message;
+import poker.connection.utils.VirtualThread;
 import poker.game.common.GameStateToSend;
 import poker.game.common.PokerPlayer;
 import poker.game.server.Poker;
-import poker.connection.utils.VirtualThread;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Game extends VirtualThread {
     private final Server server;
-    private final ArrayList<ServerChannel> playerConnections;
-    private final ArrayList<String> playerTokens;
-    private final ArrayList<String> playerUsernames;
+    private final ArrayList<Connection> playerConnections;
     private final Poker poker;
-    private final ReentrantLock playerTokensLock;
+    private final ReentrantLock playerConnectionsLock;
 
-    public Game(Server server, ArrayList<String> playerUsernames, ArrayList<String> playerTokens, ArrayList<ServerChannel> playerConnections) {
+    public Game(Server server, ArrayList<Connection> playerConnections) {
         this.server = server;
         this.playerConnections = playerConnections;
-        this.playerTokens = playerTokens;
-        this.playerUsernames = playerUsernames;
-        this.playerTokensLock = new ReentrantLock();
+        this.playerConnectionsLock = new ReentrantLock();
+        ArrayList<String> playerUsernames = new ArrayList<>();
+        for (Connection connection : playerConnections) {
+            playerUsernames.add(connection.getUsername());
+        }
         poker = new Poker(playerUsernames);
     }
 
     public boolean isPlayerInGame(String username) {
-        playerTokensLock.lock();
-        boolean result = playerUsernames.contains(username);
-        playerTokensLock.unlock();
+        boolean result = false;
+        playerConnectionsLock.lock();
+        for (Connection connection : playerConnections) {
+            if (connection.getUsername().equals(username)) {
+                result = true;
+                break;
+            }
+        }
+        playerConnectionsLock.unlock();
         return result;
     }
 
-    public boolean swapToken(String oldToken, String newToken, ServerChannel newChannel) {
-        playerTokensLock.lock();
-        int index = playerTokens.indexOf(oldToken);
+    public boolean swapToken(Connection oldConnection, Connection newConnection) {
+        playerConnectionsLock.lock();
+        int index = -1;
+
+        for (int i = 0; i < playerConnections.size(); i++) {
+            if (playerConnections.get(i).equals(oldConnection)) {
+                index = i;
+                break;
+            }
+        }
         if (index == -1) {
-            playerTokensLock.unlock();
+            playerConnectionsLock.unlock();
             return false;
         }
-        playerTokens.set(index, newToken);
-        playerConnections.set(index, newChannel);
-        playerTokensLock.unlock();
+        playerConnections.set(index, newConnection);
+        playerConnectionsLock.unlock();
         return true;
     }
 
     private void sendGameState() {
-        playerTokensLock.lock();
+        playerConnectionsLock.lock();
         for (int i = 0; i < playerConnections.size(); i++) {
             sendGameState(i);
         }
-        playerTokensLock.unlock();
+        playerConnectionsLock.unlock();
     }
 
     private void sendGameState(int player) {
-        playerTokensLock.lock();
-        ServerChannel channel = playerConnections.get(player);
-        playerTokensLock.unlock();
+        playerConnectionsLock.lock();
+        ServerChannel channel = playerConnections.get(player).getChannel();
+        playerConnectionsLock.unlock();
         GameStateToSend gameState = poker.getGameStateToSend(player);
 
         Gson gson = new Gson();
@@ -75,9 +87,13 @@ public class Game extends VirtualThread {
     @Override
     protected void run() {
         // Assumes that all players have joined (i.e. we sent a message to confirm connection before starting the game)
-        System.out.println("Starting game with " + playerConnections.size() + " players");
+        if (server.isLoggingEnabled()) {
+            System.out.println("Starting game with " + playerConnections.size() + " players");
+        }
         play();
-        System.out.println("Game finished");
+        if (server.isLoggingEnabled()) {
+            System.out.println("Game finished");
+        }
         finishGame();
     }
 
@@ -96,18 +112,22 @@ public class Game extends VirtualThread {
 
     private void makePlay(int player) {
 
-        playerTokensLock.lock();
-        ServerChannel channel = playerConnections.get(player);
-        playerTokensLock.unlock();
+        playerConnectionsLock.lock();
+        ServerChannel channel = playerConnections.get(player).getChannel();
+        playerConnectionsLock.unlock();
         if (channel == null || !channel.isClosed()) {
-            System.out.println("Player " + player + " disconnected");
+            if (server.isLoggingEnabled()) {
+                System.out.println("Player " + player + " disconnected");
+            }
             poker.takeAction(PokerPlayer.PLAYER_ACTION.FOLD, 0);
             return;
         }
 
         Message message = channel.getPlayerMove("It's your turn");
         if (message == null) {
-            System.out.println("Player " + player + " disconnected");
+            if (server.isLoggingEnabled()) {
+                System.out.println("Player " + player + " disconnected");
+            }
             poker.takeAction(PokerPlayer.PLAYER_ACTION.FOLD, 0);
             return;
         }
@@ -136,12 +156,8 @@ public class Game extends VirtualThread {
     }
 
     private void finishGame() {
-        Map<String, ServerChannel> connections = new HashMap<>();
-        playerTokensLock.lock();
-        for (int i = 0; i < playerConnections.size(); i++) {
-            connections.put(playerUsernames.get(i), playerConnections.get(i));
-        }
-        playerTokensLock.unlock();
-//        server.getQueueManager().requeuePlayers(playerUsernames, connections);
+        playerConnectionsLock.lock();
+        server.getQueueManager().requeuePlayers(playerConnections);
+        playerConnectionsLock.unlock();
     }
 }
