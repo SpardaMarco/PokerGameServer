@@ -12,20 +12,19 @@ import java.util.*;
 
 public class QueueManager extends VirtualThread {
     private final Server server;
-    private final Map<String, ServerChannel> playersRequeuing = new Hashtable<>();
-    private final Queue<Connection> playersQueue = new LinkedList<>();
+    private final Queue<Connection> playersRequeuing = new LinkedList<>();
 
     public QueueManager(Server server) {
         this.server = server;
     }
 
-    public synchronized void requeuePlayers(Map<String, ServerChannel> connections) {
-        this.playersRequeuing.putAll(connections);
+    public synchronized void requeuePlayers(List<Connection> connections) {
+        this.playersRequeuing.addAll(connections);
         notify();
     }
 
-    public void addPlayerToMainQueue(String player, Channel socket) {
-        server.queuePlayer(player, socket);
+    public void addPlayerToMainQueue(Connection connection) {
+        server.queuePlayer(connection);
     }
 
     @Override
@@ -64,8 +63,8 @@ public class QueueManager extends VirtualThread {
             }
 
             if (!this.playersRequeuing.isEmpty()) {
-                for (Map.Entry<String, ServerChannel> entry : this.playersRequeuing.entrySet()) {
-                    new Requeuer(this, entry.getKey(), entry.getValue()).start();
+                for (Connection connection : this.playersRequeuing) {
+                    new Requeuer(this, connection).start();
                 }
             }
         }
