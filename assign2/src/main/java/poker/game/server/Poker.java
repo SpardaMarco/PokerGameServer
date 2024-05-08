@@ -1,7 +1,9 @@
 package poker.game.server;
+
 import poker.game.common.*;
 import java.util.*;
 import static poker.game.common.PokerConstants.*;
+
 public class Poker {
     private int handsPlayed;
     private int smallBlindBet;
@@ -52,6 +54,7 @@ public class Poker {
                 activePlayers.add(player);
             }
         }
+
         return activePlayers;
     }
 
@@ -138,7 +141,7 @@ public class Poker {
 
     public ArrayList<PokerPlayer> getGameWinners() {
         ArrayList<PokerPlayer> winners = new ArrayList<PokerPlayer>(players);
-        winners.sort((PokerPlayer p1, PokerPlayer p2) -> p1.getMoney() - p2.getMoney());
+        winners.sort(Comparator.comparingInt(PokerPlayer::getMoney));
         return winners;
     }
 
@@ -157,9 +160,11 @@ public class Poker {
 
         deck.reset();
         deck.shuffle();
+
         for (PokerPlayer player : players) {
             player.setHand(deck.dealCards(HAND_SIZE));
         }
+
         this.communityCards.clear();
         this.communityCards.addAll(deck.dealCards(NUM_COMMUNITY_CARDS));
         this.takeAction(PokerPlayer.PLAYER_ACTION.BET, this.smallBlindBet);
@@ -168,10 +173,12 @@ public class Poker {
 
     private void nextHand() {
         this.handsPlayed++;
+
         for (PokerPlayer player : players) {
             player.resetBet();
             player.resetState();
         }
+
         this.updateBlinds();
         this.startHand();
     }
@@ -179,10 +186,14 @@ public class Poker {
     public void endHand() {
         ArrayList<PokerPlayer> winners = this.getHandWinners();
         int numWinners = winners.size();
+
+        // TBD: Split pot logic
         int winnings = this.pot / numWinners;
+
         for (PokerPlayer winner : winners) {
             winner.addMoney(winnings);
         }
+
         if (this.isGameOver()) {
             this.isGameOver = true;
         } else {
@@ -202,6 +213,8 @@ public class Poker {
                 this.state = GameState.RIVER;
                 break;
         }
+
+        // TBD: Fix this logic
         this.currPlayer = this.smallBlind;
         this.lastRaiser = this.smallBlind;
     }
@@ -262,6 +275,7 @@ public class Poker {
         ArrayList<PokerPlayer> winnersToSend = new ArrayList<>();
         ArrayList<Card> communityCardsToSend = new ArrayList<>();
         ArrayList<HandRank> handRanksToSend = new ArrayList<>();
+
         if (this.isGameOver) {
             winnersToSend = this.getGameWinners();
         } else if (this.isHandOver) {
@@ -280,6 +294,7 @@ public class Poker {
                 }
             }
         }
+
         switch (this.state) {
             case PREFLOP:
                 break;
@@ -306,4 +321,3 @@ public class Poker {
         return new GameStateToSend(playersToSend, winnersToSend, communityCardsToSend, handRanksToSend, state, isGameOver, isHandOver, playerAsking, currPlayer, smallBlind, bigBlind, smallBlindBet, bigBlindBet, handsPlayed);
     }
 }
-

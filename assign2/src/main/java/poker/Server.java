@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class Server {
-
     private final Queue<String> playersQueue = new LinkedList<>();
     private final Dictionary<String, Channel> connections = new Hashtable<>();
     private final AuthenticationManager authenticationManager;
@@ -16,7 +15,6 @@ public class Server {
     private final DatabaseInterface database = new DatabaseInterface();
 
     public static void main(String[] args) throws SQLException {
-
         if (args.length < 1) {
             System.out.println("Usage: java TimeServer <port> [-l]");
             return;
@@ -35,7 +33,6 @@ public class Server {
 
     private Server(int port, boolean loggingEnabled) {
         this.authenticationManager = new AuthenticationManager(this, port);
-
         this.loggingEnabled = loggingEnabled;
     }
 
@@ -48,7 +45,6 @@ public class Server {
     }
 
     public synchronized void queuePlayer(String player, Channel socket) {
-
         playersQueue.add(player);
         connections.put(player, socket);
 

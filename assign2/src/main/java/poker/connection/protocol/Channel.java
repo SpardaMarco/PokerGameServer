@@ -13,7 +13,6 @@ import static poker.connection.protocol.message.State.*;
 import static poker.connection.protocol.message.Status.*;
 
 public abstract class Channel {
-
     Socket socket;
     BufferedReader reader;
     PrintWriter writer;

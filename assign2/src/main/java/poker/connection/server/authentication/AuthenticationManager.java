@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class AuthenticationManager extends Thread {
-
     private final Server server;
     private final int port;
     private final Set<Authenticator> authenticators = new HashSet<>();
@@ -31,7 +30,6 @@ public class AuthenticationManager extends Thread {
     private void handleAuthentication() {
         SSLServerSocketFactory serverSocketFactory = getServerSocketFactory();
         try (SSLServerSocket serverSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(port)) {
-
             System.out.println("Server is listening on port " + port);
 
             SSLSocket socket;
@@ -51,6 +49,7 @@ public class AuthenticationManager extends Thread {
     }
     private SSLServerSocketFactory getServerSocketFactory() {
         SSLServerSocketFactory serverSocketFactory;
+
         try {
             InputStream keyStoreInputStream = getClass().getClassLoader().getResourceAsStream("server_keystore.p12");
             KeyStore keyStore = KeyStore.getInstance("PKCS12");
@@ -68,6 +67,4 @@ public class AuthenticationManager extends Thread {
         }
         return serverSocketFactory;
     }
-
-
 }

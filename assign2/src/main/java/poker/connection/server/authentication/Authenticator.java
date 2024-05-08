@@ -9,7 +9,6 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.SQLException;
 
 public class Authenticator extends Thread {
-
     private final Server server;
     private final ServerChannel channel;
     private final DatabaseInterface database;
@@ -24,7 +23,6 @@ public class Authenticator extends Thread {
 
     @Override
     public void run() {
-
         handleRequests();
     }
 
@@ -45,13 +43,14 @@ public class Authenticator extends Thread {
     }
 
     private void handleRecovery(Message message) {
-
         if (!message.hasAttribute("sessionToken")) {
             channel.rejectConnectionRecovery("Missing session token");
             return;
         }
+
         String token = message.getAttribute("sessionToken");
         String username = database.recoverSession(token);
+
         if (username != null) {
             String newToken = generateSession(username);
             if (newToken != null)
@@ -71,7 +70,6 @@ public class Authenticator extends Thread {
     }
 
     private String authenticateUser(Message request) {
-
         if (!(request.hasAttribute("username") && request.hasAttribute("password"))) {
             channel.rejectAuthentication("Missing username or password");
             return null;
@@ -90,7 +88,6 @@ public class Authenticator extends Thread {
     }
 
     private String registerUser(String username, String password) throws SQLException {
-
         if (database.registerUser(username, password))
             return loginUser(username, password);
         else
@@ -100,7 +97,6 @@ public class Authenticator extends Thread {
     }
 
     private String loginUser(String username, String password) throws SQLException {
-
         if (database.authenticateUser(username, password)) {
             String token = generateSession(username);
             if (token != null) {
@@ -114,7 +110,6 @@ public class Authenticator extends Thread {
             rejectAuthentication("Invalid username or password");
 
         return null;
-
     }
 
     private void rejectAuthentication(String body) {
@@ -125,7 +120,6 @@ public class Authenticator extends Thread {
     }
 
     private String generateSession(String username) {
-
         String token = BCrypt.hashpw(username, BCrypt.gensalt());
         long durationMillis = 24 * 3600 * 1000;
         if (database.createSession(username, token, durationMillis)) {

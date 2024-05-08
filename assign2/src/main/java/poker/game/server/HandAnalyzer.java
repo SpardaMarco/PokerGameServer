@@ -1,9 +1,11 @@
 package poker.game.server;
+
 import poker.game.common.*;
 import java.util.*;
 
 public class HandAnalyzer {
     public final Poker game;
+
     public HandAnalyzer(Poker game) {
         this.game = game;
     }
@@ -115,6 +117,7 @@ public class HandAnalyzer {
                 possibleHands.add(possibleHand);
             }
         }
+
         return possibleHands;
     }
 
@@ -122,7 +125,9 @@ public class HandAnalyzer {
         if (hand.size() != 5) {
             throw new IllegalArgumentException("Hand must have 5 cards");
         }
+
         hand.sort(Comparator.comparing(Card::getRank).reversed());
+
         if (isRoyalFlush(hand)) {
             return HandRank.ROYAL_FLUSH;
         } else if (isStraightFlush(hand)) {
@@ -149,6 +154,7 @@ public class HandAnalyzer {
     public HandRank analyzeHand(PokerPlayer player) {
         ArrayList<Card> fullHand = getPlayerFullHand(player);
         ArrayList<ArrayList<Card>> possibleHands = getAllPossibleHands(fullHand);
+
         HandRank highestRank = HandRank.NONE;
         for (ArrayList<Card> hand : possibleHands) {
             HandRank currentRank = getHandRank(hand);
@@ -156,6 +162,7 @@ public class HandAnalyzer {
                 highestRank = currentRank;
             }
         }
+
         return highestRank;
     }
 
@@ -205,15 +212,18 @@ public class HandAnalyzer {
                 Collections.swap(hand, 2, 4);
             }
         }
+
         return hand;
     }
+
     private ArrayList<Card> getBestHand(ArrayList<Card> allCards) {
         ArrayList<ArrayList<Card>> possibleHands = getAllPossibleHands(allCards);
         ArrayList<ArrayList<Card>> orderedHands = new ArrayList<>();
+
         for (ArrayList<Card> hand : possibleHands) {
             orderedHands.add(sortHand(hand));
         }
-        // compare hands card by card
+
         ArrayList<Card> bestHand = orderedHands.getFirst();
         for (int i = 1; i < orderedHands.size(); i++) {
             ArrayList<Card> currentHand = orderedHands.get(i);
@@ -227,11 +237,14 @@ public class HandAnalyzer {
                 }
             }
         }
+
         return bestHand;
     }
+
     public ArrayList<PokerPlayer> getWinners(){
         ArrayList<PokerPlayer> winners = new ArrayList<>();
         HandRank highestRank = HandRank.NONE;
+
         for (PokerPlayer player : this.game.getActivePlayers()) {
             HandRank playerRank = analyzeHand(player);
             if (playerRank.compareTo(highestRank) > 0) {
@@ -252,6 +265,7 @@ public class HandAnalyzer {
                 }
             }
         }
+
         return winners;
     }
 }

@@ -5,13 +5,9 @@ import org.json.JSONObject;
 import java.util.Map;
 
 public class Message {
-
     private final State state;
-
     private final Status status;
-
     private final String body;
-
     private final JSONObject attributes;
 
     public Message(State state, Status status, String body, Map<String, Object> attributes) {

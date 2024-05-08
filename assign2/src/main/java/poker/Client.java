@@ -16,7 +16,6 @@ import java.util.Scanner;
 import static poker.connection.protocol.message.State.*;
 
 public class Client {
-
     private final ClientChannel channel;
 
     public static void main(String[] args) {
@@ -40,7 +39,6 @@ public class Client {
     }
 
     private void init() {
-
         State state = CONNECTION_RECOVERY;
 
         while (true) {
@@ -66,10 +64,9 @@ public class Client {
     }
 
     private State handleConnectionRecovery() {
-
         String sessionToken = getSessionToken();
-        if (sessionToken != null) {
 
+        if (sessionToken != null) {
             System.out.println("Do you wish to recover your previous session? (Y/N)");
             String input = new Scanner(System.in).nextLine();
 
@@ -85,11 +82,11 @@ public class Client {
                 }
             }
         }
+
         return AUTHENTICATION;
     }
 
     private State handleAuthentication(State state) {
-
         System.out.println("Enter your username: ");
         String username = new Scanner(System.in).nextLine();
         System.out.println("Enter your password: ");
@@ -133,7 +130,6 @@ public class Client {
 
     private void handleConnectionEnd() {
         System.out.println("Connection ended");
-
         channel.close();
     }
 
