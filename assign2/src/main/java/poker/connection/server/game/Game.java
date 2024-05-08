@@ -94,6 +94,9 @@ public class Game extends VirtualThread {
         if (server.isLoggingEnabled()) {
             System.out.println("Game finished");
         }
+        if (server.isRankedMode()) {
+            updateRanks();
+        }
         finishGame();
     }
 
@@ -157,7 +160,32 @@ public class Game extends VirtualThread {
 
     private void finishGame() {
         playerConnectionsLock.lock();
+        for (Connection connection : playerConnections) {
+            server.getQueueManager().removePlayerFromRoom(connection);
+        }
         server.getQueueManager().requeuePlayers(playerConnections);
+        playerConnectionsLock.unlock();
+
+    }
+
+    private void updateRanks() {
+        if (server.isLoggingEnabled()) {
+            System.out.println("Updating rankings");
+        }
+        playerConnectionsLock.lock();
+        for (PokerPlayer player : poker.getGameWinners()) {
+            Connection connection = null;
+            for (Connection c : playerConnections) {
+                if (c.getUsername().equals(player.getUsername())) {
+                    connection = c;
+                    break;
+                }
+            }
+            if (connection != null) {
+                server.getDatabase().updateRank(connection.getUsername(), player.getMoney() / 100);
+                connection.setRank(server.getDatabase().getUserRank(connection.getUsername()));
+            }
+        }
         playerConnectionsLock.unlock();
     }
 }

@@ -1,19 +1,20 @@
 package poker.connection.server.database;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
-import org.mindrot.jbcrypt.BCrypt;
 
 public class DatabaseInterface {
     private final Connection database;
 
     public DatabaseInterface() {
         String path = System.getProperty("user.dir") + "/src/database/";
-        String dbFile =  path + "poker.db";
+        String dbFile = path + "poker.db";
 
-        try  {
+        try {
             database = DriverManager.getConnection("jdbc:sqlite:" + dbFile);
             if (database == null) {
                 throw new RuntimeException("Database connection failed.");
@@ -105,6 +106,22 @@ public class DatabaseInterface {
                 return rs.getString("session_token");
             }
             return null;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public int getUserRank(String username) {
+        String query = "SELECT rank FROM User WHERE username = ?";
+
+        try {
+            PreparedStatement stmt = database.prepareStatement(query);
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("rank");
+            }
+            return -1;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
