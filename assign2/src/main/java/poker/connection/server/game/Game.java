@@ -5,7 +5,7 @@ import poker.connection.protocol.Connection;
 import poker.connection.protocol.channels.ServerChannel;
 import poker.connection.protocol.message.Message;
 import poker.connection.utils.VirtualThread;
-import poker.game.common.OutboundGameState;
+import poker.game.common.GameState;
 import poker.game.common.PokerPlayer;
 import poker.game.server.Poker;
 
@@ -73,7 +73,7 @@ public class Game extends VirtualThread {
         playerConnectionsLock.lock();
         ServerChannel channel = playerConnections.get(player).getChannel();
         playerConnectionsLock.unlock();
-        OutboundGameState gameState = poker.getGameStateToSend(player);
+        GameState gameState = poker.getGameStateToSend(player);
 
         channel.sendGameState(null, gameState);
     }

@@ -2,7 +2,6 @@ package poker.connection.protocol.channels;
 
 import poker.connection.protocol.Channel;
 import poker.connection.protocol.message.Message;
-import poker.game.common.OutboundGameState;
 
 import java.io.IOException;
 import java.net.Socket;

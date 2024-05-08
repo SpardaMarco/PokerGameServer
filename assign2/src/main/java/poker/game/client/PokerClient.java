@@ -14,7 +14,7 @@ public class PokerClient {
     int bigBlindBet;
     int handsPlayed;
 
-    public PokerClient(OutboundGameState gameState) {
+    public PokerClient(GameState gameState) {
         this.players = gameState.getPlayers();
         this.communityCards = new ArrayList<>();
         this.currPlayer = gameState.getPlayer();

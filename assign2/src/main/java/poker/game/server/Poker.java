@@ -16,7 +16,7 @@ public class Poker {
     private int currBet;
     private boolean isHandOver = false;
     private boolean isGameOver = false;
-    private GameState state;
+    private GamePhase state;
 
     private final ArrayList<PokerPlayer> players = new ArrayList<>(NUM_PLAYERS);
     private final Deck deck = new Deck();
@@ -30,7 +30,7 @@ public class Poker {
         this.smallBlind = 0;
         this.bigBlind = 1;
         this.currPlayer = 0;
-        this.state = GameState.PREFLOP;
+        this.state = GamePhase.PREFLOP;
 
         for (String player : players) {
             this.players.add(new PokerPlayer(player, STARTING_MONEY));
@@ -117,7 +117,7 @@ public class Poker {
     }
 
     private boolean isHandOver() {
-        if ((this.state == GameState.RIVER) && (this.currPlayer == this.lastRaiser)) return true;
+        if ((this.state == GamePhase.RIVER) && (this.currPlayer == this.lastRaiser)) return true;
         if (this.getActivePlayers().size() == 1) return true;
 
         int numPlayersNotAllIn = 0;
@@ -158,7 +158,7 @@ public class Poker {
         this.lastRaiser = -1;
         this.currBet = 0;
         this.currPlayer = this.smallBlind;
-        this.state = GameState.PREFLOP;
+        this.state = GamePhase.PREFLOP;
         this.isHandOver = false;
         this.isGameOver = false;
 
@@ -218,13 +218,13 @@ public class Poker {
     public void nextTurn() {
         switch (this.state) {
             case PREFLOP:
-                this.state = GameState.FLOP;
+                this.state = GamePhase.FLOP;
                 break;
             case FLOP:
-                this.state = GameState.TURN;
+                this.state = GamePhase.TURN;
                 break;
             case TURN:
-                this.state = GameState.RIVER;
+                this.state = GamePhase.RIVER;
                 break;
         }
 
@@ -244,7 +244,7 @@ public class Poker {
         this.nextPlayer();
         if (this.isHandOver()) {
             this.isHandOver = true;
-            this.state = GameState.RIVER;
+            this.state = GamePhase.RIVER;
         } else if (this.currPlayer == this.lastRaiser) {
             this.nextTurn();
         } else if (this.players.get(this.currPlayer).getState() == PokerPlayer.PLAYER_STATE.FOLDED || this.players.get(this.currPlayer).getState() == PokerPlayer.PLAYER_STATE.ALL_IN || this.players.get(this.currPlayer).getState() == PokerPlayer.PLAYER_STATE.OUT_OF_MONEY) {
@@ -287,7 +287,7 @@ public class Poker {
         this.afterPlayerAction();
     }
 
-    public OutboundGameState getGameStateToSend(int playerAsking) {
+    public GameState getGameStateToSend(int playerAsking) {
         ArrayList<PokerPlayer> playersToSend = new ArrayList<>();
         ArrayList<PokerPlayer> winnersToSend = new ArrayList<>();
         ArrayList<Card> communityCardsToSend = new ArrayList<>();
@@ -335,6 +335,6 @@ public class Poker {
                 break;
         }
 
-        return new OutboundGameState(playersToSend, winnersToSend, communityCardsToSend, handRanksToSend, state, isGameOver, isHandOver, playerAsking, currPlayer, smallBlind, bigBlind, smallBlindBet, bigBlindBet, handsPlayed);
+        return new GameState(playersToSend, winnersToSend, communityCardsToSend, handRanksToSend, state, isGameOver, isHandOver, playerAsking, currPlayer, smallBlind, bigBlind, smallBlindBet, bigBlindBet, handsPlayed);
     }
 }
