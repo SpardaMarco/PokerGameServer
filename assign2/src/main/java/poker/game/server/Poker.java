@@ -185,9 +185,19 @@ public class Poker {
 
     public void endHand() {
         ArrayList<PokerPlayer> winners = this.getHandWinners();
+        winners.sort(Comparator.comparingInt(PokerPlayer::getBet));
+
         int numWinners = winners.size();
 
-        // TBD: Split pot logic
+        for (int i = 0; i < numWinners - 1; i++) {
+            int sidePot = winners.get(i).getBet() - winners.get(i + 1).getBet();
+            this.pot -= sidePot;
+
+            for (int j = i; j >= 0; j--) {
+                winners.get(j).addMoney(sidePot/(i+1));
+            }
+        }
+
         int winnings = this.pot / numWinners;
 
         for (PokerPlayer winner : winners) {
