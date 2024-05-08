@@ -6,6 +6,7 @@ import poker.connection.server.authentication.AuthenticationManager;
 import poker.connection.server.database.DatabaseInterface;
 import poker.connection.server.queue.QueueManager;
 
+import javax.sound.midi.Soundbank;
 import java.sql.SQLException;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -66,6 +67,8 @@ public class Server {
     private void init() {
         authenticationManager.start();
         queueManager.start();
+        System.out.println("Press [ENTER] to stop the server\n");
+        new Scanner(System.in).nextLine();
     }
 
     public synchronized void queuePlayer(Connection connection) {
