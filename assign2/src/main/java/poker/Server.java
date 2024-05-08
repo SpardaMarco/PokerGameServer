@@ -3,14 +3,16 @@ package poker;
 import poker.connection.protocol.Channel;
 import poker.connection.server.authentication.AuthenticationManager;
 import poker.connection.server.database.DatabaseInterface;
+import poker.connection.server.queue.QueueManager;
 
 import java.sql.SQLException;
 import java.util.*;
 
 public class Server {
     private final Queue<String> playersQueue = new LinkedList<>();
-    private final Dictionary<String, Channel> connections = new Hashtable<>();
+    private final Map<String, Channel> connections = new Hashtable<>();
     private final AuthenticationManager authenticationManager;
+    private final QueueManager queueManager;
     private final boolean loggingEnabled;
     private final DatabaseInterface database = new DatabaseInterface();
 
@@ -33,8 +35,13 @@ public class Server {
 
     private Server(int port, boolean loggingEnabled) {
         this.authenticationManager = new AuthenticationManager(this, port);
+        this.queueManager = new QueueManager(this);
         this.loggingEnabled = loggingEnabled;
     }
+
+    public Queue<String> getPlayersQueue() { return playersQueue; }
+
+    public Map<String, Channel> getConnections() { return connections; }
 
     public DatabaseInterface getDatabase() {
         return database;
@@ -42,11 +49,13 @@ public class Server {
 
     private void init() {
         authenticationManager.start();
+        queueManager.start();
     }
 
     public synchronized void queuePlayer(String player, Channel socket) {
         playersQueue.add(player);
         connections.put(player, socket);
+        queueManager.notify();
 
         if (this.loggingEnabled) {
             System.out.println("Player " + player + " has joined the game");

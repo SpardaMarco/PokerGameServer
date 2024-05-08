@@ -11,7 +11,7 @@ public class DatabaseInterface {
 
     public DatabaseInterface() {
         String path = System.getProperty("user.dir") + "/src/database/";
-        String dbFile =  path + "application.poker.db";
+        String dbFile =  path + "poker.db";
 
         try  {
             database = DriverManager.getConnection("jdbc:sqlite:" + dbFile);
@@ -87,6 +87,22 @@ public class DatabaseInterface {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return rs.getString("username");
+            }
+            return null;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getUserSession(String username) {
+        String query = "SELECT session_token FROM User WHERE username = ?";
+
+        try {
+            PreparedStatement stmt = database.prepareStatement(query);
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("session_token");
             }
             return null;
         } catch (SQLException e) {
