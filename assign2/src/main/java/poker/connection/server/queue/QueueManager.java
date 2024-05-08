@@ -5,6 +5,7 @@ import poker.connection.protocol.Channel;
 import poker.connection.protocol.Connection;
 import poker.connection.protocol.channels.ServerChannel;
 import poker.game.common.PokerConstants;
+import poker.connection.server.game.Game;
 import poker.connection.utils.VirtualThread;
 
 import java.sql.SQLException;
@@ -38,18 +39,17 @@ public class QueueManager extends VirtualThread {
                         throw new RuntimeException(e);
                     }
                 } else {
-                    List<String> players = new ArrayList<>();
-                    List<Channel> channels = new ArrayList<>();
-                    List<String> tokens = new ArrayList<>();
+                    List<Connection> connections = new ArrayList<>();
 
                     for (int i = 0; i < PokerConstants.NUM_PLAYERS; i++) {
-                        players.add(server.getPlayersQueue().poll());
-                        channels.add(server.getConnections().get(players.get(i)));
+                        String player = server.getPlayersQueue().poll();
+                        ServerChannel channel = server.getConnections().get(player);
 
                         try {
-                            if (server.getDatabase().userExists(players.get(i))) {
-                                if (server.getDatabase().getUserSession(players.get(i)) != null) {
-                                    tokens.add(server.getDatabase().getUserSession(players.get(i)));
+                            if (server.getDatabase().userExists(player)) {
+                                if (server.getDatabase().getUserSession(player) != null) {
+                                    String token = server.getDatabase().getUserSession(player);
+                                    connections.add(new Connection(player, token, channel));
                                 } else {
                                     throw new RuntimeException("User session not found");
                                 }
@@ -58,8 +58,8 @@ public class QueueManager extends VirtualThread {
                             throw new RuntimeException(e);
                         }
                     }
+                    new Game(server, connections).start();
                 }
-                // TBD: Send information to the game thread
             }
 
             if (!this.playersRequeuing.isEmpty()) {

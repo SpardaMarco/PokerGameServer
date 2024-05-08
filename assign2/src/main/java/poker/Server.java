@@ -1,6 +1,6 @@
 package poker;
 
-import poker.connection.protocol.Channel;
+import poker.connection.protocol.channels.ServerChannel;
 import poker.connection.protocol.Connection;
 import poker.connection.server.authentication.AuthenticationManager;
 import poker.connection.server.database.DatabaseInterface;
@@ -11,7 +11,7 @@ import java.util.*;
 
 public class Server {
     private final Queue<String> playersQueue = new LinkedList<>();
-    private final Map<String, Channel> connections = new Hashtable<>();
+    private final Map<String, ServerChannel> connections = new Hashtable<>();
     private final AuthenticationManager authenticationManager;
     private final QueueManager queueManager;
     private final boolean loggingEnabled;
@@ -42,7 +42,7 @@ public class Server {
 
     public Queue<String> getPlayersQueue() { return playersQueue; }
 
-    public Map<String, Channel> getConnections() { return connections; }
+    public Map<String, ServerChannel> getConnections() { return connections; }
 
     public QueueManager getQueueManager() { return queueManager; }
 
