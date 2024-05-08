@@ -1,19 +1,12 @@
 package poker;
 
+import poker.client.state.ClientState;
+import poker.client.state.ConnectionRecovery;
 import poker.connection.client.ClientChannelFactory;
 import poker.connection.protocol.channels.ClientChannel;
-import poker.connection.protocol.message.Message;
-import poker.connection.protocol.message.State;
 
-import javax.net.ssl.*;
 import java.io.*;
-import java.net.ConnectException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.security.KeyStore;
 import java.util.Scanner;
-
-import static poker.connection.protocol.message.State.*;
 
 public class Client {
     private final ClientChannel channel;
@@ -38,102 +31,20 @@ public class Client {
         channel = new ClientChannelFactory().createChannel(host, port);
     }
 
+
+    public ClientChannel getChannel() {
+        return channel;
+    }
+
     private void init() {
-        State state = CONNECTION_RECOVERY;
+        ClientState state = new ConnectionRecovery();
 
-        while (true) {
-            switch (state) {
-                case CONNECTION_RECOVERY:{
-                    state = handleConnectionRecovery();
-                    break;
-                }
-                case AUTHENTICATION:{
-                    state = handleAuthentication(state);
-                    break;
-                }
-                case MATCHMAKING: {
-                    state = handleQueue(state);
-                    break;
-                }
-                case CONNECTION_END: {
-                    handleConnectionEnd();
-                    return;
-                }
-            }
-        }
-    }
+        while ((state = state.handle(this)) != null);
 
-    private State handleConnectionRecovery() {
-        String sessionToken = getSessionToken();
-
-        if (sessionToken != null) {
-            System.out.println("Do you wish to recover your previous session? (Y/N)");
-            String input = new Scanner(System.in).nextLine();
-
-            if (input.equalsIgnoreCase("Y")) {
-                Message response = channel.recoverSession(sessionToken);
-                if (response == null) {
-                    return CONNECTION_END;
-                }
-                System.out.println(response.getBody());
-                if (response.isOk()) {
-                    saveSessionToken(response.getAttribute("sessionToken"));
-                    return MATCHMAKING;
-                }
-            }
-        }
-
-        return AUTHENTICATION;
-    }
-
-    private State handleAuthentication(State state) {
-        System.out.println("Enter your username: ");
-        String username = new Scanner(System.in).nextLine();
-        System.out.println("Enter your password: ");
-        String password = new Scanner(System.in).nextLine();
-
-        Message response = channel.authenticate(username, password);
-        if (response == null) {
-            return CONNECTION_END;
-        }
-        System.out.println(response.getBody());
-
-        if (response.isOk()) {
-            saveSessionToken(response.getAttribute("sessionToken"));
-            return MATCHMAKING;
-        }
-
-        return AUTHENTICATION;
-    }
-
-    // TODO
-    private State handleQueue(State state) {
-        System.out.print("Waiting in queue");
-        for (int i = 0; i < 3; i++) {
-            System.out.print(".");
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        System.out.println();
-        Message response = channel.requestConnectionEnd("Connection terminated by client");
-        if (response.isOk()) {
-            System.out.println("Connection successfully terminated");
-        } else {
-            System.out.println("Something went wrong while terminating connection");
-        }
-
-        return CONNECTION_END;
-    }
-
-    private void handleConnectionEnd() {
         System.out.println("Connection ended");
-        channel.close();
     }
 
-    private String getSessionToken() {
+    public String getSessionToken() {
         try {
             String path = System.getProperty("user.dir") + "/src/main/java/poker/connection/client/";
             File file = new File(path + "session.txt");
@@ -144,7 +55,7 @@ public class Client {
         }
     }
 
-    private void saveSessionToken(String token) {
+    public void saveSessionToken(String token) {
         try {
             String path = System.getProperty("user.dir") + "/src/main/java/poker/connection/client/";
             File file = new File(path + "session.txt");

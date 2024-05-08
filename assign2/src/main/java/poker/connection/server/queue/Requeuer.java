@@ -21,7 +21,10 @@ public class Requeuer extends  Thread {
     public void run() {
         try {
             boolean wantsToRequeue = askPlayerToRequeue();
-            if (wantsToRequeue) queueManager.addPlayerToMainQueue(connection);
+            if (wantsToRequeue) {
+                queueManager.addPlayerToMainQueue(connection);
+            }
+            queueManager.removePlayerFromRequeue(connection);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

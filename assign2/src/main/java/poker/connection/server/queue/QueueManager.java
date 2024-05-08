@@ -1,7 +1,6 @@
 package poker.connection.server.queue;
 
 import poker.Server;
-import poker.connection.protocol.Channel;
 import poker.connection.protocol.Connection;
 import poker.connection.protocol.channels.ServerChannel;
 import poker.game.common.PokerConstants;
@@ -24,6 +23,10 @@ public class QueueManager extends VirtualThread {
         notify();
     }
 
+    public synchronized void removePlayerFromRequeue(Connection connection) {
+        this.playersRequeuing.remove(connection);
+    }
+
     public void addPlayerToMainQueue(Connection connection) {
         server.queuePlayer(connection);
     }
@@ -39,7 +42,7 @@ public class QueueManager extends VirtualThread {
                         throw new RuntimeException(e);
                     }
                 } else {
-                    List<Connection> connections = new ArrayList<>();
+                    ArrayList<Connection> connections = new ArrayList<>();
 
                     for (int i = 0; i < PokerConstants.NUM_PLAYERS; i++) {
                         String player = server.getPlayersQueue().poll();
@@ -58,6 +61,7 @@ public class QueueManager extends VirtualThread {
                             throw new RuntimeException(e);
                         }
                     }
+
                     new Game(server, connections).start();
                 }
             }

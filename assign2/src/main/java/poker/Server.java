@@ -40,19 +40,29 @@ public class Server {
         this.loggingEnabled = loggingEnabled;
     }
 
-    public Queue<String> getPlayersQueue() { return playersQueue; }
+    public Queue<String> getPlayersQueue() {
+        return playersQueue;
+    }
 
     public Map<String, ServerChannel> getConnections() { return connections; }
 
-    public QueueManager getQueueManager() { return queueManager; }
+    public QueueManager getQueueManager() {
+        return queueManager;
+    }
 
     public DatabaseInterface getDatabase() {
         return database;
     }
 
+    public boolean isLoggingEnabled() {
+        return loggingEnabled;
+    }
+
     private void init() {
         authenticationManager.start();
         queueManager.start();
+        System.out.println("Press [ENTER] to stop the server\n");
+        new Scanner(System.in).nextLine();
     }
 
     public synchronized void queuePlayer(Connection connection) {
