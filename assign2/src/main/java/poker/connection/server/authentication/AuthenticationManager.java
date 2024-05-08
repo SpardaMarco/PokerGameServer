@@ -2,6 +2,7 @@ package poker.connection.server.authentication;
 
 import poker.Server;
 import poker.connection.protocol.channels.ServerChannel;
+import poker.utils.VirtualThread;
 
 import javax.net.ssl.*;
 import java.io.IOException;
@@ -12,7 +13,7 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class AuthenticationManager extends Thread {
+public class AuthenticationManager extends VirtualThread {
     private final Server server;
     private final int port;
     private final Set<Authenticator> authenticators = new HashSet<>();
@@ -23,7 +24,7 @@ public class AuthenticationManager extends Thread {
     }
 
     @Override
-    public void run() {
+    protected void run() {
         handleAuthentication();
     }
 

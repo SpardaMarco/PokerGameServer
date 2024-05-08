@@ -55,7 +55,9 @@ public class Server {
     public synchronized void queuePlayer(String player, Channel socket) {
         playersQueue.add(player);
         connections.put(player, socket);
-        queueManager.notify();
+        synchronized (queueManager) {
+            queueManager.notify();
+        }
 
         if (this.loggingEnabled) {
             System.out.println("Player " + player + " has joined the game");

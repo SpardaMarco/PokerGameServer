@@ -7,13 +7,14 @@ import poker.connection.protocol.message.Message;
 import poker.game.common.GameStateToSend;
 import poker.game.common.PokerPlayer;
 import poker.game.server.Poker;
+import poker.utils.VirtualThread;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Game extends Thread {
+public class Game extends VirtualThread {
     private final Server server;
     private final ArrayList<ServerChannel> playerConnections;
     private final ArrayList<String> playerTokens;
@@ -71,7 +72,8 @@ public class Game extends Thread {
         channel.sendGameState("Display this game state", data);
     }
 
-    public void start() {
+    @Override
+    protected void run() {
         // Assumes that all players have joined (i.e. we sent a message to confirm connection before starting the game)
         System.out.println("Starting game with " + playerConnections.size() + " players");
         play();

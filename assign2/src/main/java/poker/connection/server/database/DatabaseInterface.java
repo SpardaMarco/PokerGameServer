@@ -124,7 +124,7 @@ public class DatabaseInterface {
     }
 
     public void reset() throws IOException, SQLException {
-        String sqlFile = System.getProperty("user.dir") + "/src/database/application.poker.sql";
+        String sqlFile = System.getProperty("user.dir") + "/src/database/poker.sql";
 
         String sql = Files.readString(Paths.get(sqlFile));
 

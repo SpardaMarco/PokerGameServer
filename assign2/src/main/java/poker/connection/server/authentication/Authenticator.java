@@ -5,10 +5,11 @@ import poker.connection.protocol.message.Message;
 import poker.connection.protocol.channels.ServerChannel;
 import poker.connection.server.database.DatabaseInterface;
 import org.mindrot.jbcrypt.BCrypt;
+import poker.utils.VirtualThread;
 
 import java.sql.SQLException;
 
-public class Authenticator extends Thread {
+public class Authenticator extends VirtualThread {
     private final Server server;
     private final ServerChannel channel;
     private final DatabaseInterface database;
@@ -22,7 +23,7 @@ public class Authenticator extends Thread {
     }
 
     @Override
-    public void run() {
+    protected void run() {
         handleRequests();
     }
 
