@@ -1,17 +1,15 @@
 package poker.connection.server.game;
 
-import com.google.gson.Gson;
 import poker.Server;
 import poker.connection.protocol.Connection;
 import poker.connection.protocol.channels.ServerChannel;
 import poker.connection.protocol.message.Message;
 import poker.connection.utils.VirtualThread;
-import poker.game.common.GameStateToSend;
+import poker.game.common.OutboundGameState;
 import poker.game.common.PokerPlayer;
 import poker.game.server.Poker;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Game extends VirtualThread {
@@ -75,13 +73,9 @@ public class Game extends VirtualThread {
         playerConnectionsLock.lock();
         ServerChannel channel = playerConnections.get(player).getChannel();
         playerConnectionsLock.unlock();
-        GameStateToSend gameState = poker.getGameStateToSend(player);
+        OutboundGameState gameState = poker.getGameStateToSend(player);
 
-        Gson gson = new Gson();
-        String gameStateJson = gson.toJson(gameState);
-        Map<String, Object> data = Map.of("gameState", gameStateJson);
-
-        channel.sendGameState("Display this game state", data);
+        channel.sendGameState(null, gameState);
     }
 
     @Override
