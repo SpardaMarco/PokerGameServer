@@ -53,6 +53,7 @@ public class Server {
     private void init() {
         authenticationManager.start();
         queueManager.start();
+        new Scanner(System.in).nextLine();
     }
 
     public synchronized void queuePlayer(Connection connection) {
