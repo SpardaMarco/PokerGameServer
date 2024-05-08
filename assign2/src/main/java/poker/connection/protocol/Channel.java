@@ -62,6 +62,10 @@ public abstract class Channel {
         }
     }
 
+    protected Message getMessage(State expectedState, boolean isRequestExpected) {
+        return getMessage(expectedState, isRequestExpected, null);
+    }
+
     protected Message getMessage(State expectedState, boolean isRequestExpected, Integer timeout) {
 
         Message message;
