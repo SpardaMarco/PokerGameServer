@@ -22,6 +22,10 @@ public enum State {
         return this.value.equals(value);
     }
 
+    public Boolean equals(State state) {
+        return this.value.equals(state.value);
+    }
+
     public String toString() {
         return this.value;
     }

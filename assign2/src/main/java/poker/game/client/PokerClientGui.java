@@ -2,15 +2,15 @@ package poker.game.client;
 
 import poker.game.common.Card;
 import poker.game.common.GameState;
-import poker.game.common.GameStateToSend;
+import poker.game.common.OutboundGameState;
 import poker.game.common.PokerPlayer;
 import static poker.game.common.PokerConstants.*;
 
 import java.util.ArrayList;
 
-public class PokerClientDisplayer {
+public class PokerClientGui {
 
-    public void display(GameStateToSend gameState) {
+    public void display(OutboundGameState gameState) {
         if (gameState.isGameOver()) {
             displayGameOver(gameState);
         } else if (gameState.isHandOver()) {
@@ -20,7 +20,7 @@ public class PokerClientDisplayer {
         }
     }
 
-    private void displayGameOver(GameStateToSend gameState) {
+    private void displayGameOver(OutboundGameState gameState) {
         System.out.println("Game over!");
         ArrayList<PokerPlayer> winners = gameState.getWinners();
         System.out.println("Leaderboard: ");
@@ -29,7 +29,7 @@ public class PokerClientDisplayer {
         }
     }
 
-    private void displayGameState(GameStateToSend gameState) {
+    private void displayGameState(OutboundGameState gameState) {
         int currentPlayer = gameState.getCurrPlayer();
         int pot = gameState.getPlayers().stream().mapToInt(PokerPlayer::getBet).sum();
         System.out.println("Hand " + (gameState.getHandsPlayed()+1) + " - " + gameState.getPlayers().get(currentPlayer).getUsername() + "'s turn");
@@ -38,7 +38,7 @@ public class PokerClientDisplayer {
         System.out.println();
     }
 
-    private void displayInfo(GameStateToSend gameState) {
+    private void displayInfo(OutboundGameState gameState) {
         for (int i = 0; i < gameState.getPlayers().size(); i++) {
             if (i == gameState.getPlayer()) continue;
             else {
@@ -64,7 +64,7 @@ public class PokerClientDisplayer {
         return sb.toString();
     }
 
-    private String showCommunityCards(GameStateToSend gameState) {
+    private String showCommunityCards(OutboundGameState gameState) {
         if (gameState.getState() == GameState.PREFLOP) return "";
         StringBuilder sb = new StringBuilder();
         sb.append("Flop: ");
@@ -84,7 +84,7 @@ public class PokerClientDisplayer {
         return sb.toString();
     }
 
-    private void displayHandOver(GameStateToSend gameState) {
+    private void displayHandOver(OutboundGameState gameState) {
         int pot = gameState.getPlayers().stream().mapToInt(PokerPlayer::getBet).sum();
         for (int i = 0; i < gameState.getPlayers().size(); i++) {
             PokerPlayer player = gameState.getPlayers().get(i);

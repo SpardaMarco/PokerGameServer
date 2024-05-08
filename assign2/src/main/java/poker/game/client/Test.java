@@ -10,7 +10,7 @@ import poker.game.server.*;
 // Only for testing purposes
 public class Test {
     Poker poker;
-    PokerClientDisplayer displayer = new PokerClientDisplayer();
+    PokerClientGui displayer = new PokerClientGui();
     ArrayList<String> players = new ArrayList<String>();
 
     public Test() {
@@ -28,13 +28,13 @@ public class Test {
         while (!poker.getIsGameOver()) {
             while(!poker.getIsHandOver()) {
                 int currentPlayer = poker.getCurrPlayer();
-                GameStateToSend g = poker.getGameStateToSend(currentPlayer);
+                OutboundGameState g = poker.getGameStateToSend(currentPlayer);
                 displayer.display(g);
                 makePlay(currentPlayer);
                 currentPlayer = poker.getCurrPlayer();
             }
             int currentPlayer = poker.getCurrPlayer();
-            GameStateToSend g = poker.getGameStateToSend(currentPlayer);
+            OutboundGameState g = poker.getGameStateToSend(currentPlayer);
             displayer.display(g);
 
             try {
@@ -45,7 +45,7 @@ public class Test {
             poker.endHand();
         }
 
-        GameStateToSend g = poker.getGameStateToSend(poker.getCurrPlayer());
+        OutboundGameState g = poker.getGameStateToSend(poker.getCurrPlayer());
         displayer.display(g);
     }
 

@@ -287,7 +287,7 @@ public class Poker {
         this.afterPlayerAction();
     }
 
-    public GameStateToSend getGameStateToSend(int playerAsking) {
+    public OutboundGameState getGameStateToSend(int playerAsking) {
         ArrayList<PokerPlayer> playersToSend = new ArrayList<>();
         ArrayList<PokerPlayer> winnersToSend = new ArrayList<>();
         ArrayList<Card> communityCardsToSend = new ArrayList<>();
@@ -335,6 +335,6 @@ public class Poker {
                 break;
         }
 
-        return new GameStateToSend(playersToSend, winnersToSend, communityCardsToSend, handRanksToSend, state, isGameOver, isHandOver, playerAsking, currPlayer, smallBlind, bigBlind, smallBlindBet, bigBlindBet, handsPlayed);
+        return new OutboundGameState(playersToSend, winnersToSend, communityCardsToSend, handRanksToSend, state, isGameOver, isHandOver, playerAsking, currPlayer, smallBlind, bigBlind, smallBlindBet, bigBlindBet, handsPlayed);
     }
 }

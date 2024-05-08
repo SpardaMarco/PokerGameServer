@@ -1,6 +1,5 @@
 package poker.client.state;
 
-import poker.Client;
 import poker.client.LocalToken;
 import poker.connection.protocol.channels.ClientChannel;
 import poker.connection.protocol.message.Message;
@@ -14,10 +13,7 @@ public class ConnectionRecovery implements ClientState {
         LocalToken token = LocalToken.retrieve();
 
         if (token != null) {
-            System.out.println("Do you wish to recover your previous session? (Y/N)");
-            String input = new Scanner(System.in).nextLine();
-
-            if (input.equalsIgnoreCase("Y")) {
+            if (confirmRecovery()) {
                 Message response = channel.recoverSession(token.toString());
                 if (response == null) {
                     return null;
@@ -33,5 +29,9 @@ public class ConnectionRecovery implements ClientState {
         return new Authentication();
     }
 
-
+    private boolean confirmRecovery() {
+        System.out.println("Do you wish to recover your previous session? (Y/N)");
+        String input = new Scanner(System.in).nextLine();
+        return input.equalsIgnoreCase("Y");
+    }
 }
