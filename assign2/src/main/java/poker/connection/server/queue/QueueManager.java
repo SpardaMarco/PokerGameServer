@@ -2,21 +2,50 @@ package poker.connection.server.queue;
 
 import poker.Server;
 import poker.connection.protocol.Connection;
-import poker.connection.protocol.channels.ServerChannel;
 import poker.game.common.PokerConstants;
 import poker.connection.server.game.Game;
 import poker.connection.utils.VirtualThread;
 
-import java.sql.SQLException;
 import java.util.*;
 
 public class QueueManager extends VirtualThread {
     private final Server server;
+    private final Queue<Connection> mainQueue = new LinkedList<>();
     private final Queue<Connection> playersRequeuing = new LinkedList<>();
     private final Map<String, Game> rooms = new HashMap<>();
 
     public QueueManager(Server server) {
         this.server = server;
+    }
+
+    public synchronized void addPlayerToMainQueue(Connection connection) {
+        if (rooms.get(connection.getUsername()) != null) {
+            reconnectPlayerToGame(connection);
+        }
+
+        else if (mainQueue.stream().noneMatch( c -> c.getUsername().equals(connection.getUsername()))) {
+            mainQueue.add(connection);
+            notify();
+        }
+
+        else {
+            updateMainQueue(connection);
+        }
+    }
+
+    public synchronized void updateMainQueue(Connection connection) {
+        Queue<Connection> tempQueue = new LinkedList<>();
+
+        while (!mainQueue.isEmpty()) {
+            Connection c = mainQueue.poll();
+            if (!c.getUsername().equals(connection.getUsername())) {
+                tempQueue.add(c);
+            }
+            else {
+                tempQueue.add(connection);
+            }
+        }
+        mainQueue.addAll(tempQueue);
     }
 
     public synchronized void requeuePlayers(List<Connection> connections) {
@@ -25,10 +54,6 @@ public class QueueManager extends VirtualThread {
     }
 
     public synchronized void removePlayerFromRequeue(Connection connection) {this.playersRequeuing.remove(connection); }
-
-    public void addPlayerToMainQueue(Connection connection) {
-        server.queuePlayer(connection);
-    }
 
     public synchronized void assignPlayerToRoom(Connection connection, Game game) { this.rooms.put(connection.getUsername(), game); }
 
@@ -44,11 +69,16 @@ public class QueueManager extends VirtualThread {
         game.start();
     }
 
+    public void reconnectPlayerToGame(Connection connection) {
+        Game game = rooms.get(connection.getUsername());
+        game.reconnectPlayer(connection);
+    }
+
     @Override
     protected void run() {
         while (true) {
             synchronized (this) {
-                if (server.getPlayersQueue().size() < PokerConstants.NUM_PLAYERS) {
+                if (mainQueue.size() < PokerConstants.NUM_PLAYERS) {
                     try {
                         wait();
                     } catch (InterruptedException e) {
@@ -56,26 +86,24 @@ public class QueueManager extends VirtualThread {
                     }
                 } else {
                     ArrayList<Connection> connections = new ArrayList<>();
+                    boolean allAlive = true;
 
                     for (int i = 0; i < PokerConstants.NUM_PLAYERS; i++) {
-                        String player = server.getPlayersQueue().poll();
-                        ServerChannel channel = server.getConnections().get(player);
+                        Connection connection = mainQueue.poll();
+                        assert connection != null;
 
-                        try {
-                            if (server.getDatabase().userExists(player)) {
-                                if (server.getDatabase().getUserSession(player) != null) {
-                                    String token = server.getDatabase().getUserSession(player);
-                                    connections.add(new Connection(player, token, channel));
-                                } else {
-                                    throw new RuntimeException("User session not found");
-                                }
+                        if (connection.isBroken()) {
+                            allAlive = false;
+                            for (int j = 0; j < i; j++) {
+                                addPlayerToMainQueue(connections.get(j));
                             }
-                        } catch (SQLException e) {
-                            throw new RuntimeException(e);
+                            break;
                         }
+
+                        connections.add(connection);
                     }
 
-                    startGame(connections);
+                   if (allAlive) startGame(connections);
                 }
             }
 

@@ -10,8 +10,6 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class Server {
-    private final Queue<String> playersQueue = new LinkedList<>();
-    private final Map<String, ServerChannel> connections = new Hashtable<>();
     private final AuthenticationManager authenticationManager;
     private final QueueManager queueManager;
     private final boolean loggingEnabled;
@@ -52,12 +50,6 @@ public class Server {
         this.queueManager = new QueueManager(this);
     }
 
-    public Queue<String> getPlayersQueue() {
-        return playersQueue;
-    }
-
-    public Map<String, ServerChannel> getConnections() { return connections; }
-
     public QueueManager getQueueManager() {
         return queueManager;
     }
@@ -82,15 +74,6 @@ public class Server {
     }
 
     public synchronized void queuePlayer(Connection connection) {
-        playersQueue.add(connection.getUsername());
-        connections.put(connection.getUsername(), connection.getChannel());
-        synchronized (queueManager) {
-            queueManager.notify();
-        }
-
-        if (this.loggingEnabled) {
-            System.out.println("Player " + connection.getUsername() + " has joined the game");
-            System.out.println("Players in queue: " + playersQueue.size());
-        }
+        queueManager.addPlayerToMainQueue(connection);
     }
 }

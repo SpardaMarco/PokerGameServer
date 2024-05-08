@@ -1,9 +1,6 @@
 package poker.connection.protocol.message;
 
-import poker.connection.server.queue.Requeuer;
-
 public enum State {
-
     NEW_CONNECTION("NEW_CONNECTION"),
     CONNECTION_RECOVERY("CONNECTION_RECOVERY"),
     AUTHENTICATION("AUTHENTICATION"),

@@ -35,4 +35,7 @@ public class Connection {
         this.rank = rank;
     }
 
+    public boolean isBroken() {
+        return !channel.isOpen();
+    }
 }
