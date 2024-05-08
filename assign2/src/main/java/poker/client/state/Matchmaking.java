@@ -11,6 +11,8 @@ public class Matchmaking implements ClientState {
 
         channel.handleGameStartRequest();
 
+        System.out.println("Game is starting...");
+
         return new Match();
     }
 }

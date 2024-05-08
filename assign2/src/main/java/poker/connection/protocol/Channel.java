@@ -80,6 +80,10 @@ public abstract class Channel {
                 this.close();
                 return null;
             }
+            if (message.isConnectionCheck()){
+                sendMessage(CONNECTION_CHECK, OK, null, null);
+                return getMessage(expectedState, isRequestExpected, timeout);
+            }
             if (expectedState != null && message.getState() != expectedState) {
                 throw new RuntimeException("Unexpected state in message:\n" + message);
             }
@@ -125,6 +129,11 @@ public abstract class Channel {
         sendMessage(CONNECTION_END, OK, null, null);
     }
 
+    protected Message requestConnectionCheck() {
+        sendMessage(CONNECTION_CHECK, REQUEST, null, null);
+        return getResponse(CONNECTION_CHECK, 3);
+    }
+
     public void close() {
         try {
             socket.close();
@@ -137,7 +146,16 @@ public abstract class Channel {
         return !socket.isClosed();
     }
 
-    public boolean isClosed() {
-        return socket.isClosed();
+    public boolean isAlive() {
+
+        Message response = requestConnectionCheck();
+        if (response == null) {
+            return false;
+        }
+        return response.isOk();
+    }
+
+    public boolean isBroken() {
+        return !isAlive();
     }
 }

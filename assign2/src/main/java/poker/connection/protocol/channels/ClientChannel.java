@@ -33,6 +33,5 @@ public class ClientChannel extends Channel {
 
     public void handleGameStartRequest() {
        getRequest(MATCH_START);
-       sendMessage(MATCH_START, OK, null, null);
     }
 }

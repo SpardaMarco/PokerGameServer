@@ -1,6 +1,7 @@
 package poker.connection.server.game;
 
 import poker.Server;
+import poker.connection.protocol.Channel;
 import poker.connection.protocol.Connection;
 import poker.connection.protocol.channels.ServerChannel;
 import poker.connection.protocol.message.Message;
@@ -78,12 +79,20 @@ public class Game extends VirtualThread {
         channel.sendGameState(null, gameState);
     }
 
+    private void notifyPlayers() {
+        for (Connection connection: playerConnections) {
+            connection.getChannel().notifyGameStart();
+        }
+    }
+
     @Override
     protected void run() {
         // Assumes that all players have joined (i.e. we sent a message to confirm connection before starting the game)
         if (server.isLoggingEnabled()) {
             System.out.println("Starting game with " + playerConnections.size() + " players");
         }
+
+        notifyPlayers();
         play();
         if (server.isLoggingEnabled()) {
             System.out.println("Game finished");
@@ -112,7 +121,7 @@ public class Game extends VirtualThread {
         playerConnectionsLock.lock();
         ServerChannel channel = playerConnections.get(player).getChannel();
         playerConnectionsLock.unlock();
-        if (channel == null || !channel.isClosed()) {
+        if (channel == null || channel.isOpen()) {
             if (server.isLoggingEnabled()) {
                 System.out.println("Player " + player + " disconnected");
             }

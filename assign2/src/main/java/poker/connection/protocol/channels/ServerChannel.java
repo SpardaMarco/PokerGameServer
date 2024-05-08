@@ -62,4 +62,8 @@ public class ServerChannel extends Channel {
     public Message getAuthenticationRequest() {
         return getRequest(AUTHENTICATION);
     }
+
+    public void notifyGameStart() {
+        sendMessage(MATCH_START, REQUEST, null, null);
+    }
 }
