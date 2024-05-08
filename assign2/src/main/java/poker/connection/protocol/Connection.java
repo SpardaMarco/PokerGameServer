@@ -1,12 +1,14 @@
 package poker.connection.protocol;
 
+import poker.connection.protocol.channels.ServerChannel;
+
 public class Connection {
     private final String username;
     private final String token;
-    private final Channel channel;
+    private final ServerChannel channel;
     private int rank;
 
-    public Connection(String username, String token, Channel channel, int rank) {
+    public Connection(String username, String token, ServerChannel channel, int rank) {
         this.username = username;
         this.token = token;
         this.channel = channel;
@@ -17,11 +19,11 @@ public class Connection {
         return username;
     }
 
-    public String getToken() {
+    public String getSession() {
         return token;
     }
 
-    public Channel getChannel() {
+    public ServerChannel getChannel() {
         return channel;
     }
 

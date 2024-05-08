@@ -39,16 +39,14 @@ public class ServerChannel extends Channel {
         sendMessage(MATCH_DISPLAY, REQUEST, body, data);
     }
 
+    public Message sendRequeueRequest(String body) {
+        sendMessage(REQUEUE, REQUEST, body, null);
+        return getResponse(REQUEUE);
+    }
+
     public Message getPlayerMove(String body) {
         sendMessage(MATCH_MOVE, REQUEST, body, null);
         return getMessage(MATCH_MOVE, false);
-    }
-
-    public Message getRequest() {
-        return getMessage(null, true, null);
-    }
-    public Message getRequest(Integer timeout) {
-        return getMessage(null, true, timeout);
     }
 
     public Message getRequest(State expectedState) {
@@ -62,5 +60,4 @@ public class ServerChannel extends Channel {
     public Message getAuthenticationRequest() {
         return getRequest(AUTHENTICATION);
     }
-
 }

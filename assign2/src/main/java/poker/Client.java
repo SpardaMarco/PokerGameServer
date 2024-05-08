@@ -1,21 +1,12 @@
 package poker;
 
-import poker.clientState.ClientState;
-import poker.clientState.ConnectionRecovery;
+import poker.client.state.ClientState;
+import poker.client.state.ConnectionRecovery;
 import poker.connection.client.ClientChannelFactory;
 import poker.connection.protocol.channels.ClientChannel;
-import poker.connection.protocol.message.Message;
-import poker.connection.protocol.message.State;
 
-import javax.net.ssl.*;
 import java.io.*;
-import java.net.ConnectException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.security.KeyStore;
 import java.util.Scanner;
-
-import static poker.connection.protocol.message.State.*;
 
 public class Client {
     private final ClientChannel channel;
@@ -48,31 +39,8 @@ public class Client {
     private void init() {
         ClientState state = new ConnectionRecovery();
 
-        while ((state = state.handle(this)) != null);
+        while ((state = state.handle(channel)) != null);
 
         System.out.println("Connection ended");
-    }
-
-    public String getSessionToken() {
-        try {
-            String path = System.getProperty("user.dir") + "/src/main/java/poker/connection/client/";
-            File file = new File(path + "session.txt");
-            Scanner scanner = new Scanner(file);
-            return scanner.nextLine();
-        } catch (IOException e) {
-            return null;
-        }
-    }
-
-    public void saveSessionToken(String token) {
-        try {
-            String path = System.getProperty("user.dir") + "/src/main/java/poker/connection/client/";
-            File file = new File(path + "session.txt");
-            FileWriter writer = new FileWriter(file);
-            writer.write(token);
-            writer.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

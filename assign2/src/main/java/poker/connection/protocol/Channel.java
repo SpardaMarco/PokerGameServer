@@ -67,7 +67,6 @@ public abstract class Channel {
     }
 
     protected Message getMessage(State expectedState, boolean isRequestExpected, Integer timeout) {
-
         Message message;
         if (timeout != null)
             message = getMessage(timeout);
@@ -99,6 +98,22 @@ public abstract class Channel {
 
     public Message getResponse(State expectedState, Integer timeout) {
         return getMessage(expectedState, false, timeout);
+    }
+
+    public Message getRequest() {
+        return getMessage(null, true, null);
+    }
+
+    public Message getRequest(Integer timeout) {
+        return getMessage(null, true, timeout);
+    }
+
+    public Message getRequest(State expectedState) {
+        return getMessage(expectedState, true, null);
+    }
+
+    public Message getRequest(State expectedState, Integer timeout) {
+        return getMessage(expectedState, true, timeout);
     }
 
     public Message requestConnectionEnd(String body) {

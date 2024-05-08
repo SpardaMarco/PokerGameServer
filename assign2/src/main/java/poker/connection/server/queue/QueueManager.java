@@ -1,10 +1,10 @@
 package poker.connection.server.queue;
 
 import poker.Server;
-import poker.connection.protocol.Channel;
 import poker.connection.protocol.Connection;
 import poker.connection.protocol.channels.ServerChannel;
 import poker.game.common.PokerConstants;
+import poker.connection.server.game.Game;
 import poker.connection.utils.VirtualThread;
 
 import java.sql.SQLException;
@@ -12,16 +12,36 @@ import java.util.*;
 
 public class QueueManager extends VirtualThread {
     private final Server server;
-    private final Map<String, ServerChannel> playersRequeuing = new Hashtable<>();
-    private final Queue<Connection> playersQueue = new LinkedList<>();
+    private final Queue<Connection> playersRequeuing = new LinkedList<>();
+    private final Map<String, Game> rooms = new HashMap<>();
 
     public QueueManager(Server server) {
         this.server = server;
     }
 
-    public synchronized void requeuePlayers(Map<String, ServerChannel> connections) {
-        this.playersRequeuing.putAll(connections);
+    public synchronized void requeuePlayers(List<Connection> connections) {
+        this.playersRequeuing.addAll(connections);
         notify();
+    }
+
+    public synchronized void removePlayerFromRequeue(Connection connection) {this.playersRequeuing.remove(connection); }
+
+    public void addPlayerToMainQueue(Connection connection) {
+        server.queuePlayer(connection);
+    }
+
+    public synchronized void assignPlayerToRoom(Connection connection, Game game) { this.rooms.put(connection.getUsername(), game); }
+
+    public synchronized void removePlayerFromRoom(Connection connection) { this.rooms.remove(connection.getUsername()); }
+
+    public void startGame(ArrayList<Connection> connections) {
+        Game game = new Game(server, connections);
+
+        for (Connection connection : connections) {
+            assignPlayerToRoom(connection, game);
+        }
+
+        game.start();
     }
 
     @Override
@@ -35,18 +55,17 @@ public class QueueManager extends VirtualThread {
                         throw new RuntimeException(e);
                     }
                 } else {
-                    List<String> players = new ArrayList<>();
-                    List<Channel> channels = new ArrayList<>();
-                    List<String> tokens = new ArrayList<>();
+                    ArrayList<Connection> connections = new ArrayList<>();
 
                     for (int i = 0; i < PokerConstants.NUM_PLAYERS; i++) {
-                        players.add(server.getPlayersQueue().poll());
-                        channels.add(server.getConnections().get(players.get(i)));
+                        String player = server.getPlayersQueue().poll();
+                        ServerChannel channel = server.getConnections().get(player);
 
                         try {
-                            if (server.getDatabase().userExists(players.get(i))) {
-                                if (server.getDatabase().getUserSession(players.get(i)) != null) {
-                                    tokens.add(server.getDatabase().getUserSession(players.get(i)));
+                            if (server.getDatabase().userExists(player)) {
+                                if (server.getDatabase().getUserSession(player) != null) {
+                                    String token = server.getDatabase().getUserSession(player);
+                                    connections.add(new Connection(player, token, channel));
                                 } else {
                                     throw new RuntimeException("User session not found");
                                 }
@@ -55,12 +74,15 @@ public class QueueManager extends VirtualThread {
                             throw new RuntimeException(e);
                         }
                     }
+
+                    startGame(connections);
                 }
-                // TBD: Send information to the game thread
             }
 
             if (!this.playersRequeuing.isEmpty()) {
-                // TBD: Logic to requeue players
+                for (Connection connection : this.playersRequeuing) {
+                    new Requeuer(this, connection).start();
+                }
             }
         }
     }
