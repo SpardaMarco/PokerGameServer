@@ -44,12 +44,12 @@ public class Game extends VirtualThread {
         return result;
     }
 
-    public boolean swapToken(Connection oldConnection, Connection newConnection) {
+    public boolean reconnectPlayer(Connection newConnection) {
         playerConnectionsLock.lock();
         int index = -1;
 
         for (int i = 0; i < playerConnections.size(); i++) {
-            if (playerConnections.get(i).equals(oldConnection)) {
+            if (playerConnections.get(i).getUsername().equals(newConnection.getUsername())) {
                 index = i;
                 break;
             }
