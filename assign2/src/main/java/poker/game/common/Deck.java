@@ -1,7 +1,8 @@
 package poker.game.common;
-import java.util.*;
-public class Deck {
 
+import java.util.*;
+
+public class Deck {
     private final int DECK_SIZE = 52;
     private final ArrayList<Card> deck = new ArrayList<>(DECK_SIZE);
 

@@ -7,7 +7,7 @@ import java.util.Scanner;
 import poker.game.common.*;
 import poker.game.server.*;
 
-// only for testing purposes
+// Only for testing purposes
 public class Test {
     Poker poker;
     PokerClientDisplayer displayer = new PokerClientDisplayer();

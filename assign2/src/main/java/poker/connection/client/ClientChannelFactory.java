@@ -15,9 +15,7 @@ import java.net.SocketAddress;
 import java.security.KeyStore;
 
 public class ClientChannelFactory {
-
     public ClientChannel createChannel(String host, int port) throws Exception {
-
         SSLContext sslContext = getSSLContext();
 
         SSLSocketFactory socketFactory = sslContext.getSocketFactory();
@@ -34,7 +32,6 @@ public class ClientChannelFactory {
     }
 
     private SSLContext getSSLContext() throws Exception {
-
         InputStream trustStoreInputStream = getClass().getClassLoader().getResourceAsStream("client_keystore.jks");
         KeyStore trustStore = KeyStore.getInstance("JKS");
         trustStore.load(trustStoreInputStream, "client_keystore".toCharArray());

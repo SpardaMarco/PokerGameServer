@@ -1,6 +1,8 @@
 package poker.game.client;
+
 import java.util.ArrayList;
 import poker.game.common.*;
+
 public class PokerClient {
     ArrayList<PokerPlayer> players;
     ArrayList<Card> communityCards;

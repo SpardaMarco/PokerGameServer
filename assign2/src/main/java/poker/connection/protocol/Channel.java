@@ -8,12 +8,12 @@ import org.json.JSONObject;
 import java.io.*;
 import java.net.Socket;
 import java.util.Map;
+import java.util.concurrent.*;
 
 import static poker.connection.protocol.message.State.*;
 import static poker.connection.protocol.message.Status.*;
 
 public abstract class Channel {
-
     Socket socket;
     BufferedReader reader;
     PrintWriter writer;
@@ -35,12 +35,30 @@ public abstract class Channel {
     }
 
     private Message getMessage() {
-        try {
+
+        try  {
             String line = reader.readLine();
             JSONObject json = new JSONObject(line);
             return new Message(json);
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private Message getMessage(int timeout) {
+
+        try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
+
+            Future<String> future = executor.submit(reader::readLine);
+            String line = future.get(timeout, TimeUnit.SECONDS);
+            JSONObject json = new JSONObject(line);
+            return new Message(json);
+
+        } catch (TimeoutException e) {
             return null;
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -86,6 +104,7 @@ public abstract class Channel {
             throw new RuntimeException(e);
         }
     }
+
     public boolean isOpen() {
         return !socket.isClosed();
     }

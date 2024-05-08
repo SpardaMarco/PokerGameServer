@@ -7,13 +7,12 @@ import java.sql.*;
 import org.mindrot.jbcrypt.BCrypt;
 
 public class DatabaseInterface {
-
     private final Connection database;
 
     public DatabaseInterface() {
-
         String path = System.getProperty("user.dir") + "/src/database/";
-        String dbFile =  path + "application.poker.db";
+        String dbFile =  path + "poker.db";
+
         try  {
             database = DriverManager.getConnection("jdbc:sqlite:" + dbFile);
             if (database != null) {
@@ -25,8 +24,7 @@ public class DatabaseInterface {
     }
 
     public boolean userExists(String username) throws SQLException {
-
-        String query = "SELECT * FROM users WHERE username = ?";
+        String query = "SELECT * FROM User WHERE username = ?";
 
         PreparedStatement stmt = database.prepareStatement(query);
         stmt.setString(1, username);
@@ -35,10 +33,11 @@ public class DatabaseInterface {
     }
 
     public boolean authenticateUser(String username, String password) throws SQLException {
+        String query = "SELECT password FROM User WHERE username = ?";
 
-        String query = "SELECT password FROM users WHERE username = ?";
         PreparedStatement stmt = database.prepareStatement(query);
         stmt.setString(1, username);
+
         ResultSet rs = stmt.executeQuery();
         if (!rs.next()) {
             return false;
@@ -49,9 +48,9 @@ public class DatabaseInterface {
     }
 
     public boolean registerUser(String username, String password) {
-
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-        String query = "INSERT INTO users (username, password) VALUES (?, ?)";
+        String query = "INSERT INTO User (username, password) VALUES (?, ?)";
+
         try {
             PreparedStatement stmt = database.prepareStatement(query);
             stmt.setString(1, username);
@@ -64,8 +63,7 @@ public class DatabaseInterface {
     }
 
     public boolean createSession(String username, String sessionToken, long duration) {
-
-        String query = "UPDATE users SET session_token = ?, session_expiration = ? WHERE username = ?";
+        String query = "UPDATE User SET session_token = ?, session_expiration = ? WHERE username = ?";
 
         try {
             PreparedStatement stmt = database.prepareStatement(query);
@@ -80,8 +78,7 @@ public class DatabaseInterface {
     }
 
     public String recoverSession(String sessionToken) {
-
-        String query = "SELECT username FROM users WHERE session_token = ? AND session_expiration > ?";
+        String query = "SELECT username FROM User WHERE session_token = ? AND session_expiration > ?";
 
         try {
             PreparedStatement stmt = database.prepareStatement(query);
@@ -97,9 +94,25 @@ public class DatabaseInterface {
         }
     }
 
-    public void updateRank(String username, int rankIncrement) {
+    public String getUserSession(String username) {
+        String query = "SELECT session_token FROM User WHERE username = ?";
 
-        String query = "UPDATE users SET rank = rank + ? WHERE username = ?";
+        try {
+            PreparedStatement stmt = database.prepareStatement(query);
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("session_token");
+            }
+            return null;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updateRank(String username, int rankIncrement) {
+        String query = "UPDATE User SET rank = rank + ? WHERE username = ?";
+
         try {
             PreparedStatement stmt = database.prepareStatement(query);
             stmt.setInt(1, rankIncrement);
@@ -111,7 +124,6 @@ public class DatabaseInterface {
     }
 
     public void reset() throws IOException, SQLException {
-
         String sqlFile = System.getProperty("user.dir") + "/src/database/application.poker.sql";
 
         String sql = Files.readString(Paths.get(sqlFile));

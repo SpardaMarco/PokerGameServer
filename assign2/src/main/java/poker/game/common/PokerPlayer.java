@@ -1,15 +1,19 @@
 package poker.game.common;
+
 import java.util.ArrayList;
+
 public class PokerPlayer {
     private final String username;
     private int money;
     private int bet;
     private ArrayList<Card> hand;
     private PLAYER_STATE state;
-    public static enum PLAYER_STATE {
+
+    public enum PLAYER_STATE {
         FOLDED, BETTING, ALL_IN, WAITING, PASS, OUT_OF_MONEY
     }
-    public static enum PLAYER_ACTION {
+
+    public enum PLAYER_ACTION {
         FOLD, CHECK, BET, CALL, ALL_IN
     }
 
@@ -28,7 +32,6 @@ public class PokerPlayer {
         this.state = state;
         this.bet = bet;
     }
-
 
     public String getUsername() {
         return username;
@@ -71,13 +74,10 @@ public class PokerPlayer {
         }
     }
 
-    public void pass() {
-        this.state = PLAYER_STATE.PASS;
-    }
-
     public void resetBet() {
         this.bet = 0;
     }
+
     public void fold() {
         this.state = PLAYER_STATE.FOLDED;
     }

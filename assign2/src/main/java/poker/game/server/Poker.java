@@ -1,7 +1,9 @@
 package poker.game.server;
+
 import poker.game.common.*;
 import java.util.*;
 import static poker.game.common.PokerConstants.*;
+
 public class Poker {
     private int handsPlayed;
     private int smallBlindBet;
@@ -52,6 +54,7 @@ public class Poker {
                 activePlayers.add(player);
             }
         }
+
         return activePlayers;
     }
 
@@ -91,9 +94,13 @@ public class Poker {
         return player.getUsername().equals(this.players.get(bigBlind).getUsername());
     }
 
+    private boolean isPlayerInactive(int playerIndex) {
+        return this.players.get(playerIndex).getState() == PokerPlayer.PLAYER_STATE.FOLDED || this.players.get(playerIndex).getState() == PokerPlayer.PLAYER_STATE.ALL_IN || this.players.get(playerIndex).getState() == PokerPlayer.PLAYER_STATE.OUT_OF_MONEY;
+    }
+
     private int getNextActivePlayer(int playerIndex) {
         int nextPlayer = (playerIndex + 1) % NUM_PLAYERS;
-        while (this.players.get(nextPlayer).getState() == PokerPlayer.PLAYER_STATE.FOLDED || this.players.get(nextPlayer).getState() == PokerPlayer.PLAYER_STATE.ALL_IN || this.players.get(nextPlayer).getState() == PokerPlayer.PLAYER_STATE.OUT_OF_MONEY) {
+        while (isPlayerInactive(nextPlayer)) {
             nextPlayer = (nextPlayer + 1) % NUM_PLAYERS;
         }
         return nextPlayer;
@@ -157,9 +164,11 @@ public class Poker {
 
         deck.reset();
         deck.shuffle();
+
         for (PokerPlayer player : players) {
             player.setHand(deck.dealCards(HAND_SIZE));
         }
+
         this.communityCards.clear();
         this.communityCards.addAll(deck.dealCards(NUM_COMMUNITY_CARDS));
         this.takeAction(PokerPlayer.PLAYER_ACTION.BET, this.smallBlindBet);
@@ -168,21 +177,37 @@ public class Poker {
 
     private void nextHand() {
         this.handsPlayed++;
+
         for (PokerPlayer player : players) {
             player.resetBet();
             player.resetState();
         }
+
         this.updateBlinds();
         this.startHand();
     }
 
     public void endHand() {
         ArrayList<PokerPlayer> winners = this.getHandWinners();
+        winners.sort(Comparator.comparingInt(PokerPlayer::getBet));
+
         int numWinners = winners.size();
+
+        for (int i = 0; i < numWinners - 1; i++) {
+            int sidePot = winners.get(i).getBet() - winners.get(i + 1).getBet();
+            this.pot -= sidePot;
+
+            for (int j = i; j >= 0; j--) {
+                winners.get(j).addMoney(sidePot/(i+1));
+            }
+        }
+
         int winnings = this.pot / numWinners;
+
         for (PokerPlayer winner : winners) {
             winner.addMoney(winnings);
         }
+
         if (this.isGameOver()) {
             this.isGameOver = true;
         } else {
@@ -202,8 +227,13 @@ public class Poker {
                 this.state = GameState.RIVER;
                 break;
         }
+
         this.currPlayer = this.smallBlind;
-        this.lastRaiser = this.smallBlind;
+        if (isPlayerInactive(this.currPlayer)) {
+            this.currPlayer = getNextActivePlayer(this.currPlayer);
+        }
+
+        this.lastRaiser = this.currPlayer;
     }
 
     public void nextPlayer() {
@@ -262,6 +292,7 @@ public class Poker {
         ArrayList<PokerPlayer> winnersToSend = new ArrayList<>();
         ArrayList<Card> communityCardsToSend = new ArrayList<>();
         ArrayList<HandRank> handRanksToSend = new ArrayList<>();
+
         if (this.isGameOver) {
             winnersToSend = this.getGameWinners();
         } else if (this.isHandOver) {
@@ -280,6 +311,7 @@ public class Poker {
                 }
             }
         }
+
         switch (this.state) {
             case PREFLOP:
                 break;
@@ -306,4 +338,3 @@ public class Poker {
         return new GameStateToSend(playersToSend, winnersToSend, communityCardsToSend, handRanksToSend, state, isGameOver, isHandOver, playerAsking, currPlayer, smallBlind, bigBlind, smallBlindBet, bigBlindBet, handsPlayed);
     }
 }
-
