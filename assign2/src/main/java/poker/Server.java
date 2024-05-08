@@ -7,7 +7,10 @@ import poker.connection.server.database.DatabaseInterface;
 import poker.connection.server.queue.QueueManager;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
 
 public class Server {
     private final Queue<String> playersQueue = new LinkedList<>();
@@ -40,14 +43,24 @@ public class Server {
         this.loggingEnabled = loggingEnabled;
     }
 
-    public Queue<String> getPlayersQueue() { return playersQueue; }
+    public Queue<String> getPlayersQueue() {
+        return playersQueue;
+    }
 
-    public Map<String, Channel> getConnections() { return connections; }
+    public Map<String, Channel> getConnections() {
+        return connections;
+    }
 
-    public QueueManager getQueueManager() { return queueManager; }
+    public QueueManager getQueueManager() {
+        return queueManager;
+    }
 
     public DatabaseInterface getDatabase() {
         return database;
+    }
+
+    public boolean isLoggingEnabled() {
+        return loggingEnabled;
     }
 
     private void init() {

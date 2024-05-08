@@ -1,11 +1,8 @@
 package poker.connection.protocol;
 
 public class Connection {
-
     private final String username;
-
     private final String token;
-
     private final Channel channel;
 
     public Connection(String username, String token, Channel channel) {
@@ -25,4 +22,5 @@ public class Connection {
     public Channel getChannel() {
         return channel;
     }
+    
 }
