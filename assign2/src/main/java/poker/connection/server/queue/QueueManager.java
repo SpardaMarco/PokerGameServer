@@ -24,27 +24,21 @@ public class QueueManager extends VirtualThread {
         notify();
     }
 
+    public synchronized void removePlayerFromRequeue(Connection connection) {this.playersRequeuing.remove(connection); }
+
     public void addPlayerToMainQueue(Connection connection) {
         server.queuePlayer(connection);
     }
 
-    public synchronized void addPlayerToRoom(Connection connection, Game game) {
-        this.rooms.put(connection.getUsername(), game);
-    }
+    public synchronized void assignPlayerToRoom(Connection connection, Game game) { this.rooms.put(connection.getUsername(), game); }
 
-    public synchronized void removePlayerFromRequeue(Connection connection) {
-        this.playersRequeuing.remove(connection);
-    }
-
-    public synchronized void removePlayerFromRoom(Connection connection) {
-        this.rooms.remove(connection.getUsername());
-    }
+    public synchronized void removePlayerFromRoom(Connection connection) { this.rooms.remove(connection.getUsername()); }
 
     public void startGame(ArrayList<Connection> connections) {
         Game game = new Game(server, connections);
 
         for (Connection connection : connections) {
-            addPlayerToRoom(connection, game);
+            assignPlayerToRoom(connection, game);
         }
 
         game.start();
