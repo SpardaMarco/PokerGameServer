@@ -1,6 +1,7 @@
 package poker.connection.protocol.message;
 
 public enum State {
+
     NEW_CONNECTION("NEW_CONNECTION"),
     CONNECTION_RECOVERY("CONNECTION_RECOVERY"),
     AUTHENTICATION("AUTHENTICATION"),
