@@ -67,7 +67,6 @@ public abstract class Channel {
     }
 
     protected Message getMessage(State expectedState, boolean isRequestExpected, Integer timeout) {
-
         Message message;
         if (timeout != null)
             message = getMessage(timeout);

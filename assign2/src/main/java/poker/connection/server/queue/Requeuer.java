@@ -1,18 +1,32 @@
 package poker.connection.server.queue;
 
-import poker.connection.protocol.channels.ServerChannel;
+import poker.connection.protocol.Connection;
+import poker.connection.protocol.message.Message;
 
 public class Requeuer extends  Thread {
-    private final String player;
-    private final ServerChannel channel;
+    private final QueueManager queueManager;
+    private final Connection connection;
 
-    public Requeuer(String player, ServerChannel channel) {
-        this.player = player;
-        this.channel = channel;
+    public Requeuer(QueueManager queueManager, Connection connection) {
+        this.queueManager = queueManager;
+        this.connection = connection;
     }
 
-    @Override
+    private boolean askPlayerToRequeue() throws InterruptedException {
+        Message response = connection.getChannel().sendRequeueRequest("Do you want to requeue?");
+        return response.getAttribute("RequeueResponse").equalsIgnoreCase("Yes");
+    }
+
+@Override
     public void run() {
-        // TBD: Logic to requeue player
+        try {
+            boolean wantsToRequeue = askPlayerToRequeue();
+            if (wantsToRequeue) {
+                queueManager.addPlayerToMainQueue(connection);
+            }
+            queueManager.removePlayerFromRequeue(connection);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
