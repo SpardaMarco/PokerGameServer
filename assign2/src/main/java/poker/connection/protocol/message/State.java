@@ -6,8 +6,9 @@ public enum State {
     AUTHENTICATION("AUTHENTICATION"),
     CONNECTION_END("CONNECTION_END"),
     MATCHMAKING("MATCHMAKING"),
-    MATCH("MATCH");
-
+    MATCH_DISPLAY("MATCH_DISPLAY"),
+    MATCH_MOVE("MATCH_MOVE"),
+    MATCH_END("MATCH_END");
     final String value;
 
     State(String value) {

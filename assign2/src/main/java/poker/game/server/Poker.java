@@ -138,7 +138,7 @@ public class Poker {
 
     public ArrayList<PokerPlayer> getGameWinners() {
         ArrayList<PokerPlayer> winners = new ArrayList<PokerPlayer>(players);
-        winners.sort((PokerPlayer p1, PokerPlayer p2) -> p1.getMoney() - p2.getMoney());
+        winners.sort(Comparator.comparingInt(PokerPlayer::getMoney));
         return winners;
     }
 
