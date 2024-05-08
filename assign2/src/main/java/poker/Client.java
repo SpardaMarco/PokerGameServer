@@ -39,7 +39,7 @@ public class Client {
     private void init() {
         ClientState state = new ConnectionRecovery();
 
-        while ((state = state.handle(this)) != null);
+        while ((state = state.handle(channel)) != null);
 
         System.out.println("Connection ended");
     }
