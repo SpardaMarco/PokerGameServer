@@ -15,8 +15,8 @@ public class DatabaseInterface {
 
         try  {
             database = DriverManager.getConnection("jdbc:sqlite:" + dbFile);
-            if (database != null) {
-                System.out.println("Database connected successfully.");
+            if (database == null) {
+                throw new RuntimeException("Database connection failed.");
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
