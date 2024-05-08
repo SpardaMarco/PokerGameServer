@@ -1,21 +1,12 @@
 package poker;
 
-import poker.clientState.ClientState;
-import poker.clientState.ConnectionRecovery;
+import poker.client.state.ClientState;
+import poker.client.state.ConnectionRecovery;
 import poker.connection.client.ClientChannelFactory;
 import poker.connection.protocol.channels.ClientChannel;
-import poker.connection.protocol.message.Message;
-import poker.connection.protocol.message.State;
 
-import javax.net.ssl.*;
 import java.io.*;
-import java.net.ConnectException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.security.KeyStore;
 import java.util.Scanner;
-
-import static poker.connection.protocol.message.State.*;
 
 public class Client {
     private final ClientChannel channel;
