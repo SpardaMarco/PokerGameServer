@@ -16,6 +16,8 @@ public class QueueManager extends VirtualThread {
     private final Map<String, Game> rooms = new HashMap<>();
     private final Map<String, Threshold> playerThresholds = new HashMap<>();
 
+    private static final int THRESHOLD = 1000;
+
     public QueueManager(Server server) {
         this.server = server;
     }
@@ -85,7 +87,7 @@ public class QueueManager extends VirtualThread {
     }
 
     public synchronized void addPlayerThreshold(Connection connection) {
-        Threshold threshold = new Threshold(connection.getRank() - 1000, connection.getRank() + 1000);
+        Threshold threshold = new Threshold(connection.getRank() - THRESHOLD, connection.getRank() + THRESHOLD);
         playerThresholds.put(connection.getUsername(), threshold);
     }
 
@@ -95,8 +97,8 @@ public class QueueManager extends VirtualThread {
 
     public synchronized void updatePlayerThreshold(Connection connection) {
         Threshold threshold = playerThresholds.get(connection.getUsername());
-        threshold.setLowerBound(threshold.getLowerBound() - 1000);
-        threshold.setUpperBound(threshold.getUpperBound() + 1000);
+        threshold.setLowerBound(threshold.getLowerBound() - THRESHOLD);
+        threshold.setUpperBound(threshold.getUpperBound() + THRESHOLD);
     }
 
     public void startGame(ArrayList<Connection> connections) {
