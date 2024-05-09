@@ -4,9 +4,11 @@ public class Threshold {
     private int lowerBound;
     private int upperBound;
 
-    public Threshold(int lowerBound, int upperBound) {
-        this.lowerBound = lowerBound;
-        this.upperBound = upperBound;
+    private int range = 50;
+
+    public Threshold(int midpoint) {
+        this.lowerBound = midpoint - range;
+        this.upperBound = midpoint + range;
     }
 
     public int getLowerBound() {
@@ -17,15 +19,17 @@ public class Threshold {
         return upperBound;
     }
 
-    public void setLowerBound(int lowerBound) {
-        this.lowerBound = lowerBound;
-    }
-
-    public void setUpperBound(int upperBound) {
-        this.upperBound = upperBound;
-    }
-
-    public boolean isWithinThreshold(int value) {
+    private boolean isWithinThreshold(int value) {
         return value >= lowerBound && value <= upperBound;
+    }
+
+    public boolean overlaps(Threshold other) {
+        return this.isWithinThreshold(other.getLowerBound()) || this.isWithinThreshold(other.getUpperBound());
+    }
+
+    public void expand() {
+        range *= 2;
+        lowerBound -= range;
+        upperBound += range;
     }
 }

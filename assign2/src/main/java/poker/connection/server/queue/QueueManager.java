@@ -19,8 +19,7 @@ public class QueueManager extends VirtualThread {
     private final Map<String, Threshold> playerThresholds = new HashMap<>();
     private final Map<String, ScheduledExecutorService> playerSchedulers = new HashMap<>();
 
-    private static final int THRESHOLD = 1000;
-    private static final int TIME_TO_RELAX = 20;
+    private static final int TIME_TO_RELAX = 10;
 
     public QueueManager(Server server) {
         this.server = server;
@@ -92,7 +91,7 @@ public class QueueManager extends VirtualThread {
     }
 
     public synchronized void addPlayerThreshold(Connection connection) {
-        Threshold threshold = new Threshold(connection.getRank() - THRESHOLD, connection.getRank() + THRESHOLD);
+        Threshold threshold = new Threshold(connection.getRank());
         playerThresholds.put(connection.getUsername(), threshold);
     }
 
@@ -102,10 +101,9 @@ public class QueueManager extends VirtualThread {
 
     public synchronized void updatePlayerThreshold(Connection connection) {
         Threshold threshold = playerThresholds.get(connection.getUsername());
-        threshold.setLowerBound(threshold.getLowerBound() - THRESHOLD);
-        threshold.setUpperBound(threshold.getUpperBound() + THRESHOLD);
-
-        System.out.println("Updated threshold for " + connection.getUsername() + " to " + threshold.getLowerBound() + " - " + threshold.getUpperBound());
+        threshold.expand();
+        notify();
+        System.out.println("Updated threshold for " + connection.getUsername() + " to " + threshold.getLowerBound() + " / " + threshold.getUpperBound());
     }
 
     public void schedulePlayerThresholdUpdate(Connection connection) {
@@ -150,7 +148,7 @@ public class QueueManager extends VirtualThread {
             room.add(player);
             for (Connection opponent : rankedQueue) {
                 if (player.getUsername().equals(opponent.getUsername())) continue;
-                if (threshold.isWithinThreshold(opponent.getRank())) {
+                if (threshold.overlaps(playerThresholds.get(opponent.getUsername()))) {
                     room.add(opponent);
                     if (room.size() == PokerConstants.NUM_PLAYERS) {
                         break;
