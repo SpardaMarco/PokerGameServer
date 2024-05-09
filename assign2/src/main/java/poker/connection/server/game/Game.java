@@ -9,6 +9,7 @@ import poker.game.common.GameState;
 import poker.game.common.PokerPlayer;
 import poker.game.server.Poker;
 
+import java.lang.invoke.LambdaMetafactory;
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -137,27 +138,19 @@ public class Game extends VirtualThread {
             return;
         }
 
-        String action = message.hasAttribute("action") ? message.getAttribute("action") : "";
-        int amount = message.hasAttribute("amount") ? message.getIntAttribute("amount") : 0;
-        switch (action) {
-            case "fold":
-                poker.takeAction(PokerPlayer.PLAYER_ACTION.FOLD, amount);
-                break;
-            case "call":
-                poker.takeAction(PokerPlayer.PLAYER_ACTION.CALL, amount);
-                break;
-            case "bet":
-                poker.takeAction(PokerPlayer.PLAYER_ACTION.BET, amount);
-                break;
-            case "check":
-                poker.takeAction(PokerPlayer.PLAYER_ACTION.CHECK, amount);
-                break;
-            case "all_in":
-                poker.takeAction(PokerPlayer.PLAYER_ACTION.ALL_IN, amount);
-                break;
-            default:
-                throw new RuntimeException("Invalid action: " + action);
+        String action = message.getAttribute("action");
+        Integer amount = message.getIntAttribute("amount");
+
+        if (action == null || amount == null) {
+            throw new RuntimeException(String.format(
+                    "Invalid player move received from player %d - action: %s, amount: %d",
+                    player,
+                    action,
+                    amount
+            ));
         }
+        PokerPlayer.PLAYER_ACTION playerAction = PokerPlayer.PLAYER_ACTION.fromString(action);
+        poker.takeAction(playerAction, amount);
     }
 
     private void finishGame() {

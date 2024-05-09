@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.util.Map;
 
 import static poker.connection.protocol.message.State.*;
+import static poker.connection.protocol.message.Status.OK;
 import static poker.connection.protocol.message.Status.REQUEST;
 
 public class ClientChannel extends Channel {
@@ -34,8 +35,8 @@ public class ClientChannel extends Channel {
         getRequest(MATCH_START);
     }
 
-    public void sendPlayerMove(String body, String action, String amount) {
-        sendMessage(MATCH_MOVE, REQUEST, body, Map.of(
+    public void sendPlayerMove(String action, String amount) {
+        sendMessage(MATCH_MOVE, OK, null, Map.of(
                 "action", action,
                 "amount", amount)
         );

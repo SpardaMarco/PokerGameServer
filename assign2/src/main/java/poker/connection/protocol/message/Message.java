@@ -44,11 +44,11 @@ public class Message {
     }
 
     public String getAttribute(String key) {
-        return attributes.getString(key);
+        return hasAttribute(key) ? attributes.getString(key) : null;
     }
 
-    public int getIntAttribute(String key) {
-        return attributes.getInt(key);
+    public Integer getIntAttribute(String key) {
+        return hasAttribute(key) ? attributes.getInt(key) : null;
     }
 
     public JSONObject getJSONAttribute(String key) {

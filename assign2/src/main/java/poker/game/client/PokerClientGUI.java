@@ -12,7 +12,7 @@ import java.util.Scanner;
 
 import static poker.game.common.PokerConstants.*;
 
-public class PokerClientGui {
+public class PokerClientGUI {
 
     public void display(GameState gameState) {
         if (gameState.isGameOver()) {
@@ -44,14 +44,26 @@ public class PokerClientGui {
 
     private void displayInfo(GameState gameState) {
         for (int i = 0; i < gameState.getPlayers().size(); i++) {
-            if (i == gameState.getPlayer()) continue;
-            else {
-                System.out.println(gameState.getPlayers().get(i));
+            if (i != gameState.getPlayer()) {
+                if (gameState.getSmallBlind() == i) {
+                    System.out.println(gameState.getPlayers().get(i) + " (Small Blind)");
+                } else if (gameState.getBigBlind() == i) {
+                    System.out.println(gameState.getPlayers().get(i) + " (Big Blind)");
+                } else {
+                    System.out.println(gameState.getPlayers().get(i));
+                }
             }
         }
         System.out.println();
         PokerPlayer player = gameState.getPlayers().get(gameState.getPlayer());
-        System.out.println(player);
+
+        if (gameState.getPlayer() == gameState.getSmallBlind())
+            System.out.println(player + " (Small Blind)");
+        else if (gameState.getPlayer() == gameState.getBigBlind())
+            System.out.println(player + " (Big Blind)");
+        else
+            System.out.println(player);
+
         System.out.println(showPlayerHand(player));
         System.out.println(showCommunityCards(gameState));
     }
@@ -120,25 +132,31 @@ public class PokerClientGui {
         int amount = 0;
         PokerPlayer.PLAYER_ACTION action;
 
-        options.append(option).append(". Fold\n");
-        actions.put(option++, PokerPlayer.PLAYER_ACTION.FOLD);
+        if (currBet != 0) {
+            options.append(option).append(". Fold\n");
+            actions.put(option++, PokerPlayer.PLAYER_ACTION.FOLD);
+        }
 
-
-        if (player.getBet() == currBet) {
+        if (player.getTurnBet() == currBet) {
             options.append(option).append(". Check\n");
             actions.put(option++, PokerPlayer.PLAYER_ACTION.CHECK);
-        } else if (player.getBet() < currBet && player.getMoney() > currBet - player.getBet()) {
-            options.append(option).append(". Call\n");
+        } else if (player.getTurnBet() < currBet && player.getMoney() > currBet - player.getTurnBet()) {
+            options.append(option).append(". Call ("  + (currBet - player.getTurnBet())).append(")\n");
             actions.put(option++, PokerPlayer.PLAYER_ACTION.CALL);
         }
 
-        options.append(option).append(". ").append(player.getBet() == 0 ? "Bet" : "Raise").append("\n");
-        actions.put(option++, PokerPlayer.PLAYER_ACTION.BET);
+        if (currBet == 0) {
+            options.append(option).append(". ").append("Bet").append("\n");
+            actions.put(option++, PokerPlayer.PLAYER_ACTION.BET);
+        } else if (player.getMoney() > currBet) {
+            options.append(option).append(". Raise\n");
+            actions.put(option++, PokerPlayer.PLAYER_ACTION.BET);
+        }
 
         options.append(option).append(". All in\n");
         actions.put(option++, PokerPlayer.PLAYER_ACTION.ALL_IN);
 
-        System.out.println(options.toString());
+        System.out.println(options);
         // Read user input from console
         System.out.println("Enter your choice: ");
         int choice = scanner.nextInt();
@@ -155,10 +173,11 @@ public class PokerClientGui {
         action = actions.get(choice);
 
         if (action == PokerPlayer.PLAYER_ACTION.BET) {
-            System.out.println("Enter the amount you want to bet (Minimum bet: " + Math.max(currBet - player.getBet(), 1) + ")");
+            int minBet = Math.max(currBet - player.getTurnBet(), gameState.getBigBlindBet());
+            System.out.println("Enter the amount you want to bet (Minimum bet: " + minBet + ")");
             amount = scanner.nextInt();
-            while (amount < currBet) {
-                System.out.println("Invalid amount. Enter the amount you want to bet (Minimum bet: " + currBet + "): ");
+            while (amount < minBet) {
+                System.out.println("Invalid amount. Enter the amount you want to bet (Minimum bet: " + minBet + "): ");
                 amount = scanner.nextInt();
             }
         }

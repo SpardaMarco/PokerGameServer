@@ -87,7 +87,7 @@ public abstract class Channel {
             if (expectedState != null && message.getState() != expectedState) {
                 throw new RuntimeException("Unexpected state in message:\n" + message);
             }
-            if (isRequestExpected == !message.isRequest()) {
+            if (isRequestExpected && !message.isRequest()) {
                 throw new RuntimeException("Expected request but got response:\n" + message);
             } else if (!isRequestExpected && message.isRequest()) {
                 throw new RuntimeException("Expected response but got request:\n" + message);

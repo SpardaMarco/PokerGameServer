@@ -11,7 +11,7 @@ import java.util.Scanner;
 // Only for testing purposes
 public class Test {
     Poker poker;
-    PokerClientGui displayer = new PokerClientGui();
+    PokerClientGUI displayer = new PokerClientGUI();
     ArrayList<String> players = new ArrayList<String>();
 
     public Test() {

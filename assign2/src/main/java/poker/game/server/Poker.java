@@ -24,7 +24,7 @@ public class Poker {
     private final ArrayList<PokerPlayer> players = new ArrayList<>(NUM_PLAYERS);
     private final Deck deck = new Deck();
     private final ArrayList<Card> communityCards = new ArrayList<>(NUM_COMMUNITY_CARDS);
-    private final HandAnalyzer handAnalyzer = new HandAnalyzer(this);
+    private final HandRanker handRanker = new HandRanker(this);
 
     public Poker(ArrayList<String> players) {
         this.handsPlayed = 0;
@@ -85,8 +85,8 @@ public class Poker {
         return this.handsPlayed;
     }
 
-    public HandAnalyzer getHandAnalyzer() {
-        return this.handAnalyzer;
+    public HandRanker getHandAnalyzer() {
+        return this.handRanker;
     }
 
     private boolean isPlayerSmallBlind(PokerPlayer player) {
@@ -153,7 +153,7 @@ public class Poker {
     }
 
     public ArrayList<PokerPlayer> getHandWinners() {
-        return handAnalyzer.getWinners();
+        return handRanker.getWinners();
     }
 
     private void startHand() {
@@ -183,6 +183,7 @@ public class Poker {
 
         for (PokerPlayer player : players) {
             player.resetBet();
+            player.resetTurnBet();
             player.resetState();
         }
 
@@ -229,6 +230,11 @@ public class Poker {
             case TURN:
                 this.state = GamePhase.RIVER;
                 break;
+        }
+
+        this.currBet = 0;
+        for (PokerPlayer player : players) {
+            player.resetTurnBet();
         }
 
         this.currPlayer = this.smallBlind;
@@ -300,7 +306,7 @@ public class Poker {
             winnersToSend = this.getGameWinners();
         } else if (this.isHandOver) {
             for (PokerPlayer player : players) {
-                handRanksToSend.add(handAnalyzer.analyzeHand(player));
+                handRanksToSend.add(handRanker.analyzeHand(player));
             }
             playersToSend.addAll(players);
             winnersToSend = this.getHandWinners();
@@ -309,8 +315,7 @@ public class Poker {
                 if (player.getUsername().equals(players.get(playerAsking).getUsername())) {
                     playersToSend.add(player);
                 } else {
-                    PokerPlayer p = new PokerPlayer(player.getUsername(), player.getMoney(), player.getState(), player.getBet());
-                    playersToSend.add(p);
+                    playersToSend.add(player.privateCopy());
                 }
             }
         }

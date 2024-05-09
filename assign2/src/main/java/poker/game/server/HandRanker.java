@@ -3,10 +3,10 @@ package poker.game.server;
 import poker.game.common.*;
 import java.util.*;
 
-public class HandAnalyzer {
+public class HandRanker {
     public final Poker game;
 
-    public HandAnalyzer(Poker game) {
+    public HandRanker(Poker game) {
         this.game = game;
     }
 

@@ -94,8 +94,8 @@ public class GameState {
     public int getCurrBet() {
         int maximumBet = 0;
         for (PokerPlayer player : players) {
-            if (player.getBet() > maximumBet) {
-                maximumBet = player.getBet();
+            if (player.getTurnBet() > maximumBet) {
+                maximumBet = player.getTurnBet();
             }
         }
         return maximumBet;

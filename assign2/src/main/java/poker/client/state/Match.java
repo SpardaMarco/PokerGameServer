@@ -3,7 +3,7 @@ package poker.client.state;
 import com.google.gson.Gson;
 import poker.connection.protocol.channels.ClientChannel;
 import poker.connection.protocol.message.Message;
-import poker.game.client.PokerClientGui;
+import poker.game.client.PokerClientGUI;
 import poker.game.common.GameState;
 import poker.utils.Pair;
 
@@ -12,7 +12,7 @@ import static poker.connection.protocol.message.State.MATCH_MOVE;
 
 public class Match implements ClientState {
 
-    PokerClientGui gui = new PokerClientGui();
+    PokerClientGUI gui = new PokerClientGUI();
 
     @Override
     public ClientState handle(ClientChannel channel) {
@@ -36,7 +36,7 @@ public class Match implements ClientState {
             Pair<String, Integer> action = gui.askMove(gameState);
 
             try {
-                channel.sendPlayerMove("Player move", action.getFirst(), action.getSecond().toString());
+                channel.sendPlayerMove(action.getFirst(), action.getSecond().toString());
             } catch (Exception e) {
                 System.out.println("Failed communicating with the server during Match");
                 return null;
