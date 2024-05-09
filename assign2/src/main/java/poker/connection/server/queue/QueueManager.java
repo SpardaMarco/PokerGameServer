@@ -7,6 +7,8 @@ import poker.connection.server.game.Game;
 import poker.connection.utils.VirtualThread;
 
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class QueueManager extends VirtualThread {
     private final Server server;
@@ -15,8 +17,10 @@ public class QueueManager extends VirtualThread {
     private final Queue<Connection> playersRequeueing = new LinkedList<>();
     private final Map<String, Game> rooms = new HashMap<>();
     private final Map<String, Threshold> playerThresholds = new HashMap<>();
+    private final Map<String, ScheduledExecutorService> playerSchedulers = new HashMap<>();
 
     private static final int THRESHOLD = 1000;
+    private static final int TIME_TO_RELAX = 20;
 
     public QueueManager(Server server) {
         this.server = server;
@@ -35,6 +39,7 @@ public class QueueManager extends VirtualThread {
                     rankedQueue.add(connection);
                     addPlayerThreshold(connection);
                     notify();
+                    schedulePlayerThresholdUpdate(connection);
                 } else {
                     updateMainQueue(connection);
                 }
@@ -99,6 +104,26 @@ public class QueueManager extends VirtualThread {
         Threshold threshold = playerThresholds.get(connection.getUsername());
         threshold.setLowerBound(threshold.getLowerBound() - THRESHOLD);
         threshold.setUpperBound(threshold.getUpperBound() + THRESHOLD);
+
+        System.out.println("Updated threshold for " + connection.getUsername() + " to " + threshold.getLowerBound() + " - " + threshold.getUpperBound());
+    }
+
+    public void schedulePlayerThresholdUpdate(Connection connection) {
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.schedule(() ->
+                        updatePlayerThreshold(connection),
+                TIME_TO_RELAX,
+                java.util.concurrent.TimeUnit.SECONDS
+        );
+        playerSchedulers.put(connection.getUsername(), scheduler);
+    }
+
+    public void cancelPlayerThresholdUpdate(Connection connection) {
+        ScheduledExecutorService scheduler = playerSchedulers.get(connection.getUsername());
+        if (scheduler != null) {
+            scheduler.shutdown();
+            playerSchedulers.remove(connection.getUsername());
+        }
     }
 
     public void startGame(ArrayList<Connection> connections) {
@@ -159,12 +184,14 @@ public class QueueManager extends VirtualThread {
                                         allAlive = false;
                                         rankedQueue.remove(connection);
                                         removePlayerThreshold(connection);
+                                        cancelPlayerThresholdUpdate(connection);
                                     }
                                 }
                                 if (allAlive) {
                                     for (Connection connection : connections) {
                                         rankedQueue.remove(connection);
                                         removePlayerThreshold(connection);
+                                        cancelPlayerThresholdUpdate(connection);
                                     }
                                     startGame(connections);
                                 }
