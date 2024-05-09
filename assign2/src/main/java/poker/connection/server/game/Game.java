@@ -168,7 +168,6 @@ public class Game extends VirtualThread {
         }
         server.getQueueManager().requeuePlayers(playerConnections);
         playerConnectionsLock.unlock();
-
     }
 
     private void updateRanks() {
