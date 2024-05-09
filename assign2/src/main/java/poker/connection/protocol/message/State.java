@@ -3,8 +3,9 @@ package poker.connection.protocol.message;
 public enum State {
     NEW_CONNECTION("NEW_CONNECTION"),
     CONNECTION_RECOVERY("CONNECTION_RECOVERY"),
-    AUTHENTICATION("AUTHENTICATION"),
+    CONNECTION_CHECK("CONNECTION_CHECK"),
     CONNECTION_END("CONNECTION_END"),
+    AUTHENTICATION("AUTHENTICATION"),
     MATCHMAKING("MATCHMAKING"),
     MATCH_START("MATCH_START"),
     MATCH_DISPLAY("MATCH_DISPLAY"),
@@ -16,10 +17,6 @@ public enum State {
 
     State(String value) {
         this.value = value;
-    }
-
-    public Boolean equals(String value) {
-        return this.value.equals(value);
     }
 
     public Boolean equals(State state) {

@@ -36,6 +36,6 @@ public class Connection {
     }
 
     public boolean isBroken() {
-        return !channel.isOpen();
+        return channel.isBroken();
     }
 }

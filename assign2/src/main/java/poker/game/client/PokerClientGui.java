@@ -1,8 +1,8 @@
 package poker.game.client;
 
 import poker.game.common.Card;
+import poker.game.common.GamePhase;
 import poker.game.common.GameState;
-import poker.game.common.OutboundGameState;
 import poker.game.common.PokerPlayer;
 import static poker.game.common.PokerConstants.*;
 
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class PokerClientGui {
 
-    public void display(OutboundGameState gameState) {
+    public void display(GameState gameState) {
         if (gameState.isGameOver()) {
             displayGameOver(gameState);
         } else if (gameState.isHandOver()) {
@@ -20,7 +20,7 @@ public class PokerClientGui {
         }
     }
 
-    private void displayGameOver(OutboundGameState gameState) {
+    private void displayGameOver(GameState gameState) {
         System.out.println("Game over!");
         ArrayList<PokerPlayer> winners = gameState.getWinners();
         System.out.println("Leaderboard: ");
@@ -29,7 +29,7 @@ public class PokerClientGui {
         }
     }
 
-    private void displayGameState(OutboundGameState gameState) {
+    private void displayGameState(GameState gameState) {
         int currentPlayer = gameState.getCurrPlayer();
         int pot = gameState.getPlayers().stream().mapToInt(PokerPlayer::getBet).sum();
         System.out.println("Hand " + (gameState.getHandsPlayed()+1) + " - " + gameState.getPlayers().get(currentPlayer).getUsername() + "'s turn");
@@ -38,7 +38,7 @@ public class PokerClientGui {
         System.out.println();
     }
 
-    private void displayInfo(OutboundGameState gameState) {
+    private void displayInfo(GameState gameState) {
         for (int i = 0; i < gameState.getPlayers().size(); i++) {
             if (i == gameState.getPlayer()) continue;
             else {
@@ -64,19 +64,19 @@ public class PokerClientGui {
         return sb.toString();
     }
 
-    private String showCommunityCards(OutboundGameState gameState) {
-        if (gameState.getState() == GameState.PREFLOP) return "";
+    private String showCommunityCards(GameState gameState) {
+        if (gameState.getPhase() == GamePhase.PREFLOP) return "";
         StringBuilder sb = new StringBuilder();
         sb.append("Flop: ");
         for (int i = 0; i < NUM_FLOP_CARDS; i++) {
             sb.append(gameState.getCommunityCards().get(i).toString()).append(" ");
         }
-        if (gameState.getState() == GameState.FLOP) return sb.toString();
+        if (gameState.getPhase() == GamePhase.FLOP) return sb.toString();
         sb.append("\nTurn: ");
         for (int i = NUM_FLOP_CARDS; i < NUM_FLOP_CARDS + NUM_TURN_CARDS; i++) {
             sb.append(gameState.getCommunityCards().get(i).toString()).append(" ");
         }
-        if (gameState.getState() == GameState.TURN) return sb.toString();
+        if (gameState.getPhase() == GamePhase.TURN) return sb.toString();
         sb.append("\nRiver: ");
         for (int i = NUM_FLOP_CARDS + NUM_TURN_CARDS; i < NUM_COMMUNITY_CARDS; i++) {
             sb.append(gameState.getCommunityCards().get(i).toString()).append(" ");
@@ -84,7 +84,7 @@ public class PokerClientGui {
         return sb.toString();
     }
 
-    private void displayHandOver(OutboundGameState gameState) {
+    private void displayHandOver(GameState gameState) {
         int pot = gameState.getPlayers().stream().mapToInt(PokerPlayer::getBet).sum();
         for (int i = 0; i < gameState.getPlayers().size(); i++) {
             PokerPlayer player = gameState.getPlayers().get(i);

@@ -1,11 +1,12 @@
 package poker.connection.server.game;
 
 import poker.Server;
+import poker.connection.protocol.Channel;
 import poker.connection.protocol.Connection;
 import poker.connection.protocol.channels.ServerChannel;
 import poker.connection.protocol.message.Message;
 import poker.connection.utils.VirtualThread;
-import poker.game.common.OutboundGameState;
+import poker.game.common.GameState;
 import poker.game.common.PokerPlayer;
 import poker.game.server.Poker;
 
@@ -73,9 +74,15 @@ public class Game extends VirtualThread {
         playerConnectionsLock.lock();
         ServerChannel channel = playerConnections.get(player).getChannel();
         playerConnectionsLock.unlock();
-        OutboundGameState gameState = poker.getGameStateToSend(player);
+        GameState gameState = poker.getGameStateToSend(player);
 
         channel.sendGameState(null, gameState);
+    }
+
+    private void notifyPlayers() {
+        for (Connection connection: playerConnections) {
+            connection.getChannel().notifyGameStart();
+        }
     }
 
     @Override
@@ -84,6 +91,8 @@ public class Game extends VirtualThread {
         if (server.isLoggingEnabled()) {
             System.out.println("Starting game with " + playerConnections.size() + " players");
         }
+
+        notifyPlayers();
         play();
         if (server.isLoggingEnabled()) {
             System.out.println("Game finished");
@@ -112,7 +121,7 @@ public class Game extends VirtualThread {
         playerConnectionsLock.lock();
         ServerChannel channel = playerConnections.get(player).getChannel();
         playerConnectionsLock.unlock();
-        if (channel == null || !channel.isClosed()) {
+        if (channel == null || channel.isOpen()) {
             if (server.isLoggingEnabled()) {
                 System.out.println("Player " + player + " disconnected");
             }

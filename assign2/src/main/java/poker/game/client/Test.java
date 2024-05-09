@@ -28,13 +28,13 @@ public class Test {
         while (!poker.getIsGameOver()) {
             while(!poker.getIsHandOver()) {
                 int currentPlayer = poker.getCurrPlayer();
-                OutboundGameState g = poker.getGameStateToSend(currentPlayer);
+                GameState g = poker.getGameStateToSend(currentPlayer);
                 displayer.display(g);
                 makePlay(currentPlayer);
                 currentPlayer = poker.getCurrPlayer();
             }
             int currentPlayer = poker.getCurrPlayer();
-            OutboundGameState g = poker.getGameStateToSend(currentPlayer);
+            GameState g = poker.getGameStateToSend(currentPlayer);
             displayer.display(g);
 
             try {
@@ -45,7 +45,7 @@ public class Test {
             poker.endHand();
         }
 
-        OutboundGameState g = poker.getGameStateToSend(poker.getCurrPlayer());
+        GameState g = poker.getGameStateToSend(poker.getCurrPlayer());
         displayer.display(g);
     }
 

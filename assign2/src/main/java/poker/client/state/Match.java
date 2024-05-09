@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import poker.connection.protocol.channels.ClientChannel;
 import poker.connection.protocol.message.Message;
 import poker.game.client.PokerClientGui;
-import poker.game.common.OutboundGameState;
+import poker.game.common.GameState;
 
 import static poker.connection.protocol.message.State.MATCH_DISPLAY;
 import static poker.connection.protocol.message.State.MATCH_MOVE;
@@ -20,7 +20,7 @@ public class Match implements ClientState {
 
         if (message.getState().equals(MATCH_DISPLAY)) {
             String gameStateJson = message.getAttribute("gameState");
-            OutboundGameState gameState = new Gson().fromJson(gameStateJson, OutboundGameState.class);
+            GameState gameState = new Gson().fromJson(gameStateJson, GameState.class);
             gui.display(gameState);
 
             return this;

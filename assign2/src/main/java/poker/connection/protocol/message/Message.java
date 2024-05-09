@@ -4,6 +4,9 @@ import org.json.JSONObject;
 
 import java.util.Map;
 
+import static poker.connection.protocol.message.State.*;
+import static poker.connection.protocol.message.Status.*;
+
 public class Message {
     private final State state;
     private final Status status;
@@ -61,19 +64,23 @@ public class Message {
     }
 
     public boolean isConnectionEnd() {
-        return state.equals(State.CONNECTION_END);
+        return state.equals(CONNECTION_END);
+    }
+
+    public boolean isConnectionCheckRequest() {
+        return state.equals(CONNECTION_CHECK) && isRequest();
     }
 
     public boolean isOk() {
-        return status.equals(Status.OK);
+        return status.equals(OK);
     }
 
     public boolean isError() {
-        return status.equals(Status.ERROR);
+        return status.equals(ERROR);
     }
 
     public boolean isRequest() {
-        return status.equals(Status.REQUEST);
+        return status.equals(REQUEST);
     }
 
     public JSONObject toJSON() {

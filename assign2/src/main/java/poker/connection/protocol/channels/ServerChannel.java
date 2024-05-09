@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import poker.connection.protocol.Channel;
 import poker.connection.protocol.message.Message;
 import poker.connection.protocol.message.State;
-import poker.game.common.OutboundGameState;
+import poker.game.common.GameState;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -37,7 +37,7 @@ public class ServerChannel extends Channel {
         sendMessage(AUTHENTICATION, ERROR, body, null);
     }
 
-    public void sendGameState(String body, OutboundGameState gameState) {
+    public void sendGameState(String body, GameState gameState) {
         sendMessage(MATCH_DISPLAY, REQUEST, body, Map.of("gameState", new Gson().toJson(gameState)));
     }
 
@@ -61,5 +61,9 @@ public class ServerChannel extends Channel {
 
     public Message getAuthenticationRequest() {
         return getRequest(AUTHENTICATION);
+    }
+
+    public void notifyGameStart() {
+        sendMessage(MATCH_START, REQUEST, null, null);
     }
 }
