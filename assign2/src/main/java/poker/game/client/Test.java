@@ -1,11 +1,12 @@
 package poker.game.client;
 
+import poker.game.common.GameState;
+import poker.game.common.PokerPlayer;
+import poker.game.server.Poker;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
-
-import poker.game.common.*;
-import poker.game.server.*;
 
 // Only for testing purposes
 public class Test {
@@ -26,7 +27,7 @@ public class Test {
 
     public void play() {
         while (!poker.getIsGameOver()) {
-            while(!poker.getIsHandOver()) {
+            while (!poker.getIsHandOver()) {
                 int currentPlayer = poker.getCurrPlayer();
                 GameState g = poker.getGameStateToSend(currentPlayer);
                 displayer.display(g);
@@ -62,8 +63,7 @@ public class Test {
         if (player.getBet() == poker.getCurrBet()) {
             options.append(option).append(". Check\n");
             actions.put(option++, PokerPlayer.PLAYER_ACTION.CHECK);
-        }
-        else if (player.getBet() < poker.getCurrBet() && player.getMoney() > poker.getCurrBet() - player.getBet()) {
+        } else if (player.getBet() < poker.getCurrBet() && player.getMoney() > poker.getCurrBet() - player.getBet()) {
             options.append(option).append(". Call\n");
             actions.put(option++, PokerPlayer.PLAYER_ACTION.CALL);
         }
@@ -89,15 +89,14 @@ public class Test {
         }
         PokerPlayer.PLAYER_ACTION action = actions.get(choice);
         if (action == PokerPlayer.PLAYER_ACTION.BET) {
-            System.out.println("Enter the amount you want to bet (Minimum bet: " + Math.max(poker.getCurrBet()-player.getBet(), 1) + ")");
+            System.out.println("Enter the amount you want to bet (Minimum bet: " + Math.max(poker.getCurrBet() - player.getBet(), 1) + ")");
             int amount = scanner.nextInt();
             while (amount < poker.getCurrBet()) {
                 System.out.println("Invalid amount. Enter the amount you want to bet (Minimum bet: " + poker.getCurrBet() + "): ");
                 amount = scanner.nextInt();
             }
             poker.takeAction(action, amount);
-        }
-        else {
+        } else {
             poker.takeAction(action, 0);
         }
 

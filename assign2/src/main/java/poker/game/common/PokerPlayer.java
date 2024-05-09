@@ -14,7 +14,21 @@ public class PokerPlayer {
     }
 
     public enum PLAYER_ACTION {
-        FOLD, CHECK, BET, CALL, ALL_IN
+        FOLD("fold"),
+        CHECK("check"),
+        BET("bet"),
+        CALL("call"),
+        ALL_IN("all_in");
+        final String value;
+
+        PLAYER_ACTION(String value) {
+            this.value = value;
+        }
+
+        public Boolean equals(PLAYER_ACTION action) {
+            return this.value.equals(action.value);
+        }
+
     }
 
     public PokerPlayer(String name, int money) {
@@ -66,8 +80,7 @@ public class PokerPlayer {
             this.bet += this.money;
             this.money = 0;
             this.state = PLAYER_STATE.ALL_IN;
-        }
-        else {
+        } else {
             this.bet += amount;
             this.money -= amount;
             this.state = PLAYER_STATE.BETTING;

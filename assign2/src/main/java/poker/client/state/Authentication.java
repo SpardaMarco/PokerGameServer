@@ -1,6 +1,5 @@
 package poker.client.state;
 
-import poker.Client;
 import poker.client.LocalToken;
 import poker.connection.protocol.channels.ClientChannel;
 import poker.connection.protocol.message.Message;
@@ -16,7 +15,14 @@ public class Authentication implements ClientState {
         System.out.println("Enter your password: ");
         String password = new Scanner(System.in).nextLine();
 
-        Message response = channel.authenticate(username, password);
+        Message response;
+        try {
+            response = channel.authenticate(username, password);
+        } catch (Exception e) {
+            System.out.println("Failed communicating with the server during authentication");
+            return null;
+        }
+
         if (response == null) {
             return null;
         }

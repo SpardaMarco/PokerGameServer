@@ -1,13 +1,12 @@
 package poker;
 
-import poker.connection.protocol.channels.ServerChannel;
 import poker.connection.protocol.Connection;
 import poker.connection.server.authentication.AuthenticationManager;
 import poker.connection.server.database.DatabaseInterface;
 import poker.connection.server.queue.QueueManager;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Scanner;
 
 public class Server {
     private final AuthenticationManager authenticationManager;
@@ -29,9 +28,11 @@ public class Server {
             switch (args[i]) {
                 case "-l":
                     loggingEnabled = true;
+                    System.out.println("Logging enabled");
                     break;
                 case "-r":
                     rankedMode = true;
+                    System.out.println("Ranked mode enabled");
                     break;
                 default:
                     System.out.println("Usage: java TimeServer <port> [-l] [-r]");
@@ -71,9 +72,14 @@ public class Server {
         queueManager.start();
         System.out.println("Press [ENTER] to stop the server\n");
         new Scanner(System.in).nextLine();
+        disconnect();
     }
 
     public synchronized void queuePlayer(Connection connection) {
         queueManager.addPlayerToMainQueue(connection);
+    }
+
+    private synchronized void disconnect() {
+        // send disconnect message to all clients
     }
 }
