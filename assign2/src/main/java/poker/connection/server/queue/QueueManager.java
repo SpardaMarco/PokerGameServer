@@ -11,6 +11,7 @@ import java.util.*;
 public class QueueManager extends VirtualThread {
     private final Server server;
     private final Queue<Connection> mainQueue = new LinkedList<>();
+    private final List<Connection> rankedQueue = new ArrayList<>();
     private final Queue<Connection> playersRequeueing = new LinkedList<>();
     private final Map<String, Game> rooms = new HashMap<>();
     private final Map<String, Threshold> playerThresholds = new HashMap<>();
@@ -26,20 +27,33 @@ public class QueueManager extends VirtualThread {
     public synchronized void addPlayerToMainQueue(Connection connection) {
         if (rooms.get(connection.getUsername()) != null) {
             reconnectPlayerToGame(connection);
-        } else if (mainQueue.stream().noneMatch(c -> c.getUsername().equals(connection.getUsername()))) {
-            mainQueue.add(connection);
-
-            if (isRankedMode()) {
-                addPlayerThreshold(connection);
-            }
-
-            notify();
         } else {
-            updateMainQueue(connection);
+            if (isRankedMode()) {
+                if (rankedQueue.stream().noneMatch(c -> c.getUsername().equals(connection.getUsername()))) {
+                    rankedQueue.add(connection);
+                    addPlayerThreshold(connection);
+                    notify();
+                } else {
+                    updateMainQueue(connection);
+                }
+            }
+            else {
+                if (mainQueue.stream().noneMatch(c -> c.getUsername().equals(connection.getUsername()))) {
+                    mainQueue.add(connection);
+                    notify();
+                } else {
+                    updateMainQueue(connection);
+                }
+            }
         }
     }
 
     public synchronized void updateMainQueue(Connection connection) {
+        if (isRankedMode()) {
+            rankedQueue.replaceAll(c -> c.getUsername().equals(connection.getUsername()) ? connection : c);
+            return;
+        }
+
         Queue<Connection> tempQueue = new LinkedList<>();
 
         while (!mainQueue.isEmpty()) {
@@ -100,16 +114,61 @@ public class QueueManager extends VirtualThread {
         game.reconnectPlayer(connection);
     }
 
+    public ArrayList<Connection> tryMatchmaking() {
+        ArrayList<Connection> room = new ArrayList<>();
+
+        for (Connection player : rankedQueue) {
+            Threshold threshold = playerThresholds.get(player.getUsername());
+            room.add(player);
+            for (Connection opponent : rankedQueue) {
+                if (player.getUsername().equals(opponent.getUsername())) continue;
+                if (threshold.isWithinThreshold(opponent.getRank())) {
+                    room.add(opponent);
+                    if (room.size() == PokerConstants.NUM_PLAYERS) {
+                        break;
+                    }
+                }
+            }
+            if (room.size() != PokerConstants.NUM_PLAYERS) room.clear();
+            else break;
+        }
+
+        return room;
+    }
+
     @Override
     protected void run() {
         while (true) {
             synchronized (this) {
                 if (isRankedMode()) {
-
-                    // TBD: Implement the logic for ranked mode
-
+                   if (rankedQueue.size() < PokerConstants.NUM_PLAYERS) {
+                       try {
+                           wait();
+                       } catch (InterruptedException e) {
+                           throw new RuntimeException(e);
+                       }
+                   }
+                   else {
+                          ArrayList<Connection> connections = tryMatchmaking();
+                          if (!connections.isEmpty()) {
+                              boolean allAlive = true;
+                                for (Connection connection : connections) {
+                                    if (connection.isBroken()) {
+                                        allAlive = false;
+                                        rankedQueue.remove(connection);
+                                        removePlayerThreshold(connection);
+                                    }
+                                }
+                                if (allAlive) {
+                                    for (Connection connection : connections) {
+                                        rankedQueue.remove(connection);
+                                        removePlayerThreshold(connection);
+                                    }
+                                    startGame(connections);
+                                }
+                          }
+                   }
                 } else {
-
                     if (mainQueue.size() < PokerConstants.NUM_PLAYERS) {
                         try {
                             wait();

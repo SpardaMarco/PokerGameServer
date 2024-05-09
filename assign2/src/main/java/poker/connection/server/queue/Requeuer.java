@@ -25,11 +25,6 @@ public class Requeuer extends  Thread {
                 queueManager.addPlayerToMainQueue(connection);
             }
             queueManager.removePlayerFromRequeue(connection);
-
-            if (queueManager.isRankedMode()) {
-                queueManager.removePlayerThreshold(connection);
-            }
-
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
