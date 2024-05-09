@@ -41,4 +41,10 @@ public class ClientChannel extends Channel {
                 "amount", amount)
         );
     }
+
+    public void sendRequeueResponse(boolean requeue) {
+        sendMessage(REQUEUE, OK, null, Map.of(
+                "requeue", requeue)
+        );
+    }
 }

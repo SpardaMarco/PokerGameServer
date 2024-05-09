@@ -13,8 +13,8 @@ public class Requeuer extends  Thread {
     }
 
     private boolean askPlayerToRequeue() throws InterruptedException {
-        Message response = connection.getChannel().sendRequeueRequest("Do you want to requeue?");
-        return response.getAttribute("RequeueResponse").equalsIgnoreCase("Yes");
+        Message response = connection.getChannel().sendRequeueRequest();
+        return response.getBooleanAttribute("requeue");
     }
 
 @Override

@@ -41,8 +41,8 @@ public class ServerChannel extends Channel {
         sendMessage(MATCH_DISPLAY, REQUEST, body, Map.of("gameState", new Gson().toJson(gameState)));
     }
 
-    public Message sendRequeueRequest(String body) {
-        sendMessage(REQUEUE, REQUEST, body, null);
+    public Message sendRequeueRequest() {
+        sendMessage(REQUEUE, REQUEST, null, null);
         return getResponse(REQUEUE);
     }
 

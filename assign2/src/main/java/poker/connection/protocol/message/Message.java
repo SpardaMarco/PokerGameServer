@@ -51,6 +51,10 @@ public class Message {
         return hasAttribute(key) ? attributes.getInt(key) : null;
     }
 
+    public Boolean getBooleanAttribute(String key) {
+        return hasAttribute(key) ? attributes.getBoolean(key) : null;
+    }
+
     public JSONObject getJSONAttribute(String key) {
         return attributes.getJSONObject(key);
     }
