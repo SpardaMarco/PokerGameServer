@@ -146,6 +146,10 @@ public abstract class Channel {
         return !socket.isClosed();
     }
 
+    public boolean isClosed() {
+        return socket.isClosed();
+    }
+
     public boolean isAlive() {
 
         Message response = requestConnectionCheck();

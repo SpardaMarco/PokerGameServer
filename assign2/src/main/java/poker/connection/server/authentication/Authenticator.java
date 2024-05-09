@@ -32,8 +32,8 @@ public class Authenticator extends VirtualThread {
         Message request;
         while (channel.isOpen() && (request = channel.getRequest()) != null) {
             switch (request.getState()) {
-                case AUTHENTICATION -> handleAuthentication(request);
-                case CONNECTION_RECOVERY -> handleRecovery(request);
+                case AUTHENTICATION -> { if (handleAuthentication(request)) return; }
+                case CONNECTION_RECOVERY -> { if (handleRecovery(request)) return; }
                 case null, default -> {
                     terminateConnection("Invalid request");
                     return;
@@ -47,10 +47,20 @@ public class Authenticator extends VirtualThread {
         channel.close();
     }
 
-    private void handleRecovery(Message message) {
+    private boolean handleRecovery(Message message) {
+        Connection connection = recoverSession(message);
+
+        if (connection != null) {
+            server.queuePlayer(connection);
+            return true;
+        }
+        return false;
+    }
+
+    private Connection recoverSession(Message message) {
         if (!message.hasAttribute("sessionToken")) {
             channel.rejectConnectionRecovery("Missing session token");
-            return;
+            return null;
         }
 
         String token = message.getAttribute("sessionToken");
@@ -58,20 +68,27 @@ public class Authenticator extends VirtualThread {
 
         if (username != null) {
             String newToken = generateSession(username);
-            if (newToken != null)
+            if (newToken != null) {
                 channel.acceptConnectionRecovery("Session successfully recovered", username, newToken);
+                return new Connection(username, newToken, channel, database.getUserRank(username));
+            }
             else
                 rejectAuthentication("Something went wrong while generating session");
         } else {
             channel.rejectConnectionRecovery("Invalid or expired session token");
         }
+
+        return null;
     }
 
-    private void handleAuthentication(Message request) {
+    private boolean handleAuthentication(Message request) {
         Connection connection = authenticateUser(request);
 
-        if (connection != null)
+        if (connection != null) {
             server.queuePlayer(connection);
+            return true;
+        }
+        return false;
     }
 
     private Connection authenticateUser(Message request) {
@@ -106,8 +123,7 @@ public class Authenticator extends VirtualThread {
             String token = generateSession(username);
             if (token != null) {
                 channel.acceptAuthentication("User successfully authenticated", token);
-                int rank = database.getUserRank(username);
-                return new Connection(username, token, channel, rank);
+                return new Connection(username, token, channel, database.getUserRank(username));
             } else
                 rejectAuthentication("Something went wrong while generating session");
         } else
