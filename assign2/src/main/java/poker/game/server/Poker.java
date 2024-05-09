@@ -1,7 +1,10 @@
 package poker.game.server;
 
 import poker.game.common.*;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+
 import static poker.game.common.PokerConstants.*;
 
 public class Poker {
@@ -198,7 +201,7 @@ public class Poker {
             this.pot -= sidePot;
 
             for (int j = i; j >= 0; j--) {
-                winners.get(j).addMoney(sidePot/(i+1));
+                winners.get(j).addMoney(sidePot / (i + 1));
             }
         }
 

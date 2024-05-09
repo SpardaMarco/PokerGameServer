@@ -1,7 +1,6 @@
 package poker.connection.server.game;
 
 import poker.Server;
-import poker.connection.protocol.Channel;
 import poker.connection.protocol.Connection;
 import poker.connection.protocol.channels.ServerChannel;
 import poker.connection.protocol.message.Message;
@@ -80,7 +79,7 @@ public class Game extends VirtualThread {
     }
 
     private void notifyPlayers() {
-        for (Connection connection: playerConnections) {
+        for (Connection connection : playerConnections) {
             connection.getChannel().notifyGameStart();
         }
     }
@@ -129,7 +128,7 @@ public class Game extends VirtualThread {
             return;
         }
 
-        Message message = channel.getPlayerMove("It's your turn");
+        Message message = channel.getPlayerMove("It's your turn", poker.getGameStateToSend(player));
         if (message == null) {
             if (server.isLoggingEnabled()) {
                 System.out.println("Player " + player + " disconnected");
@@ -168,7 +167,6 @@ public class Game extends VirtualThread {
         }
         server.getQueueManager().requeuePlayers(playerConnections);
         playerConnectionsLock.unlock();
-
     }
 
     private void updateRanks() {

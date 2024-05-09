@@ -14,7 +14,14 @@ public class ConnectionRecovery implements ClientState {
 
         if (token != null) {
             if (confirmRecovery()) {
-                Message response = channel.recoverSession(token.toString());
+                Message response;
+                try {
+                    response = channel.recoverSession(token.toString());
+                } catch (Exception e) {
+                    System.out.println("Failed communicating with the server during Connection Recovery");
+                    return null;
+                }
+
                 if (response == null) {
                     return null;
                 }
@@ -32,6 +39,10 @@ public class ConnectionRecovery implements ClientState {
     private boolean confirmRecovery() {
         System.out.println("Do you wish to recover your previous session? (Y/N)");
         String input = new Scanner(System.in).nextLine();
+        while (!input.equalsIgnoreCase("Y") && !input.equalsIgnoreCase("N")) {
+            System.out.println("Invalid input. Please enter Y or N.");
+            input = new Scanner(System.in).nextLine();
+        }
         return input.equalsIgnoreCase("Y");
     }
 }

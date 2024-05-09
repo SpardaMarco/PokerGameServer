@@ -9,7 +9,12 @@ public class Matchmaking implements ClientState {
 
         System.out.println("Waiting for other players to join...");
 
-        channel.handleGameStartRequest();
+        try {
+            channel.handleGameStartRequest();
+        } catch (Exception e) {
+            System.out.println("Failed communicating with the server during Matchmaking");
+            return null;
+        }
 
         System.out.println("Game is starting...");
 

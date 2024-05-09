@@ -4,9 +4,13 @@ import poker.game.common.Card;
 import poker.game.common.GamePhase;
 import poker.game.common.GameState;
 import poker.game.common.PokerPlayer;
-import static poker.game.common.PokerConstants.*;
+import poker.utils.Pair;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Scanner;
+
+import static poker.game.common.PokerConstants.*;
 
 public class PokerClientGui {
 
@@ -32,7 +36,7 @@ public class PokerClientGui {
     private void displayGameState(GameState gameState) {
         int currentPlayer = gameState.getCurrPlayer();
         int pot = gameState.getPlayers().stream().mapToInt(PokerPlayer::getBet).sum();
-        System.out.println("Hand " + (gameState.getHandsPlayed()+1) + " - " + gameState.getPlayers().get(currentPlayer).getUsername() + "'s turn");
+        System.out.println("Hand " + (gameState.getHandsPlayed() + 1) + " - " + gameState.getPlayers().get(currentPlayer).getUsername() + "'s turn");
         System.out.println("Pot: " + pot + "\n");
         displayInfo(gameState);
         System.out.println();
@@ -103,5 +107,64 @@ public class PokerClientGui {
             System.out.println(winner.getUsername() + " wins " + pot / winners.size() + " with a " + gameState.getHandRanks().get(gameState.getPlayers().indexOf(winner)).toString());
         }
         System.out.println();
+    }
+
+    public Pair<String, Integer> askMove(GameState gameState) {
+        StringBuilder options = new StringBuilder();
+        Scanner scanner = new Scanner(System.in);
+        HashMap<Integer, PokerPlayer.PLAYER_ACTION> actions = new HashMap<Integer, PokerPlayer.PLAYER_ACTION>();
+        int option = 1;
+        int currBet = gameState.getCurrBet();
+        PokerPlayer player = gameState.getPlayers().get(gameState.getPlayer());
+
+        int amount = 0;
+        PokerPlayer.PLAYER_ACTION action;
+
+        options.append(option).append(". Fold\n");
+        actions.put(option++, PokerPlayer.PLAYER_ACTION.FOLD);
+
+
+        if (player.getBet() == currBet) {
+            options.append(option).append(". Check\n");
+            actions.put(option++, PokerPlayer.PLAYER_ACTION.CHECK);
+        } else if (player.getBet() < currBet && player.getMoney() > currBet - player.getBet()) {
+            options.append(option).append(". Call\n");
+            actions.put(option++, PokerPlayer.PLAYER_ACTION.CALL);
+        }
+
+        options.append(option).append(". ").append(player.getBet() == 0 ? "Bet" : "Raise").append("\n");
+        actions.put(option++, PokerPlayer.PLAYER_ACTION.BET);
+
+        options.append(option).append(". All in\n");
+        actions.put(option++, PokerPlayer.PLAYER_ACTION.ALL_IN);
+
+        System.out.println(options.toString());
+        // Read user input from console
+        System.out.println("Enter your choice: ");
+        int choice = scanner.nextInt();
+        try {
+            while (!actions.containsKey(choice)) {
+                System.out.println("Invalid choice. Enter your choice: ");
+                choice = scanner.nextInt();
+            }
+        } catch (Exception e) {
+            System.out.println("Invalid choice. Enter your choice: ");
+            choice = scanner.nextInt();
+        }
+
+        action = actions.get(choice);
+
+        if (action == PokerPlayer.PLAYER_ACTION.BET) {
+            System.out.println("Enter the amount you want to bet (Minimum bet: " + Math.max(currBet - player.getBet(), 1) + ")");
+            amount = scanner.nextInt();
+            while (amount < currBet) {
+                System.out.println("Invalid amount. Enter the amount you want to bet (Minimum bet: " + currBet + "): ");
+                amount = scanner.nextInt();
+            }
+        }
+
+        System.out.println();
+
+        return new Pair<>(action.toString(), amount);
     }
 }
