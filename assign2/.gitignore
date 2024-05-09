@@ -5,3 +5,7 @@
 build
 
 .idea
+
+src/database/poker.sql
+
+src/main/java/poker/client/session.txt

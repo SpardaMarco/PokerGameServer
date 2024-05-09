@@ -15,7 +15,7 @@ public class LocalToken {
 
     static public LocalToken retrieve() {
         try {
-            String path = System.getProperty("user.dir") + "/src/main/java/poker/connection/client/";
+            String path = System.getProperty("user.dir") + "/src/main/java/poker/client/";
             File file = new File(path + "session.txt");
             String token = new Scanner(file).nextLine();
             return new LocalToken(token);
@@ -26,7 +26,7 @@ public class LocalToken {
 
     public void save() {
         try {
-            String path = System.getProperty("user.dir") + "/src/main/java/poker/connection/client/";
+            String path = System.getProperty("user.dir") + "/src/main/java/poker/client/";
             File file = new File(path + "session.txt");
             FileWriter writer = new FileWriter(file);
             writer.write(token);

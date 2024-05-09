@@ -15,11 +15,14 @@ public class DatabaseInterface {
         String dbFile = path + "poker.db";
 
         try {
-            database = DriverManager.getConnection("jdbc:sqlite:" + dbFile);
-            if (database == null) {
-                throw new RuntimeException("Database connection failed.");
+            if (!Files.exists(Paths.get(dbFile))) {
+                database = DriverManager.getConnection("jdbc:sqlite:" + dbFile);
+                reset();
             }
-        } catch (SQLException e) {
+            else {
+                database = DriverManager.getConnection("jdbc:sqlite:" + dbFile);
+            }
+        } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
     }

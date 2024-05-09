@@ -103,7 +103,6 @@ public class QueueManager extends VirtualThread {
         Threshold threshold = playerThresholds.get(connection.getUsername());
         threshold.expand();
         notify();
-        System.out.println("Updated threshold for " + connection.getUsername() + " to " + threshold.getLowerBound() + " / " + threshold.getUpperBound());
     }
 
     public void schedulePlayerThresholdUpdate(Connection connection) {
