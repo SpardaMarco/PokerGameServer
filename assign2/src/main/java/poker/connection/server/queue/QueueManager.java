@@ -110,8 +110,9 @@ public class QueueManager extends VirtualThread {
 
     public void schedulePlayerThresholdUpdate(Connection connection) {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.schedule(() ->
+        scheduler.scheduleAtFixedRate(() ->
                         updatePlayerThreshold(connection),
+                TIME_TO_RELAX,
                 TIME_TO_RELAX,
                 java.util.concurrent.TimeUnit.SECONDS
         );

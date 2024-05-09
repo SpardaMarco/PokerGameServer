@@ -17,10 +17,6 @@ public class Threshold {
         return upperBound;
     }
 
-    public int getMidpoint() {
-        return (lowerBound + upperBound) / 2;
-    }
-
     public void setLowerBound(int lowerBound) {
         this.lowerBound = lowerBound;
     }
