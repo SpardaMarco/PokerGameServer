@@ -11,7 +11,7 @@ import java.util.*;
 public class QueueManager extends VirtualThread {
     private final Server server;
     private final Queue<Connection> mainQueue = new LinkedList<>();
-    private final Queue<Connection> playersRequeuing = new LinkedList<>();
+    private final Queue<Connection> playersRequeueing = new LinkedList<>();
     private final Map<String, Game> rooms = new HashMap<>();
 
     public QueueManager(Server server) {
@@ -49,11 +49,11 @@ public class QueueManager extends VirtualThread {
     }
 
     public synchronized void requeuePlayers(List<Connection> connections) {
-        this.playersRequeuing.addAll(connections);
+        this.playersRequeueing.addAll(connections);
         notify();
     }
 
-    public synchronized void removePlayerFromRequeue(Connection connection) {this.playersRequeuing.remove(connection); }
+    public synchronized void removePlayerFromRequeue(Connection connection) {this.playersRequeueing.remove(connection); }
 
     public synchronized void assignPlayerToRoom(Connection connection, Game game) { this.rooms.put(connection.getUsername(), game); }
 
@@ -107,8 +107,8 @@ public class QueueManager extends VirtualThread {
                 }
             }
 
-            if (!this.playersRequeuing.isEmpty()) {
-                for (Connection connection : this.playersRequeuing) {
+            if (!this.playersRequeueing.isEmpty()) {
+                for (Connection connection : this.playersRequeueing) {
                     new Requeuer(this, connection).start();
                 }
             }
