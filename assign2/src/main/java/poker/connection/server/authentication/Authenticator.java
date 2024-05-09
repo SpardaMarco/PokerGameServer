@@ -101,7 +101,7 @@ public class Authenticator extends VirtualThread {
         String password = request.getAttribute("password");
 
         try {
-            return database.userExists(username) ? loginUser(username, password) : registerUser(username, password);
+            return database.userExists(username) ? handleLogin(username, password) : handleRegistration(username, password);
 
         } catch (SQLException e) {
             rejectAuthentication("Something went wrong while authenticating user");
@@ -109,26 +109,37 @@ public class Authenticator extends VirtualThread {
         }
     }
 
-    private Connection registerUser(String username, String password) throws SQLException {
-        if (database.registerUser(username, password))
-            return loginUser(username, password);
+    private Connection handleRegistration(String username, String password) throws SQLException {
+        if (database.registerUser(username, password)) {
+            Connection connection = login(username, password);
+            if (connection != null) {
+                channel.acceptAuthentication("User successfully registered", connection.getSession());
+                return connection;
+            }
+        }
         else
             rejectAuthentication("Something went wrong while registering user");
-
         return null;
     }
 
-    private Connection loginUser(String username, String password) throws SQLException {
+    private Connection handleLogin(String username, String password) throws SQLException {
+        Connection connection = login(username, password);
+        if (connection != null) {
+            channel.acceptAuthentication("User successfully logged in", connection.getSession());
+            return connection;
+        }
+        return null;
+    }
+
+    private Connection login(String username, String password) throws SQLException {
         if (database.authenticateUser(username, password)) {
             String token = generateSession(username);
-            if (token != null) {
-                channel.acceptAuthentication("User successfully authenticated", token);
+            if (token != null)
                 return new Connection(username, token, channel, database.getUserRank(username));
-            } else
+            else
                 rejectAuthentication("Something went wrong while generating session");
         } else
             rejectAuthentication("Invalid username or password");
-
         return null;
     }
 
