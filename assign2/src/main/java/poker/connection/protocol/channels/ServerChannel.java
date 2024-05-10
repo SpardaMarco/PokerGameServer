@@ -46,9 +46,9 @@ public class ServerChannel extends Channel {
         return getResponse(REQUEUE);
     }
 
-    public Message getPlayerMove(String body, GameState gameState) {
+    public Message getPlayerMove(String body, GameState gameState, Integer timeout) {
         sendMessage(MATCH_MOVE, REQUEST, body, Map.of("gameState", new Gson().toJson(gameState)));
-        return getResponse(MATCH_MOVE);
+        return getResponse(MATCH_MOVE, timeout);
     }
 
     public Message getRequest(State expectedState) {
