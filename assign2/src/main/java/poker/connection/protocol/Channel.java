@@ -51,12 +51,14 @@ public abstract class Channel {
         try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
 
             Future<String> future = executor.submit(reader::readLine);
-            String line = future.get(timeout, TimeUnit.SECONDS);
+            String line;
+            try {
+                line = future.get(timeout, TimeUnit.SECONDS);
+            } catch (TimeoutException e) {
+                return null;
+            }
             JSONObject json = new JSONObject(line);
             return new Message(json);
-
-        } catch (TimeoutException e) {
-            return null;
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
