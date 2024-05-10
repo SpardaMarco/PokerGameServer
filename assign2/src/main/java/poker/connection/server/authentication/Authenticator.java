@@ -30,7 +30,12 @@ public class Authenticator extends VirtualThread {
 
     private void handleRequests() {
         Message request;
-        while (channel.isOpen() && (request = channel.getRequest()) != null) {
+        while (channel.isOpen()) {
+            request = channel.getRequest(20);
+            if (request == null) {
+                terminateConnection("Authentication timed out");
+                return;
+            }
             switch (request.getState()) {
                 case AUTHENTICATION -> { if (handleAuthentication(request)) return; }
                 case CONNECTION_RECOVERY -> { if (handleRecovery(request)) return; }
