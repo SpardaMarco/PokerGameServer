@@ -11,7 +11,6 @@ import poker.game.common.GameState;
 import poker.game.common.PokerPlayer;
 import poker.game.server.Poker;
 
-import java.lang.invoke.LambdaMetafactory;
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -133,7 +132,7 @@ public class Game extends VirtualThread {
 
         Message message;
         try {
-            message = channel.getPlayerMove("It's your turn", poker.getGameStateToSend(player));
+            message = channel.getPlayerMove("It's your turn", poker.getGameStateToSend(player), 10);
         } catch (RequestTimeoutException e) {
             if (server.isLoggingEnabled()) {
                 System.out.println("Player " + player + " disconnected");

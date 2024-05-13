@@ -50,9 +50,9 @@ public class ServerChannel extends Channel {
         return getResponse(REQUEUE);
     }
 
-    public Message getPlayerMove(String body, GameState gameState) throws ChannelException {
+    public Message getPlayerMove(String body, GameState gameState, Integer timeout) throws ChannelException {
         sendMessage(MATCH_MOVE, REQUEST, body, Map.of("gameState", new Gson().toJson(gameState)));
-        return getResponse(MATCH_MOVE, 10);
+        return getResponse(MATCH_MOVE, timeout);
     }
 
     public Message getRequest(State expectedState) throws ChannelException {
