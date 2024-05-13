@@ -38,7 +38,7 @@ public class ConnectionRecovery implements ClientState {
 
     private boolean confirmRecovery() {
         System.out.println("Do you wish to recover your previous session? (Y/N)");
-        String input = new Scanner(System.in).nextLine();
+        String input = new Scanner(System.in).nextLine().trim();
         while (!input.equalsIgnoreCase("Y") && !input.equalsIgnoreCase("N")) {
             System.out.println("Invalid input. Please enter Y or N.");
             input = new Scanner(System.in).nextLine();

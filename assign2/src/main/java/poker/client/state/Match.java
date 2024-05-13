@@ -49,7 +49,7 @@ public class Match implements ClientState {
             System.out.println("Do you want to requeue? (Y/N)");
 
             try {
-                String response = new Scanner(System.in).nextLine();
+                String response = new Scanner(System.in).nextLine().trim();
                 while (true) {
                     if (response.equalsIgnoreCase("Y")) {
                         channel.sendRequeueResponse(true);

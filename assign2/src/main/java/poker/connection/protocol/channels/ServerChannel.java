@@ -2,6 +2,7 @@ package poker.connection.protocol.channels;
 
 import com.google.gson.Gson;
 import poker.connection.protocol.Channel;
+import poker.connection.protocol.exceptions.ChannelException;
 import poker.connection.protocol.message.Message;
 import poker.connection.protocol.message.State;
 import poker.game.common.GameState;
@@ -14,6 +15,9 @@ import static poker.connection.protocol.message.State.*;
 import static poker.connection.protocol.message.Status.*;
 
 public class ServerChannel extends Channel {
+
+    Exception exception;
+
     public ServerChannel(Socket socket) throws IOException {
         super(socket);
     }
@@ -41,29 +45,30 @@ public class ServerChannel extends Channel {
         sendMessage(MATCH_DISPLAY, REQUEST, body, Map.of("gameState", new Gson().toJson(gameState)));
     }
 
-    public Message sendRequeueRequest() {
+    public Message sendRequeueRequest() throws ChannelException {
         sendMessage(REQUEUE, REQUEST, null, null);
         return getResponse(REQUEUE);
     }
 
-    public Message getPlayerMove(String body, GameState gameState) {
+    public Message getPlayerMove(String body, GameState gameState) throws ChannelException {
         sendMessage(MATCH_MOVE, REQUEST, body, Map.of("gameState", new Gson().toJson(gameState)));
-        return getResponse(MATCH_MOVE);
+        return getResponse(MATCH_MOVE, 10);
     }
 
-    public Message getRequest(State expectedState) {
+    public Message getRequest(State expectedState) throws ChannelException {
         return getRequest(expectedState, null);
     }
 
-    public Message getRequest(State expectedState, Integer timeout) {
+    public Message getRequest(State expectedState, Integer timeout) throws ChannelException {
         return getMessage(expectedState, true, timeout);
     }
 
-    public Message getAuthenticationRequest() {
+    public Message getAuthenticationRequest() throws ChannelException {
         return getRequest(AUTHENTICATION);
     }
 
     public void notifyGameStart() {
         sendMessage(MATCH_START, REQUEST, null, null);
     }
+
 }

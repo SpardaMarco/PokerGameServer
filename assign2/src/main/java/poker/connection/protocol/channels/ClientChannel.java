@@ -1,6 +1,7 @@
 package poker.connection.protocol.channels;
 
 import poker.connection.protocol.Channel;
+import poker.connection.protocol.exceptions.ChannelException;
 import poker.connection.protocol.message.Message;
 
 import java.io.IOException;
@@ -16,7 +17,7 @@ public class ClientChannel extends Channel {
         super(socket);
     }
 
-    public Message authenticate(String username, String password) {
+    public Message authenticate(String username, String password) throws ChannelException {
         sendMessage(AUTHENTICATION, REQUEST, null, Map.of(
                 "username", username,
                 "password", password)
@@ -24,14 +25,14 @@ public class ClientChannel extends Channel {
         return getResponse(AUTHENTICATION);
     }
 
-    public Message recoverSession(String sessionToken) {
+    public Message recoverSession(String sessionToken) throws ChannelException {
         sendMessage(CONNECTION_RECOVERY, REQUEST, null, Map.of(
                 "sessionToken", sessionToken)
         );
         return getResponse(CONNECTION_RECOVERY);
     }
 
-    public void handleGameStartRequest() {
+    public void handleGameStartRequest() throws ChannelException {
         getRequest(MATCH_START);
     }
 

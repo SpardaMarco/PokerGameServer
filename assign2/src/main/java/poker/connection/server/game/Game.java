@@ -3,6 +3,8 @@ package poker.connection.server.game;
 import poker.Server;
 import poker.connection.protocol.Connection;
 import poker.connection.protocol.channels.ServerChannel;
+import poker.connection.protocol.exceptions.ChannelException;
+import poker.connection.protocol.exceptions.RequestTimeoutException;
 import poker.connection.protocol.message.Message;
 import poker.connection.utils.VirtualThread;
 import poker.game.common.GameState;
@@ -129,13 +131,18 @@ public class Game extends VirtualThread {
             return;
         }
 
-        Message message = channel.getPlayerMove("It's your turn", poker.getGameStateToSend(player));
-        if (message == null) {
+        Message message;
+        try {
+            message = channel.getPlayerMove("It's your turn", poker.getGameStateToSend(player));
+        } catch (RequestTimeoutException e) {
             if (server.isLoggingEnabled()) {
                 System.out.println("Player " + player + " disconnected");
             }
             poker.takeAction(PokerPlayer.PLAYER_ACTION.FOLD, 0);
             return;
+        } catch (ChannelException e) {
+            // TODO: Disconnect player
+            throw new RuntimeException(e);
         }
 
         String action = message.getAttribute("action");

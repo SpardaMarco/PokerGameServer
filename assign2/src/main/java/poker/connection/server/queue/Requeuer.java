@@ -1,6 +1,7 @@
 package poker.connection.server.queue;
 
 import poker.connection.protocol.Connection;
+import poker.connection.protocol.exceptions.ChannelException;
 import poker.connection.protocol.message.Message;
 
 public class Requeuer extends  Thread {
@@ -13,7 +14,13 @@ public class Requeuer extends  Thread {
     }
 
     private boolean askPlayerToRequeue() throws InterruptedException {
-        Message response = connection.getChannel().sendRequeueRequest();
+        Message response;
+        try {
+            response = connection.getChannel().sendRequeueRequest();
+        } catch (ChannelException e) {
+            // TODO: handle this exception
+            throw new RuntimeException(e);
+        }
         return response.getBooleanAttribute("requeue");
     }
 

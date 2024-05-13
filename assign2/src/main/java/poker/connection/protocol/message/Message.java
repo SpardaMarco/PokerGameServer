@@ -13,18 +13,21 @@ public class Message {
     private final String body;
     private final JSONObject attributes;
 
-    public Message(State state, Status status, String body, Map<String, Object> attributes) {
+    public Message(State state, Status status, String body, Map<String, Object> attributes, String sessionToken) {
         this.state = state;
         this.status = status;
         this.body = body;
         this.attributes = new JSONObject(attributes);
+        if (sessionToken != null) {
+            this.attributes.put("sessionToken", sessionToken);
+        }
     }
 
     public Message(JSONObject json) {
         this.state = State.valueOf(json.getString("state"));
         this.status = Status.valueOf(json.getString("status"));
         this.body = json.has("body") ? json.getString("body") : null;
-        this.attributes = json.getJSONObject("attributes");
+        this.attributes = json.has("attributes") ? json.getJSONObject("attributes") : new JSONObject();
     }
 
     public State getState() {
@@ -61,6 +64,13 @@ public class Message {
 
     public boolean hasAttribute(String key) {
         return attributes.has(key);
+    }
+
+    public boolean matchesSessionToken(String sessionToken) {
+        if (sessionToken == null) {
+            return true;
+        }
+        return attributes.has("sessionToken") && attributes.getString("sessionToken").equals(sessionToken);
     }
 
     public boolean isConnectionEndRequest() {

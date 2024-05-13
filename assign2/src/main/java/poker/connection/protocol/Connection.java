@@ -4,13 +4,13 @@ import poker.connection.protocol.channels.ServerChannel;
 
 public class Connection {
     private final String username;
-    private final String token;
+    private final String sessionToken;
     private final ServerChannel channel;
     private int rank;
 
-    public Connection(String username, String token, ServerChannel channel, int rank) {
+    public Connection(String username, String sessionToken, ServerChannel channel, int rank) {
         this.username = username;
-        this.token = token;
+        this.sessionToken = sessionToken;
         this.channel = channel;
         this.rank = rank;
     }
@@ -20,7 +20,7 @@ public class Connection {
     }
 
     public String getSession() {
-        return token;
+        return sessionToken;
     }
 
     public ServerChannel getChannel() {

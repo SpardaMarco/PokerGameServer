@@ -4,11 +4,15 @@ import org.mindrot.jbcrypt.BCrypt;
 import poker.Server;
 import poker.connection.protocol.Connection;
 import poker.connection.protocol.channels.ServerChannel;
+import poker.connection.protocol.exceptions.ChannelException;
+import poker.connection.protocol.exceptions.ClosedConnectionException;
+import poker.connection.protocol.exceptions.RequestTimeoutException;
 import poker.connection.protocol.message.Message;
 import poker.connection.server.database.DatabaseInterface;
 import poker.connection.utils.VirtualThread;
 
 import java.sql.SQLException;
+import java.util.concurrent.TimeoutException;
 
 public class Authenticator extends VirtualThread {
     private final Server server;
@@ -25,41 +29,49 @@ public class Authenticator extends VirtualThread {
 
     @Override
     protected void run() {
-        handleRequests();
+        Connection connection = handleRequests();
+        if (connection != null) {
+            channel.setSessionToken(connection.getSession());
+            server.queuePlayer(connection);
+        }
     }
 
-    private void handleRequests() {
+    private Connection handleRequests() {
+        Connection connection = null;
         Message request;
-        while (channel.isOpen()) {
-            request = channel.getRequest(20);
-            if (request == null) {
+        while (channel.isOpen() && connection == null) {
+            try {
+                request = channel.getRequest(20);
+            } catch (RequestTimeoutException e) {
                 terminateConnection("Authentication timed out");
-                return;
+                return null;
+            } catch (ClosedConnectionException e) {
+                return null;
+            } catch (ChannelException e) {
+                terminateConnection(e.getMessage());
+                return null;
             }
+
             switch (request.getState()) {
-                case AUTHENTICATION -> { if (handleAuthentication(request)) return; }
-                case CONNECTION_RECOVERY -> { if (handleRecovery(request)) return; }
+                case AUTHENTICATION -> {
+                    connection = authenticateUser(request);
+                }
+                case CONNECTION_RECOVERY -> {
+                    connection = recoverSession(request);
+                }
                 case null, default -> {
                     terminateConnection("Invalid request");
-                    return;
+                    return null;
                 }
             }
         }
+
+        return connection;
     }
 
     private void terminateConnection(String body) {
         channel.requestConnectionEnd(body);
         channel.close();
-    }
-
-    private boolean handleRecovery(Message message) {
-        Connection connection = recoverSession(message);
-
-        if (connection != null) {
-            server.queuePlayer(connection);
-            return true;
-        }
-        return false;
     }
 
     private Connection recoverSession(Message message) {
@@ -84,16 +96,6 @@ public class Authenticator extends VirtualThread {
         }
 
         return null;
-    }
-
-    private boolean handleAuthentication(Message request) {
-        Connection connection = authenticateUser(request);
-
-        if (connection != null) {
-            server.queuePlayer(connection);
-            return true;
-        }
-        return false;
     }
 
     private Connection authenticateUser(Message request) {
@@ -139,9 +141,9 @@ public class Authenticator extends VirtualThread {
     private Connection login(String username, String password) throws SQLException {
         if (database.authenticateUser(username, password)) {
             String token = generateSession(username);
-            if (token != null)
+            if (token != null) {
                 return new Connection(username, token, channel, database.getUserRank(username));
-            else
+            } else
                 rejectAuthentication("Something went wrong while generating session");
         } else
             rejectAuthentication("Invalid username or password");

@@ -2,7 +2,7 @@ package poker.game.common;
 
 public final class PokerConstants {
     public static final int HAND_SIZE = 2;
-    public static final int NUM_PLAYERS = 6;
+    public static final int NUM_PLAYERS = 3;
     public static final int NUM_FLOP_CARDS = 3;
     public static final int NUM_TURN_CARDS = 1;
     public static final int NUM_RIVER_CARDS = 1;
