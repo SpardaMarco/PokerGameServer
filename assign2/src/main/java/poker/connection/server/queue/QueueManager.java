@@ -13,12 +13,12 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class QueueManager extends VirtualThread {
     private final Server server;
-    private final Queue<Connection> mainQueue = new LinkedList<>();
+    private final Queue<Connection> simpleQueue = new LinkedList<>();
     private final List<Connection> rankedQueue = new ArrayList<>();
     private final Queue<Connection> playersRequeueing = new LinkedList<>();
-    private final Map<String, Game> rooms = new HashMap<>();
-    private final Map<String, Threshold> playerThresholds = new HashMap<>();
-    private final Map<String, ScheduledExecutorService> playerSchedulers = new HashMap<>();
+    private final Map<String, Game> gameRooms = new HashMap<>();
+    private final Map<String, Threshold> playersThresholds = new HashMap<>();
+    private final Map<String, ScheduledExecutorService> thresholdSchedulers = new HashMap<>();
 
     private static final int TIME_TO_RELAX = 10;
 
@@ -31,12 +31,11 @@ public class QueueManager extends VirtualThread {
     }
 
     public synchronized void queuePlayer(Connection connection) {
-        if (rooms.get(connection.getUsername()) != null) {
-            if (reconnectPlayerToGame(connection)) {
-                return;
-            }
+        if (gameRooms.get(connection.getUsername()) != null) {
+            reconnectPlayerToGame(connection);
+        } else {
+            addToMainQueue(connection);
         }
-        addToMainQueue(connection);
     }
 
     public void addToMainQueue(Connection connection) {
@@ -58,8 +57,8 @@ public class QueueManager extends VirtualThread {
             }
         }
         else {
-            if (mainQueue.stream().noneMatch(c -> c.getUsername().equals(connection.getUsername()))) {
-                mainQueue.add(connection);
+            if (simpleQueue.stream().noneMatch(c -> c.getUsername().equals(connection.getUsername()))) {
+                simpleQueue.add(connection);
                 notify();
             } else {
                 updateMainQueue(connection);
@@ -75,15 +74,15 @@ public class QueueManager extends VirtualThread {
 
         Queue<Connection> tempQueue = new LinkedList<>();
 
-        while (!mainQueue.isEmpty()) {
-            Connection c = mainQueue.poll();
+        while (!simpleQueue.isEmpty()) {
+            Connection c = simpleQueue.poll();
             if (!c.getUsername().equals(connection.getUsername())) {
                 tempQueue.add(c);
             } else {
                 tempQueue.add(connection);
             }
         }
-        mainQueue.addAll(tempQueue);
+        simpleQueue.addAll(tempQueue);
     }
 
     public synchronized void requeuePlayers(List<Connection> connections) {
@@ -96,24 +95,24 @@ public class QueueManager extends VirtualThread {
     }
 
     public synchronized void assignPlayerToRoom(Connection connection, Game game) {
-        this.rooms.put(connection.getUsername(), game);
+        this.gameRooms.put(connection.getUsername(), game);
     }
 
     public synchronized void removePlayerFromRoom(Connection connection) {
-        this.rooms.remove(connection.getUsername());
+        this.gameRooms.remove(connection.getUsername());
     }
 
     public synchronized void addPlayerThreshold(Connection connection) {
         Threshold threshold = new Threshold(connection.getRank());
-        playerThresholds.put(connection.getUsername(), threshold);
+        playersThresholds.put(connection.getUsername(), threshold);
     }
 
     public synchronized void removePlayerThreshold(Connection connection) {
-        playerThresholds.remove(connection.getUsername());
+        playersThresholds.remove(connection.getUsername());
     }
 
     public synchronized void updatePlayerThreshold(Connection connection) {
-        Threshold threshold = playerThresholds.get(connection.getUsername());
+        Threshold threshold = playersThresholds.get(connection.getUsername());
         threshold.expand();
         notify();
     }
@@ -126,14 +125,14 @@ public class QueueManager extends VirtualThread {
                 TIME_TO_RELAX,
                 java.util.concurrent.TimeUnit.SECONDS
         );
-        playerSchedulers.put(connection.getUsername(), scheduler);
+        thresholdSchedulers.put(connection.getUsername(), scheduler);
     }
 
     public void cancelPlayerThresholdUpdate(Connection connection) {
-        ScheduledExecutorService scheduler = playerSchedulers.get(connection.getUsername());
+        ScheduledExecutorService scheduler = thresholdSchedulers.get(connection.getUsername());
         if (scheduler != null) {
             scheduler.shutdown();
-            playerSchedulers.remove(connection.getUsername());
+            thresholdSchedulers.remove(connection.getUsername());
         }
     }
 
@@ -155,9 +154,9 @@ public class QueueManager extends VirtualThread {
         } catch (ChannelException e) {
             return false;
         }
-        Game game = rooms.get(connection.getUsername());
-        game.reconnectPlayer(connection);
+        Game game = gameRooms.get(connection.getUsername());
 
+        game.reconnectPlayer(connection);
         return true;
     }
 
@@ -165,11 +164,11 @@ public class QueueManager extends VirtualThread {
         ArrayList<Connection> room = new ArrayList<>();
 
         for (Connection player : rankedQueue) {
-            Threshold threshold = playerThresholds.get(player.getUsername());
+            Threshold threshold = playersThresholds.get(player.getUsername());
             room.add(player);
             for (Connection opponent : rankedQueue) {
                 if (player.getUsername().equals(opponent.getUsername())) continue;
-                if (threshold.overlaps(playerThresholds.get(opponent.getUsername()))) {
+                if (threshold.overlaps(playersThresholds.get(opponent.getUsername()))) {
                     room.add(opponent);
                     if (room.size() == PokerConstants.NUM_PLAYERS) {
                         break;
@@ -218,7 +217,7 @@ public class QueueManager extends VirtualThread {
                           }
                    }
                 } else {
-                    if (mainQueue.size() < PokerConstants.NUM_PLAYERS) {
+                    if (simpleQueue.size() < PokerConstants.NUM_PLAYERS) {
                         try {
                             wait();
                         } catch (InterruptedException e) {
@@ -229,7 +228,7 @@ public class QueueManager extends VirtualThread {
                         boolean allAlive = true;
 
                         for (int i = 0; i < PokerConstants.NUM_PLAYERS; i++) {
-                            Connection connection = mainQueue.poll();
+                            Connection connection = simpleQueue.poll();
                             assert connection != null;
 
                             if (connection.isBroken()) {

@@ -228,11 +228,11 @@ public class HandRanker {
         for (int i = 1; i < orderedHands.size(); i++) {
             ArrayList<Card> currentHand = orderedHands.get(i);
             for (int j = 0; j < bestHand.size(); j++) {
-                if (bestHand.get(j).compareTo(currentHand.get(j)) == -1) {
+                if (bestHand.get(j).compareTo(currentHand.get(j)) < 0) {
                     bestHand = currentHand;
                     break;
                 }
-                else if (bestHand.get(j).compareTo(currentHand.get(j)) == 1) {
+                else if (bestHand.get(j).compareTo(currentHand.get(j)) > 0) {
                     break;
                 }
             }
@@ -255,13 +255,19 @@ public class HandRanker {
             else if (playerRank.compareTo(highestRank) == 0) {
                 ArrayList<Card> playerFullHand = getPlayerFullHand(player);
                 ArrayList<Card> bestHand = getBestHand(playerFullHand);
-                ArrayList<Card> bestHandWinners = getBestHand(getPlayerFullHand(winners.getFirst()));
-                if (bestHand.getFirst().compareTo(bestHandWinners.getFirst()) == 1) {
-                    winners.clear();
-                    winners.add(player);
-                }
-                else if (bestHand.getFirst().compareTo(bestHandWinners.getFirst()) == 0) {
-                    winners.add(player);
+                ArrayList<Card> bestHandWinner = getBestHand(getPlayerFullHand(winners.getFirst()));
+                for (int i = 0; i < bestHand.size(); i++) {
+                    if (bestHand.get(i).compareTo(bestHandWinner.get(i)) < 0) {
+                        break;
+                    }
+                    else if (bestHand.get(i).compareTo(bestHandWinner.get(i)) > 0) {
+                        winners.clear();
+                        winners.add(player);
+                        break;
+                    }
+                    else if (i == bestHand.size() - 1 && bestHand.get(i).compareTo(bestHandWinner.get(i)) == 0) {
+                        winners.add(player);
+                    }
                 }
             }
         }
