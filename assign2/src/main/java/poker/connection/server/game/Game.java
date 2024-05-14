@@ -118,7 +118,6 @@ public class Game extends VirtualThread {
     }
 
     private void makePlay(int player) {
-
         playerConnectionsLock.lock();
         ServerChannel channel = playerConnections.get(player).getChannel();
         playerConnectionsLock.unlock();
