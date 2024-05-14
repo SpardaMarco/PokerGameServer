@@ -2,6 +2,7 @@ package poker.connection.server.queue;
 
 import poker.Server;
 import poker.connection.protocol.Connection;
+import poker.connection.protocol.exceptions.ChannelException;
 import poker.game.common.PokerConstants;
 import poker.connection.server.game.Game;
 import poker.connection.utils.VirtualThread;
@@ -29,27 +30,39 @@ public class QueueManager extends VirtualThread {
         return server.isRankedMode();
     }
 
-    public synchronized void addPlayerToMainQueue(Connection connection) {
+    public synchronized void queuePlayer(Connection connection) {
         if (rooms.get(connection.getUsername()) != null) {
-            reconnectPlayerToGame(connection);
-        } else {
-            if (isRankedMode()) {
-                if (rankedQueue.stream().noneMatch(c -> c.getUsername().equals(connection.getUsername()))) {
-                    rankedQueue.add(connection);
-                    addPlayerThreshold(connection);
-                    notify();
-                    schedulePlayerThresholdUpdate(connection);
-                } else {
-                    updateMainQueue(connection);
-                }
+            if (reconnectPlayerToGame(connection)) {
+                return;
             }
-            else {
-                if (mainQueue.stream().noneMatch(c -> c.getUsername().equals(connection.getUsername()))) {
-                    mainQueue.add(connection);
-                    notify();
-                } else {
-                    updateMainQueue(connection);
-                }
+        }
+        addToMainQueue(connection);
+    }
+
+    public void addToMainQueue(Connection connection) {
+        try {
+            if (!connection.getChannel().requestMatchmaking()) {
+                return;
+            }
+        } catch (ChannelException e) {
+            return;
+        }
+        if (isRankedMode()) {
+            if (rankedQueue.stream().noneMatch(c -> c.getUsername().equals(connection.getUsername()))) {
+                rankedQueue.add(connection);
+                addPlayerThreshold(connection);
+                notify();
+                schedulePlayerThresholdUpdate(connection);
+            } else {
+                updateMainQueue(connection);
+            }
+        }
+        else {
+            if (mainQueue.stream().noneMatch(c -> c.getUsername().equals(connection.getUsername()))) {
+                mainQueue.add(connection);
+                notify();
+            } else {
+                updateMainQueue(connection);
             }
         }
     }
@@ -134,9 +147,18 @@ public class QueueManager extends VirtualThread {
         game.start();
     }
 
-    public void reconnectPlayerToGame(Connection connection) {
+    public boolean reconnectPlayerToGame(Connection connection) {
+
+        try {
+            if (!connection.getChannel().requestMatchReconnect())
+                return false;
+        } catch (ChannelException e) {
+            return false;
+        }
         Game game = rooms.get(connection.getUsername());
         game.reconnectPlayer(connection);
+
+        return true;
     }
 
     public ArrayList<Connection> tryMatchmaking() {
@@ -213,7 +235,7 @@ public class QueueManager extends VirtualThread {
                             if (connection.isBroken()) {
                                 allAlive = false;
                                 for (int j = 0; j < i; j++) {
-                                    addPlayerToMainQueue(connections.get(j));
+                                    queuePlayer(connections.get(j));
                                 }
                                 break;
                             }

@@ -76,7 +76,7 @@ public class Server {
     }
 
     public synchronized void queuePlayer(Connection connection) {
-        queueManager.addPlayerToMainQueue(connection);
+        queueManager.queuePlayer(connection);
     }
 
     private synchronized void disconnect() {

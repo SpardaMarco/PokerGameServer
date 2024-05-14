@@ -65,20 +65,19 @@ public abstract class Channel {
         }
     }
 
-    private Message getMessage(int timeout) throws ChannelException {
+    private Message getMessage(int timeout) throws RequestTimeoutException {
 
-        try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
-
+        try {
+            ExecutorService executor = Executors.newSingleThreadExecutor();
             Future<String> future = executor.submit(reader::readLine);
             String line;
 
-            try {
-                line = future.get(timeout, TimeUnit.SECONDS);
-            } catch (TimeoutException e) {
-                throw new RequestTimeoutException("Timeout while waiting for message");
-            }
+            line = future.get(timeout, TimeUnit.SECONDS);
             JSONObject json = new JSONObject(line);
             return new Message(json);
+
+        } catch (TimeoutException e) {
+            throw new RequestTimeoutException("Timeout while waiting for message");
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }

@@ -29,7 +29,7 @@ public class Requeuer extends  Thread {
         try {
             boolean wantsToRequeue = askPlayerToRequeue();
             if (wantsToRequeue) {
-                queueManager.addPlayerToMainQueue(connection);
+                queueManager.queuePlayer(connection);
             }
             queueManager.removePlayerFromRequeue(connection);
         } catch (InterruptedException e) {

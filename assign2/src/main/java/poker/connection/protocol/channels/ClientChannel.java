@@ -48,4 +48,12 @@ public class ClientChannel extends Channel {
                 "requeue", requeue)
         );
     }
+
+    public void acceptMatchmaking() {
+        sendMessage(MATCHMAKING, OK, null, null);
+    }
+
+    public void acceptMatchReconnect() {
+        sendMessage(MATCH_RECONNECT, OK, null, null);
+    }
 }

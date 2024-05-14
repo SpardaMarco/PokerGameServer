@@ -41,8 +41,8 @@ public class ServerChannel extends Channel {
         sendMessage(AUTHENTICATION, ERROR, body, null);
     }
 
-    public void sendGameState(String body, GameState gameState) {
-        sendMessage(MATCH_DISPLAY, REQUEST, body, Map.of("gameState", new Gson().toJson(gameState)));
+    public void sendGameState(GameState gameState) {
+        sendMessage(MATCH_DISPLAY, REQUEST, null, Map.of("gameState", new Gson().toJson(gameState)));
     }
 
     public Message sendRequeueRequest() throws ChannelException {
@@ -63,12 +63,21 @@ public class ServerChannel extends Channel {
         return getMessage(expectedState, true, timeout);
     }
 
-    public Message getAuthenticationRequest() throws ChannelException {
-        return getRequest(AUTHENTICATION);
+    public boolean requestMatchReconnect() throws ChannelException {
+        sendMessage(MATCH_RECONNECT, REQUEST, null, null);
+        return getResponse(MATCH_RECONNECT).isOk();
+    }
+
+    public boolean requestMatchmaking() throws ChannelException {
+        sendMessage(MATCHMAKING, REQUEST, null, null);
+        return getResponse(MATCHMAKING).isOk();
     }
 
     public void notifyGameStart() {
         sendMessage(MATCH_START, REQUEST, null, null);
     }
 
+    public void sendTurnTimeout() {
+        sendMessage(TURN_TIMEOUT, OK, null, null);
+    }
 }

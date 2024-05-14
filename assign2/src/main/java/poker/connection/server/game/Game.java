@@ -60,6 +60,7 @@ public class Game extends VirtualThread {
         }
         playerConnections.set(index, newConnection);
         playerConnectionsLock.unlock();
+        newConnection.getChannel().sendGameState(poker.getGameStateToSend(index));
         return true;
     }
 
@@ -77,7 +78,7 @@ public class Game extends VirtualThread {
         playerConnectionsLock.unlock();
         GameState gameState = poker.getGameStateToSend(player);
 
-        channel.sendGameState(null, gameState);
+        channel.sendGameState(gameState);
     }
 
     private void notifyPlayers() {
@@ -132,12 +133,13 @@ public class Game extends VirtualThread {
 
         Message message;
         try {
-            message = channel.getPlayerMove("It's your turn", poker.getGameStateToSend(player), 10);
+            message = channel.getPlayerMove("It's your turn", poker.getGameStateToSend(player), 20);
         } catch (RequestTimeoutException e) {
             if (server.isLoggingEnabled()) {
-                System.out.println("Player " + player + " disconnected");
+                System.out.println("Player " + player + " timed out while playing");
             }
             poker.takeAction(PokerPlayer.PLAYER_ACTION.FOLD, 0);
+            playerConnections.get(player).getChannel().sendTurnTimeout();
             return;
         } catch (ChannelException e) {
             // TODO: Disconnect player

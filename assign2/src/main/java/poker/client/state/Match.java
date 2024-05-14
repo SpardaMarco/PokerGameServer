@@ -1,14 +1,15 @@
 package poker.client.state;
 
 import com.google.gson.Gson;
-import poker.connection.protocol.Connection;
 import poker.connection.protocol.channels.ClientChannel;
 import poker.connection.protocol.message.Message;
 import poker.game.client.PokerClientGUI;
 import poker.game.common.GameState;
 import poker.utils.Pair;
 
+import java.io.IOException;
 import java.util.Scanner;
+import java.util.concurrent.*;
 
 import static poker.connection.protocol.message.State.*;
 
