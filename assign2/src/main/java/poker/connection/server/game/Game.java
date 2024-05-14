@@ -122,13 +122,6 @@ public class Game extends VirtualThread {
         playerConnectionsLock.lock();
         ServerChannel channel = playerConnections.get(player).getChannel();
         playerConnectionsLock.unlock();
-        if (channel == null || channel.isClosed()) {
-            if (server.isLoggingEnabled()) {
-                System.out.println("Player " + player + " disconnected");
-            }
-            poker.takeAction(PokerPlayer.PLAYER_ACTION.FOLD, 0);
-            return;
-        }
 
         Message message;
         try {

@@ -2,6 +2,7 @@ package poker.client.state;
 
 import com.google.gson.Gson;
 import poker.connection.protocol.channels.ClientChannel;
+import poker.connection.protocol.exceptions.ChannelException;
 import poker.connection.protocol.message.Message;
 import poker.game.client.PokerClientGUI;
 import poker.game.common.GameState;
@@ -54,7 +55,19 @@ public class Match implements ClientState {
                 while (true) {
                     if (response.equalsIgnoreCase("Y")) {
                         channel.sendRequeueResponse(true);
-                        return new Matchmaking();
+                        Message matchmakingMessage;
+                        try {
+                            matchmakingMessage = channel.getRequest();
+                        } catch (ChannelException e) {
+                            throw new RuntimeException(e);
+                        }
+                        if (MATCHMAKING.equals(matchmakingMessage.getState())) {
+                            channel.acceptMatchmaking();
+                            return new Matchmaking();
+                        } else {
+                            System.out.println("Unexpected message received after requeueing: " + matchmakingMessage);
+                            return null;
+                        }
                     } else if (response.equalsIgnoreCase("N")) {
                         channel.sendRequeueResponse(false);
                         return null;

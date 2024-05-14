@@ -18,8 +18,7 @@ public class Requeuer extends  Thread {
         try {
             response = connection.getChannel().sendRequeueRequest();
         } catch (ChannelException e) {
-            // TODO: handle this exception
-            throw new RuntimeException(e);
+            return false;
         }
         return response.getBooleanAttribute("requeue");
     }
@@ -31,7 +30,6 @@ public class Requeuer extends  Thread {
             if (wantsToRequeue) {
                 queueManager.queuePlayer(connection);
             }
-            queueManager.removePlayerFromRequeue(connection);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

@@ -10,6 +10,7 @@ import poker.connection.utils.VirtualThread;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class QueueManager extends VirtualThread {
     private final Server server;
@@ -19,6 +20,8 @@ public class QueueManager extends VirtualThread {
     private final Map<String, Game> gameRooms = new HashMap<>();
     private final Map<String, Threshold> playersThresholds = new HashMap<>();
     private final Map<String, ScheduledExecutorService> thresholdSchedulers = new HashMap<>();
+
+    private final ReentrantLock playersRequeueingLock = new ReentrantLock();
 
     private static final int TIME_TO_RELAX = 10;
 
@@ -146,18 +149,14 @@ public class QueueManager extends VirtualThread {
         game.start();
     }
 
-    public boolean reconnectPlayerToGame(Connection connection) {
+    public void reconnectPlayerToGame(Connection connection) {
 
         try {
-            if (!connection.getChannel().requestMatchReconnect())
-                return false;
-        } catch (ChannelException e) {
-            return false;
-        }
-        Game game = gameRooms.get(connection.getUsername());
-
-        game.reconnectPlayer(connection);
-        return true;
+            if (connection.getChannel().requestMatchReconnect()){
+                Game game = gameRooms.get(connection.getUsername());
+                game.reconnectPlayer(connection);
+            }
+        } catch (ChannelException ignored) {}
     }
 
     public ArrayList<Connection> tryMatchmaking() {
@@ -246,10 +245,9 @@ public class QueueManager extends VirtualThread {
                     }
                 }
 
-                if (!this.playersRequeueing.isEmpty()) {
-                    for (Connection connection : this.playersRequeueing) {
-                        new Requeuer(this, connection).start();
-                    }
+                while (!this.playersRequeueing.isEmpty()) {
+                    Connection connection = this.playersRequeueing.poll();
+                    new Requeuer(this, connection).start();
                 }
             }
         }

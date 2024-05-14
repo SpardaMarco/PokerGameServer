@@ -54,18 +54,18 @@ public abstract class Channel {
         sendMessage(new Message(state, status, body, data, sessionToken));
     }
 
-    private Message getMessage() {
+    private Message getMessage() throws ChannelException {
 
         try  {
             String line = reader.readLine();
             JSONObject json = new JSONObject(line);
             return new Message(json);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ClosedConnectionException("Connection closed by the other party: " + e.getMessage());
         }
     }
 
-    private Message getMessage(int timeout) throws RequestTimeoutException {
+    private Message getMessage(int timeout) throws ChannelException {
 
         try {
             ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -79,7 +79,7 @@ public abstract class Channel {
         } catch (TimeoutException e) {
             throw new RequestTimeoutException("Timeout while waiting for message");
         } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e);
+            throw new ClosedConnectionException("Connection closed by the other party: " + e.getMessage());
         }
     }
 
