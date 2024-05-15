@@ -3,14 +3,16 @@ package poker;
 import poker.connection.protocol.Connection;
 import poker.connection.server.authentication.AuthenticationManager;
 import poker.connection.server.database.DatabaseInterface;
-import poker.connection.server.queue.QueueManager;
+import poker.connection.server.queue.Queuer;
+import poker.connection.server.queue.RankedQueuer;
+import poker.connection.server.queue.SimpleQueuer;
 
 import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Server {
     private final AuthenticationManager authenticationManager;
-    private final QueueManager queueManager;
+    private final Queuer queuer;
     private final boolean loggingEnabled;
     private final boolean rankedMode;
     private final DatabaseInterface database = new DatabaseInterface();
@@ -48,11 +50,15 @@ public class Server {
         this.loggingEnabled = loggingEnabled;
         this.rankedMode = rankedMode;
         this.authenticationManager = new AuthenticationManager(this, port);
-        this.queueManager = new QueueManager(this);
+        if (rankedMode) {
+            this.queuer = new RankedQueuer(this);
+        } else {
+            this.queuer = new SimpleQueuer(this);
+        }
     }
 
-    public QueueManager getQueueManager() {
-        return queueManager;
+    public Queuer getQueuer() {
+        return queuer;
     }
 
     public DatabaseInterface getDatabase() {
@@ -69,14 +75,14 @@ public class Server {
 
     private void init() {
         authenticationManager.start();
-        queueManager.start();
+        queuer.start();
         System.out.println("Press [ENTER] to stop the server\n");
         new Scanner(System.in).nextLine();
         disconnect();
     }
 
     public synchronized void queuePlayer(Connection connection) {
-        queueManager.queuePlayer(connection);
+        queuer.queuePlayer(connection);
     }
 
     private synchronized void disconnect() {
