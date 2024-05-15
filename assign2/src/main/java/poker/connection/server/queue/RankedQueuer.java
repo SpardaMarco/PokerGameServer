@@ -5,7 +5,10 @@ import poker.connection.protocol.Connection;
 import poker.connection.protocol.exceptions.ChannelException;
 import poker.game.common.PokerConstants;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -32,7 +35,8 @@ public class RankedQueuer extends Queuer {
                     updateMainQueue(connection);
                 }
             }
-        } catch (ChannelException ignored) {}
+        } catch (ChannelException ignored) {
+        }
     }
 
     public synchronized void addPlayerThreshold(Connection connection) {
@@ -52,8 +56,9 @@ public class RankedQueuer extends Queuer {
 
     public void schedulePlayerThresholdUpdate(Connection connection) {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        ExecutorService updater = Executors.newVirtualThreadPerTaskExecutor();
         scheduler.scheduleAtFixedRate(() ->
-                        updatePlayerThreshold(connection),
+                        updater.execute(() -> updatePlayerThreshold(connection)),
                 TIME_TO_RELAX,
                 TIME_TO_RELAX,
                 java.util.concurrent.TimeUnit.SECONDS
@@ -101,8 +106,7 @@ public class RankedQueuer extends Queuer {
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-                }
-                else {
+                } else {
                     ArrayList<Connection> connections = tryMatchmaking();
                     if (!connections.isEmpty()) {
                         boolean allAlive = true;

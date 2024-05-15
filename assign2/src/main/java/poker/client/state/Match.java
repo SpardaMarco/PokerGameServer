@@ -11,11 +11,10 @@ import poker.game.common.GameState;
 import poker.utils.Pair;
 import poker.utils.UserInput;
 
-import java.io.IOException;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static poker.connection.protocol.message.State.*;
+import static poker.connection.protocol.message.State.MATCHMAKING;
 
 public class Match extends ClientState {
 
@@ -70,15 +69,18 @@ public class Match extends ClientState {
         String gameStateJson = message.getAttribute("gameState");
         GameState gameState = new Gson().fromJson(gameStateJson, GameState.class);
 
-        Future<Pair<String, Integer>> future = Executors.newSingleThreadExecutor().submit(
+        ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+        Future<Pair<String, Integer>> future = executor.submit(
                 () -> gui.askMove(gameState)
         );
 
         final AtomicReference<Message> messageWrapper = new AtomicReference<>();
-        Thread timer = new Thread(
+        Thread timer = Thread.ofVirtual().start(
                 () -> {
                     try {
+                        System.out.println("Reading Message");
                         Message incoming = channel.getRequest();
+                        System.out.println("Message received: " + incoming + " by " + Thread.currentThread().getName());
                         messageWrapper.set(incoming);
                     } catch (ClosedConnectionException e) {
                         System.out.println("Connection to the server was lost.\n" + e.getMessage());
@@ -95,7 +97,6 @@ public class Match extends ClientState {
         Pair<String, Integer> action;
 
         try {
-            timer.start();
             action = future.get();
         } catch (CancellationException e) {
             if (messageWrapper.get() == null) {
@@ -117,7 +118,9 @@ public class Match extends ClientState {
         }
 
         try {
+            System.out.println("Move sent: " + action.getFirst() + " " + action.getSecond());
             timer.join();
+            System.out.println("Move sent: " + action.getFirst() + " " + action.getSecond());
             return parseMessage(messageWrapper.get());
         } catch (InterruptedException e) {
             System.out.println("Error handling message:\n" + e.getMessage());

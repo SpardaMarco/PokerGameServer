@@ -1,22 +1,20 @@
 package poker.connection.protocol;
 
-import poker.connection.protocol.exceptions.ChannelException;
-import poker.connection.protocol.exceptions.ClosedConnectionException;
-import poker.connection.protocol.exceptions.TokenMismatchException;
-import poker.connection.protocol.exceptions.UnexpectedMessageException;
-import poker.connection.protocol.exceptions.RequestTimeoutException;
+import org.json.JSONObject;
+import poker.connection.protocol.exceptions.*;
 import poker.connection.protocol.message.Message;
 import poker.connection.protocol.message.State;
 import poker.connection.protocol.message.Status;
-import org.json.JSONObject;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import static poker.connection.protocol.message.State.*;
-import static poker.connection.protocol.message.Status.*;
+import static poker.connection.protocol.message.State.CONNECTION_CHECK;
+import static poker.connection.protocol.message.State.CONNECTION_END;
+import static poker.connection.protocol.message.Status.OK;
+import static poker.connection.protocol.message.Status.REQUEST;
 
 public abstract class Channel {
     private final Socket socket;
@@ -51,7 +49,7 @@ public abstract class Channel {
 
     private Message getMessage() throws ChannelException {
 
-        try  {
+        try {
             String line = reader.readLine();
             JSONObject json = new JSONObject(line);
             return new Message(json);
@@ -61,10 +59,9 @@ public abstract class Channel {
     }
 
     private Message getMessage(int timeout) throws ChannelException {
-
+        ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+        Future<String> future = executor.submit(reader::readLine);
         try {
-            ExecutorService executor = Executors.newSingleThreadExecutor();
-            Future<String> future = executor.submit(reader::readLine);
             String line;
 
             line = future.get(timeout, TimeUnit.SECONDS);
@@ -97,7 +94,7 @@ public abstract class Channel {
                     "Connection closed by the other party: %s", message.getBody())
             );
         }
-        if (message.isConnectionCheckRequest()){
+        if (message.isConnectionCheckRequest()) {
             acceptConnectionCheck();
             return getMessage(expectedState, isRequestExpected, timeout);
         }

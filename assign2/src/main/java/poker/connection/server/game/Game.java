@@ -136,7 +136,7 @@ public class Game extends VirtualThread {
         playerConnectionsLock.unlock();
 
         try {
-            Message message = channel.getPlayerMove("It's your turn", poker.getGameStateToSend(player), 20);
+            Message message = channel.getPlayerMove("It's your turn", poker.getGameStateToSend(player), null);
             String action = message.getAttribute("action");
             Integer amount = message.getIntAttribute("amount");
 
