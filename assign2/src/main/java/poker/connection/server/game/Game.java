@@ -32,19 +32,6 @@ public class Game extends VirtualThread {
         poker = new Poker(playerUsernames);
     }
 
-    public boolean isPlayerInGame(String username) {
-        boolean result = false;
-        playerConnectionsLock.lock();
-        for (Connection connection : playerConnections) {
-            if (connection.getUsername().equals(username)) {
-                result = true;
-                break;
-            }
-        }
-        playerConnectionsLock.unlock();
-        return result;
-    }
-
     public boolean reconnectPlayer(Connection newConnection) {
         playerConnectionsLock.lock();
         int index = -1;

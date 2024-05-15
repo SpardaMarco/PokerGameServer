@@ -3,7 +3,6 @@ package poker.connection.server.queue;
 import poker.Server;
 import poker.connection.protocol.Connection;
 import poker.connection.protocol.exceptions.ChannelException;
-import poker.game.common.PokerConstants;
 import poker.connection.server.game.Game;
 import poker.connection.utils.VirtualThread;
 
@@ -15,8 +14,6 @@ public abstract class Queuer extends VirtualThread {
     protected final Queue<Connection> playersRequeueing = new LinkedList<>();
 
     private final Map<String, Game> gameRooms = new HashMap<>();
-
-    private static final int TIME_TO_RELAX = 10;
 
     public Queuer(Server server) {
         this.server = server;

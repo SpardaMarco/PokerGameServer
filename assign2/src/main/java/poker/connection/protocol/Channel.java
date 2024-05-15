@@ -23,7 +23,6 @@ public abstract class Channel {
     private final BufferedReader reader;
     private final PrintWriter writer;
     private String sessionToken;
-    private Exception exception;
 
     public Channel(Socket socket) throws IOException {
         this.socket = socket;
@@ -36,14 +35,6 @@ public abstract class Channel {
 
     public void setSessionToken(String sessionToken) {
         this.sessionToken = sessionToken;
-    }
-
-    public Exception getException() {
-        return exception;
-    }
-
-    public void setException(Exception exception) {
-        this.exception = exception;
     }
 
     protected void sendMessage(Message message) throws ClosedConnectionException {
@@ -163,14 +154,6 @@ public abstract class Channel {
 
     private void acceptConnectionCheck() throws ClosedConnectionException {
         sendMessage(CONNECTION_CHECK, OK, null, null);
-    }
-
-    public void close() {
-        try {
-            socket.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public boolean isOpen() {

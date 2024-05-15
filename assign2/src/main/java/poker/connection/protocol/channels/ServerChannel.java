@@ -16,9 +16,6 @@ import static poker.connection.protocol.message.State.*;
 import static poker.connection.protocol.message.Status.*;
 
 public class ServerChannel extends Channel {
-
-    Exception exception;
-
     public ServerChannel(Socket socket) throws IOException {
         super(socket);
     }

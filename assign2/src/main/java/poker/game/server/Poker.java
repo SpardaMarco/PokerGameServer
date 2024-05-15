@@ -85,18 +85,6 @@ public class Poker {
         return this.handsPlayed;
     }
 
-    public HandRanker getHandAnalyzer() {
-        return this.handRanker;
-    }
-
-    private boolean isPlayerSmallBlind(PokerPlayer player) {
-        return player.getUsername().equals(this.players.get(smallBlind).getUsername());
-    }
-
-    private boolean isPlayerBigBlind(PokerPlayer player) {
-        return player.getUsername().equals(this.players.get(bigBlind).getUsername());
-    }
-
     private boolean isPlayerInactive(int playerIndex) {
         return this.players.get(playerIndex).getState() == PokerPlayer.PLAYER_STATE.FOLDED || this.players.get(playerIndex).getState() == PokerPlayer.PLAYER_STATE.ALL_IN || this.players.get(playerIndex).getState() == PokerPlayer.PLAYER_STATE.OUT_OF_MONEY;
     }

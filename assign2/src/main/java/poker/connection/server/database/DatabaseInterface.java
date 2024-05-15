@@ -150,12 +150,4 @@ public class DatabaseInterface {
 
         database.createStatement().executeUpdate(sql);
     }
-
-    public void close() {
-        try {
-            database.close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

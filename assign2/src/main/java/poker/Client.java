@@ -5,9 +5,6 @@ import poker.client.state.ConnectionRecovery;
 import poker.connection.client.ClientChannelFactory;
 import poker.connection.protocol.channels.ClientChannel;
 
-import java.io.*;
-import java.util.Scanner;
-
 public class Client {
     private final ClientChannel channel;
 

@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class LocalToken {
-
     String token;
 
     public LocalToken(String token) {

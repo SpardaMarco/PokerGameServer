@@ -89,10 +89,6 @@ public class Message {
         return status.equals(OK);
     }
 
-    public boolean isError() {
-        return status.equals(ERROR);
-    }
-
     public boolean isRequest() {
         return status.equals(REQUEST);
     }
