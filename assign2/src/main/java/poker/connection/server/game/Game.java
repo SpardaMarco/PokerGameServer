@@ -4,6 +4,7 @@ import poker.Server;
 import poker.connection.protocol.Connection;
 import poker.connection.protocol.channels.ServerChannel;
 import poker.connection.protocol.exceptions.ChannelException;
+import poker.connection.protocol.exceptions.ClosedConnectionException;
 import poker.connection.protocol.exceptions.RequestTimeoutException;
 import poker.connection.protocol.message.Message;
 import poker.connection.utils.VirtualThread;
@@ -58,19 +59,19 @@ public class Game extends VirtualThread {
             playerConnectionsLock.unlock();
             return false;
         }
+        ServerChannel channel = playerConnections.get(index).getChannel();
         try {
-            ServerChannel channel = playerConnections.get(index).getChannel();
-            channel.close();
-        } catch (Exception e) {
+            channel.requestConnectionEnd("Another connection was found for your account");
+        } catch (ChannelException e) {
             if (server.isLoggingEnabled()) {
-                System.out.println("Failed to close channel for player " + newConnection.getUsername());
+                System.out.println("Error while disconnecting old connection for player " + newConnection.getUsername());
             }
         }
         playerConnections.set(index, newConnection);
         playerConnectionsLock.unlock();
         try {
             newConnection.getChannel().sendGameState(poker.getGameStateToSend(index));
-        } catch (ChannelException e) {
+        } catch (ClosedConnectionException e) {
             return false;
         }
         return true;
@@ -92,7 +93,7 @@ public class Game extends VirtualThread {
 
         try {
             channel.sendGameState(gameState);
-        } catch (ChannelException e) {
+        } catch (ClosedConnectionException e) {
             if (server.isLoggingEnabled()) {
                 System.out.println("Player " + player + " disconnected while sending game state");
             }
