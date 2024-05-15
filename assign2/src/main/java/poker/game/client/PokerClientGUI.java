@@ -7,7 +7,10 @@ import poker.game.common.PokerPlayer;
 import poker.utils.Pair;
 
 import javax.sound.midi.SysexMessage;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -17,6 +20,7 @@ import static poker.game.common.PokerConstants.*;
 public class PokerClientGUI {
 
     Scanner scanner = new Scanner(System.in);
+    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
     public void display(GameState gameState) {
         if (gameState.isGameOver()) {
@@ -185,6 +189,13 @@ public class PokerClientGUI {
 
     public int getChoice(HashMap<Integer, PokerPlayer.PLAYER_ACTION> actions) {
         try {
+            while (!reader.ready()) {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             int choice = scanner.nextInt();
             if (!actions.containsKey(choice)) {
                 System.out.println("Invalid choice. Enter your choice: ");
