@@ -4,7 +4,6 @@ import poker.Server;
 import poker.connection.protocol.Connection;
 import poker.connection.protocol.channels.ServerChannel;
 import poker.connection.protocol.exceptions.ChannelException;
-import poker.connection.protocol.exceptions.ClosedConnectionException;
 import poker.connection.protocol.exceptions.RequestTimeoutException;
 import poker.connection.protocol.message.Message;
 import poker.connection.utils.VirtualThread;
@@ -59,12 +58,20 @@ public class Game extends VirtualThread {
             playerConnectionsLock.unlock();
             return false;
         }
+        try {
+            ServerChannel channel = playerConnections.get(index).getChannel();
+            channel.close();
+        } catch (Exception e) {
+            if (server.isLoggingEnabled()) {
+                System.out.println("Failed to close channel for player " + newConnection.getUsername());
+            }
+        }
         playerConnections.set(index, newConnection);
         playerConnectionsLock.unlock();
         try {
             newConnection.getChannel().sendGameState(poker.getGameStateToSend(index));
-        } catch (ClosedConnectionException e) {
-            // TODO: Handle this exception. Disconnect player?
+        } catch (ChannelException e) {
+            return false;
         }
         return true;
     }
@@ -85,8 +92,10 @@ public class Game extends VirtualThread {
 
         try {
             channel.sendGameState(gameState);
-        } catch (ClosedConnectionException e) {
-            // TODO: Handle this exception
+        } catch (ChannelException e) {
+            if (server.isLoggingEnabled()) {
+                System.out.println("Player " + player + " disconnected while sending game state");
+            }
         }
     }
 
@@ -94,8 +103,10 @@ public class Game extends VirtualThread {
         for (Connection connection : playerConnections) {
             try {
                 connection.getChannel().notifyGameStart();
-            } catch (ClosedConnectionException e) {
-                // TODO: Handle this exception. Disconnect player?
+            } catch (ChannelException e) {
+                if (server.isLoggingEnabled()) {
+                    System.out.println("Player " + connection.getUsername() + " disconnected while notifying game start");
+                }
             }
         }
     }
@@ -158,7 +169,10 @@ public class Game extends VirtualThread {
             }
             poker.takeAction(PokerPlayer.PLAYER_ACTION.FOLD, 0);
         } catch (ChannelException e) {
-            // TODO: Handle this exception. Disconnect player?
+            if (server.isLoggingEnabled()) {
+                System.out.println("Player " + player + " disconnected while playing");
+            }
+            poker.takeAction(PokerPlayer.PLAYER_ACTION.FOLD, 0);
         }
     }
 
