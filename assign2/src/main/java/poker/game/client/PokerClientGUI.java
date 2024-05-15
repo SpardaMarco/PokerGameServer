@@ -109,7 +109,8 @@ public class PokerClientGUI {
         System.out.println();
         for (int i = 0; i < gameState.getPlayers().size(); i++) {
             PokerPlayer player = gameState.getPlayers().get(i);
-            System.out.println(player.getUsername() + "'s hand: " + showPlayerHand(player));
+            if (player.getState() != PokerPlayer.PLAYER_STATE.OUT_OF_MONEY || player.getState() != PokerPlayer.PLAYER_STATE.FOLDED)
+                System.out.println(player.getUsername() + "'s hand: " + showPlayerHand(player));
         }
         System.out.println();
         System.out.println(showCommunityCards(gameState));

@@ -169,7 +169,8 @@ public class Poker {
         deck.shuffle();
 
         for (PokerPlayer player : players) {
-            player.setHand(deck.dealCards(HAND_SIZE));
+            if (player.getState() != PokerPlayer.PLAYER_STATE.OUT_OF_MONEY)
+                player.setHand(deck.dealCards(HAND_SIZE));
         }
 
         this.communityCards.clear();
