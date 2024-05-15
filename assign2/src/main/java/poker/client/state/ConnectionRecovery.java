@@ -2,47 +2,60 @@ package poker.client.state;
 
 import poker.client.LocalToken;
 import poker.connection.protocol.channels.ClientChannel;
+import poker.connection.protocol.exceptions.ChannelException;
+import poker.connection.protocol.exceptions.ClosedConnectionException;
 import poker.connection.protocol.message.Message;
+import poker.utils.UserInput;
 
 import java.util.Scanner;
 
-public class ConnectionRecovery implements ClientState {
+public class ConnectionRecovery extends ClientState {
+
+    public ConnectionRecovery(ClientChannel channel) {
+        super(channel);
+    }
 
     @Override
-    public ClientState handle(ClientChannel channel) {
+    public ClientState handle() {
         LocalToken token = LocalToken.retrieve();
 
         if (token != null) {
-            if (confirmRecovery()) {
-                Message response;
+            if (intendsRecovery()) {
                 try {
-                    response = channel.recoverSession(token.toString());
-                } catch (Exception e) {
-                    System.out.println("Failed communicating with the server during Connection Recovery");
+                    Message response = channel.recoverSession(token.toString());
+                    return handleRecoveryResponse(response);
+                } catch (ClosedConnectionException e) {
+                    System.out.println("Connection to the server was lost.");
                     return null;
-                }
-
-                if (response == null) {
+                } catch (ChannelException e) {
+                    System.out.println("Error communicating with the server:\n" + e.getMessage());
                     return null;
-                }
-                System.out.println(response.getBody());
-                if (response.isOk()) {
-                    new LocalToken((response.getAttribute("sessionToken"))).save();
-                    return new Matchmaking();
                 }
             }
         }
-
-        return new Authentication();
+        return new Authentication(channel);
     }
 
-    private boolean confirmRecovery() {
-        System.out.println("Do you wish to recover your previous session? (Y/N)");
-        String input = new Scanner(System.in).nextLine().trim();
+    private boolean intendsRecovery() {
+        String input = new UserInput().nextLine(
+                "Do you wish to recover your previous session? (Y/N)",
+                "N"
+        );
         while (!input.equalsIgnoreCase("Y") && !input.equalsIgnoreCase("N")) {
             System.out.println("Invalid input. Please enter Y or N.");
             input = new Scanner(System.in).nextLine();
         }
         return input.equalsIgnoreCase("Y");
+    }
+
+    private ClientState handleRecoveryResponse(Message response) {
+        System.out.println(response.getBody());
+        if (response.isOk()) {
+            String sessionToken = response.getAttribute("sessionToken");
+            new LocalToken(sessionToken).save();
+            channel.setSessionToken(sessionToken);
+            return new Matchmaking(channel);
+        }
+        return new Authentication(channel);
     }
 }

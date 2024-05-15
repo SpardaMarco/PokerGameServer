@@ -2,6 +2,7 @@ package poker.connection.protocol.channels;
 
 import poker.connection.protocol.Channel;
 import poker.connection.protocol.exceptions.ChannelException;
+import poker.connection.protocol.exceptions.ClosedConnectionException;
 import poker.connection.protocol.message.Message;
 
 import java.io.IOException;
@@ -36,24 +37,24 @@ public class ClientChannel extends Channel {
         getRequest(MATCH_START);
     }
 
-    public void sendPlayerMove(String action, String amount) {
+    public void sendPlayerMove(String action, String amount) throws ClosedConnectionException {
         sendMessage(MATCH_MOVE, OK, null, Map.of(
                 "action", action,
                 "amount", amount)
         );
     }
 
-    public void sendRequeueResponse(boolean requeue) {
+    public void sendRequeueResponse(boolean requeue) throws ClosedConnectionException {
         sendMessage(REQUEUE, OK, null, Map.of(
                 "requeue", requeue)
         );
     }
 
-    public void acceptMatchmaking() {
+    public void acceptMatchmaking() throws ClosedConnectionException {
         sendMessage(MATCHMAKING, OK, null, null);
     }
 
-    public void acceptMatchReconnect() {
+    public void acceptMatchReconnect() throws ClosedConnectionException {
         sendMessage(MATCH_RECONNECT, OK, null, null);
     }
 }

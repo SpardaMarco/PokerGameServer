@@ -3,6 +3,7 @@ package poker.connection.protocol.channels;
 import com.google.gson.Gson;
 import poker.connection.protocol.Channel;
 import poker.connection.protocol.exceptions.ChannelException;
+import poker.connection.protocol.exceptions.ClosedConnectionException;
 import poker.connection.protocol.message.Message;
 import poker.connection.protocol.message.State;
 import poker.game.common.GameState;
@@ -22,26 +23,26 @@ public class ServerChannel extends Channel {
         super(socket);
     }
 
-    public void acceptConnectionRecovery(String body, String username, String sessionToken) {
+    public void acceptConnectionRecovery(String body, String username, String sessionToken) throws ClosedConnectionException {
         sendMessage(CONNECTION_RECOVERY, OK, body, Map.of(
                 "username", username,
                 "sessionToken", sessionToken
         ));
     }
 
-    public void rejectConnectionRecovery(String body) {
+    public void rejectConnectionRecovery(String body) throws ClosedConnectionException {
         sendMessage(CONNECTION_RECOVERY, ERROR, body, null);
     }
 
-    public void acceptAuthentication(String body, String sessionToken) {
+    public void acceptAuthentication(String body, String sessionToken) throws ClosedConnectionException {
         sendMessage(AUTHENTICATION, OK, body, Map.of("sessionToken", sessionToken));
     }
 
-    public void rejectAuthentication(String body) {
+    public void rejectAuthentication(String body) throws ClosedConnectionException {
         sendMessage(AUTHENTICATION, ERROR, body, null);
     }
 
-    public void sendGameState(GameState gameState) {
+    public void sendGameState(GameState gameState) throws ClosedConnectionException {
         sendMessage(MATCH_DISPLAY, REQUEST, null, Map.of("gameState", new Gson().toJson(gameState)));
     }
 
@@ -73,11 +74,11 @@ public class ServerChannel extends Channel {
         return getResponse(MATCHMAKING).isOk();
     }
 
-    public void notifyGameStart() {
+    public void notifyGameStart() throws ClosedConnectionException {
         sendMessage(MATCH_START, REQUEST, null, null);
     }
 
-    public void sendTurnTimeout() {
+    public void sendTurnTimeout() throws ClosedConnectionException {
         sendMessage(TURN_TIMEOUT, OK, null, null);
     }
 }

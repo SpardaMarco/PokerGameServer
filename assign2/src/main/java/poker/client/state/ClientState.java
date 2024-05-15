@@ -3,7 +3,13 @@ package poker.client.state;
 import poker.Client;
 import poker.connection.protocol.channels.ClientChannel;
 
-public interface ClientState {
+public abstract class ClientState {
 
-    ClientState handle(ClientChannel channel);
+    protected final ClientChannel channel;
+
+    protected ClientState (ClientChannel channel) {
+        this.channel = channel;
+    }
+
+    public abstract ClientState handle();
 }

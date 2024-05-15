@@ -1,23 +1,32 @@
 package poker.client.state;
 
 import poker.connection.protocol.channels.ClientChannel;
+import poker.connection.protocol.exceptions.ChannelException;
+import poker.connection.protocol.exceptions.ClosedConnectionException;
 
-public class Matchmaking implements ClientState {
+public class Matchmaking extends ClientState {
+
+    public Matchmaking(ClientChannel channel) {
+        super(channel);
+    }
 
     @Override
-    public ClientState handle(ClientChannel channel) {
+    public ClientState handle() {
 
         System.out.println("Waiting for other players to join...");
 
         try {
             channel.handleGameStartRequest();
-        } catch (Exception e) {
-            System.out.println("Failed communicating with the server during Matchmaking");
+        } catch (ClosedConnectionException e) {
+            System.out.println("Connection to the server was lost.");
+            return null;
+        } catch (ChannelException e) {
+            System.out.println("Error communicating with the server:\n" + e.getMessage());
             return null;
         }
 
         System.out.println("Game is starting...");
 
-        return new Match();
+        return new Match(channel);
     }
 }

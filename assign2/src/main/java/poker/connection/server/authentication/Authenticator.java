@@ -12,7 +12,6 @@ import poker.connection.server.database.DatabaseInterface;
 import poker.connection.utils.VirtualThread;
 
 import java.sql.SQLException;
-import java.util.concurrent.TimeoutException;
 
 public class Authenticator extends VirtualThread {
     private final Server server;
@@ -29,14 +28,16 @@ public class Authenticator extends VirtualThread {
 
     @Override
     protected void run() {
-        Connection connection = handleRequests();
-        if (connection != null) {
-            channel.setSessionToken(connection.getSession());
-            server.queuePlayer(connection);
-        }
+        try {
+            Connection connection = handleRequests();
+            if (connection != null) {
+                channel.setSessionToken(connection.getSession());
+                server.queuePlayer(connection);
+            }
+        } catch (ClosedConnectionException ignored) {}
     }
 
-    private Connection handleRequests() {
+    private Connection handleRequests() throws ClosedConnectionException {
         Connection connection = null;
         Message request;
         while (channel.isOpen() && connection == null) {
@@ -51,7 +52,6 @@ public class Authenticator extends VirtualThread {
                 terminateConnection(e.getMessage());
                 return null;
             }
-
             switch (request.getState()) {
                 case AUTHENTICATION -> {
                     connection = authenticateUser(request);
@@ -70,11 +70,12 @@ public class Authenticator extends VirtualThread {
     }
 
     private void terminateConnection(String body) {
-        channel.requestConnectionEnd(body);
-        channel.close();
+        try {
+            channel.requestConnectionEnd(body);
+        } catch (ClosedConnectionException ignored) {}
     }
 
-    private Connection recoverSession(Message message) {
+    private Connection recoverSession(Message message) throws ClosedConnectionException {
         if (!message.hasAttribute("sessionToken")) {
             channel.rejectConnectionRecovery("Missing session token");
             return null;
@@ -98,7 +99,7 @@ public class Authenticator extends VirtualThread {
         return null;
     }
 
-    private Connection authenticateUser(Message request) {
+    private Connection authenticateUser(Message request) throws ClosedConnectionException {
         if (!(request.hasAttribute("username") && request.hasAttribute("password"))) {
             channel.rejectAuthentication("Missing username or password");
             return null;
@@ -116,7 +117,7 @@ public class Authenticator extends VirtualThread {
         }
     }
 
-    private Connection handleRegistration(String username, String password) throws SQLException {
+    private Connection handleRegistration(String username, String password) throws SQLException, ClosedConnectionException {
         if (database.registerUser(username, password)) {
             Connection connection = login(username, password);
             if (connection != null) {
@@ -129,7 +130,7 @@ public class Authenticator extends VirtualThread {
         return null;
     }
 
-    private Connection handleLogin(String username, String password) throws SQLException {
+    private Connection handleLogin(String username, String password) throws SQLException, ClosedConnectionException {
         Connection connection = login(username, password);
         if (connection != null) {
             channel.acceptAuthentication("User successfully logged in", connection.getSession());
@@ -138,7 +139,7 @@ public class Authenticator extends VirtualThread {
         return null;
     }
 
-    private Connection login(String username, String password) throws SQLException {
+    private Connection login(String username, String password) throws SQLException, ClosedConnectionException {
         if (database.authenticateUser(username, password)) {
             String token = generateSession(username);
             if (token != null) {
@@ -150,7 +151,7 @@ public class Authenticator extends VirtualThread {
         return null;
     }
 
-    private void rejectAuthentication(String body) {
+    private void rejectAuthentication(String body) throws ClosedConnectionException {
         if (--authenticationAttempts == 0)
             terminateConnection("Too many failed authentication attempts");
         else

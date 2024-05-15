@@ -4,6 +4,7 @@ import poker.Server;
 import poker.connection.protocol.Connection;
 import poker.connection.protocol.channels.ServerChannel;
 import poker.connection.protocol.exceptions.ChannelException;
+import poker.connection.protocol.exceptions.ClosedConnectionException;
 import poker.connection.protocol.exceptions.RequestTimeoutException;
 import poker.connection.protocol.message.Message;
 import poker.connection.utils.VirtualThread;
@@ -60,7 +61,11 @@ public class Game extends VirtualThread {
         }
         playerConnections.set(index, newConnection);
         playerConnectionsLock.unlock();
-        newConnection.getChannel().sendGameState(poker.getGameStateToSend(index));
+        try {
+            newConnection.getChannel().sendGameState(poker.getGameStateToSend(index));
+        } catch (ClosedConnectionException e) {
+            // TODO: Handle this exception. Disconnect player?
+        }
         return true;
     }
 
@@ -78,12 +83,20 @@ public class Game extends VirtualThread {
         playerConnectionsLock.unlock();
         GameState gameState = poker.getGameStateToSend(player);
 
-        channel.sendGameState(gameState);
+        try {
+            channel.sendGameState(gameState);
+        } catch (ClosedConnectionException e) {
+            // TODO: Handle this exception
+        }
     }
 
     private void notifyPlayers() {
         for (Connection connection : playerConnections) {
-            connection.getChannel().notifyGameStart();
+            try {
+                connection.getChannel().notifyGameStart();
+            } catch (ClosedConnectionException e) {
+                // TODO: Handle this exception. Disconnect player?
+            }
         }
     }
 
@@ -123,34 +136,30 @@ public class Game extends VirtualThread {
         ServerChannel channel = playerConnections.get(player).getChannel();
         playerConnectionsLock.unlock();
 
-        Message message;
         try {
-            message = channel.getPlayerMove("It's your turn", poker.getGameStateToSend(player), 20);
+            Message message = channel.getPlayerMove("It's your turn", poker.getGameStateToSend(player), 20);
+            String action = message.getAttribute("action");
+            Integer amount = message.getIntAttribute("amount");
+
+            if (action == null || amount == null) {
+                throw new RuntimeException(String.format(
+                        "Invalid player move received from player %d - action: %s, amount: %d",
+                        player,
+                        action,
+                        amount
+                ));
+            }
+            PokerPlayer.PLAYER_ACTION playerAction = PokerPlayer.PLAYER_ACTION.fromString(action);
+            poker.takeAction(playerAction, amount);
+
         } catch (RequestTimeoutException e) {
             if (server.isLoggingEnabled()) {
                 System.out.println("Player " + player + " timed out while playing");
             }
             poker.takeAction(PokerPlayer.PLAYER_ACTION.FOLD, 0);
-            playerConnections.get(player).getChannel().sendTurnTimeout();
-            return;
         } catch (ChannelException e) {
-            // TODO: Disconnect player
-            throw new RuntimeException(e);
+            // TODO: Handle this exception. Disconnect player?
         }
-
-        String action = message.getAttribute("action");
-        Integer amount = message.getIntAttribute("amount");
-
-        if (action == null || amount == null) {
-            throw new RuntimeException(String.format(
-                    "Invalid player move received from player %d - action: %s, amount: %d",
-                    player,
-                    action,
-                    amount
-            ));
-        }
-        PokerPlayer.PLAYER_ACTION playerAction = PokerPlayer.PLAYER_ACTION.fromString(action);
-        poker.takeAction(playerAction, amount);
     }
 
     private void finishGame() {

@@ -46,11 +46,15 @@ public abstract class Channel {
         this.exception = exception;
     }
 
-    protected void sendMessage(Message message) {
-        writer.println(message);
+    protected void sendMessage(Message message) throws ClosedConnectionException {
+        try {
+            writer.println(message);
+        } catch (Exception e) {
+            throw new ClosedConnectionException("Connection closed by the other party");
+        }
     }
 
-    protected void sendMessage(State state, Status status, String body, Map<String, Object> data) {
+    protected void sendMessage(State state, Status status, String body, Map<String, Object> data) throws ClosedConnectionException {
         sendMessage(new Message(state, status, body, data, sessionToken));
     }
 
@@ -144,11 +148,11 @@ public abstract class Channel {
         return getMessage(expectedState, true, timeout);
     }
 
-    public void requestConnectionEnd(String body) {
+    public void requestConnectionEnd(String body) throws ClosedConnectionException {
         sendMessage(CONNECTION_END, REQUEST, body, null);
     }
 
-    protected void acceptConnectionEnd() {
+    protected void acceptConnectionEnd() throws ClosedConnectionException {
         sendMessage(CONNECTION_END, OK, null, null);
     }
 
@@ -157,7 +161,7 @@ public abstract class Channel {
         return getResponse(CONNECTION_CHECK, 3);
     }
 
-    private void acceptConnectionCheck() {
+    private void acceptConnectionCheck() throws ClosedConnectionException {
         sendMessage(CONNECTION_CHECK, OK, null, null);
     }
 
