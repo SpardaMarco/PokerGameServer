@@ -155,13 +155,6 @@ public class Game extends VirtualThread {
             if (server.isLoggingEnabled()) {
                 System.out.println("Player " + player + " timed out while playing");
             }
-            try {
-                channel.sendTurnTimeout();
-            } catch (ClosedConnectionException ex) {
-                if (server.isLoggingEnabled()) {
-                    System.out.println("Player " + player + " disconnected while sending turn timeout");
-                }
-            }
             poker.takeAction(PokerPlayer.PLAYER_ACTION.FOLD, 0);
         } catch (ChannelException e) {
             if (server.isLoggingEnabled()) {

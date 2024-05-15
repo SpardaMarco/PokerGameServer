@@ -6,6 +6,7 @@ import poker.game.common.GameState;
 import poker.game.common.PokerPlayer;
 import poker.utils.Pair;
 
+import javax.sound.midi.SysexMessage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -164,18 +165,7 @@ public class PokerClientGUI {
         System.out.println(options);
         // Read user input from console
         System.out.println("Enter your choice: ");
-        int choice;
-        try {
-            choice = scanner.nextInt();
-            while (!actions.containsKey(choice)) {
-                System.out.println("Invalid choice. Enter your choice: ");
-                choice = scanner.nextInt();
-            }
-        } catch (Exception e) {
-            System.out.println("Invalid choice. Enter your choice: ");
-            choice = scanner.nextInt();
-        }
-
+        int choice = getChoice(actions);
         action = actions.get(choice);
 
         if (action == PokerPlayer.PLAYER_ACTION.BET) {
@@ -193,6 +183,21 @@ public class PokerClientGUI {
         return new Pair<>(action.toString(), amount);
     }
 
-    public void cleanInputStream() {
+    public int getChoice(HashMap<Integer, PokerPlayer.PLAYER_ACTION> actions) {
+        try {
+            int choice = scanner.nextInt();
+            if (!actions.containsKey(choice)) {
+                System.out.println("Invalid choice. Enter your choice: ");
+                return getChoice(actions);
+            }
+            return choice;
+        } catch (Exception e) {
+            System.out.println("Invalid choice. Enter your choice: ");
+            return getChoice(actions);
+        }
+    }
+
+    public void closeInputStream() {
+        scanner.close();
     }
 }

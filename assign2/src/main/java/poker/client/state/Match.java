@@ -11,6 +11,7 @@ import poker.game.common.GameState;
 import poker.utils.Pair;
 import poker.utils.UserInput;
 
+import java.io.IOException;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -38,7 +39,7 @@ public class Match extends ClientState {
         }
     }
 
-    private ClientState parseMessage(Message message) throws UnexpectedMessageException {
+    private ClientState parseMessage(Message message) {
 
         switch (message.getState()) {
             case MATCH_DISPLAY -> {
@@ -51,7 +52,8 @@ public class Match extends ClientState {
                 return handleRequeue();
             }
             default -> {
-                throw new UnexpectedMessageException("Unexpected message received: " + message);
+                System.out.println("Unexpected message received: " + message);
+                return null;
             }
         }
     }
@@ -72,18 +74,18 @@ public class Match extends ClientState {
                 () -> gui.askMove(gameState)
         );
 
-        final AtomicReference<Boolean> channelIsAliveWrapper = new AtomicReference<>(false);
+        final AtomicReference<Message> messageWrapper = new AtomicReference<>();
         Thread timer = new Thread(
                 () -> {
                     try {
-                        channel.getServerTimeOut();
-                        channelIsAliveWrapper.set(true);
+                        Message incoming = channel.getRequest();
+                        messageWrapper.set(incoming);
                     } catch (ClosedConnectionException e) {
                         System.out.println("Connection to the server was lost.\n" + e.getMessage());
-                        channelIsAliveWrapper.set(false);
+                        messageWrapper.set(null);
                     } catch (ChannelException e) {
                         System.out.println("Error communicating with the server:\n" + e.getMessage());
-                        channelIsAliveWrapper.set(false);
+                        messageWrapper.set(null);
                     } finally {
                         future.cancel(true);
                     }
@@ -95,17 +97,16 @@ public class Match extends ClientState {
         try {
             timer.start();
             action = future.get();
-            timer.interrupt();
         } catch (CancellationException e) {
-            if (channelIsAliveWrapper.get() != null && !channelIsAliveWrapper.get()) {
+            if (messageWrapper.get() == null) {
                 System.out.println("Connection to the server was lost.");
                 return null;
             }
             System.out.println("Timeout reached.");
-            return new Match(channel);
+            return parseMessage(messageWrapper.get());
         } catch (InterruptedException | ExecutionException e) {
             System.out.println("Error getting user input:\n" + e.getMessage());
-            return new Match(channel);
+            return null;
         }
 
         try {
@@ -115,7 +116,13 @@ public class Match extends ClientState {
             return null;
         }
 
-        return new Match(channel);
+        try {
+            timer.join();
+            return parseMessage(messageWrapper.get());
+        } catch (InterruptedException e) {
+            System.out.println("Error handling message:\n" + e.getMessage());
+            return null;
+        }
     }
 
     private ClientState handleRequeue() {
