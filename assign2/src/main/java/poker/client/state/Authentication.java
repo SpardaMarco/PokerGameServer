@@ -4,15 +4,9 @@ import poker.client.LocalToken;
 import poker.connection.protocol.channels.ClientChannel;
 import poker.connection.protocol.exceptions.ChannelException;
 import poker.connection.protocol.exceptions.ClosedConnectionException;
-import poker.connection.protocol.exceptions.RequestTimeoutException;
 import poker.connection.protocol.exceptions.UnexpectedMessageException;
 import poker.connection.protocol.message.Message;
 import poker.utils.UserInput;
-
-import java.util.Scanner;
-
-import static poker.connection.protocol.message.State.MATCHMAKING;
-import static poker.connection.protocol.message.State.MATCH_RECONNECT;
 
 public class Authentication extends ClientState {
 

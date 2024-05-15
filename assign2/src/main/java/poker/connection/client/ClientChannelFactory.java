@@ -1,13 +1,11 @@
 package poker.connection.client;
 
-import poker.connection.protocol.Channel;
 import poker.connection.protocol.channels.ClientChannel;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;

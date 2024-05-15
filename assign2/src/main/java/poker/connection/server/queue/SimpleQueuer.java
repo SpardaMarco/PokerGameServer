@@ -6,9 +6,6 @@ import poker.connection.protocol.exceptions.ChannelException;
 import poker.game.common.PokerConstants;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
 
 public class SimpleQueuer extends Queuer {
 

@@ -17,7 +17,7 @@ public class Server {
     private final boolean rankedMode;
     private final DatabaseInterface database = new DatabaseInterface();
 
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) {
         if (args.length < 1) {
             System.out.println("Usage: java TimeServer <port> [-l] [-r]");
             return;
