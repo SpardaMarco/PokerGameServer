@@ -2,6 +2,8 @@ package poker.connection.server.queue;
 
 import poker.connection.protocol.Connection;
 import poker.connection.protocol.exceptions.ChannelException;
+import poker.connection.protocol.exceptions.ClosedConnectionException;
+import poker.connection.protocol.exceptions.RequestTimeoutException;
 import poker.connection.protocol.message.Message;
 
 public class Requeuer extends  Thread {
@@ -13,25 +15,26 @@ public class Requeuer extends  Thread {
         this.connection = connection;
     }
 
-    private boolean askPlayerToRequeue() throws InterruptedException {
-        Message response;
+    private boolean playerToRequeue() {
         try {
-            response = connection.getChannel().sendRequeueRequest();
+            Message response = connection.getChannel().sendRequeueRequest(10);
+            return response.getBooleanAttribute("requeue");
+        } catch (RequestTimeoutException e) {
+            try {
+                connection.getChannel().requestConnectionEnd("Requeue request timed out");
+                return false;
+            } catch (ClosedConnectionException ex) {
+                return false;
+            }
         } catch (ChannelException e) {
             return false;
         }
-        return response.getBooleanAttribute("requeue");
     }
 
-@Override
+    @Override
     public void run() {
-        try {
-            boolean wantsToRequeue = askPlayerToRequeue();
-            if (wantsToRequeue) {
-                queuer.queuePlayer(connection);
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        if (playerToRequeue()) {
+            queuer.queuePlayer(connection);
         }
     }
 }

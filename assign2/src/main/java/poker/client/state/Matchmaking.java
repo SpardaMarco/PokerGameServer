@@ -18,7 +18,7 @@ public class Matchmaking extends ClientState {
         try {
             channel.handleGameStartRequest();
         } catch (ClosedConnectionException e) {
-            System.out.println("Connection to the server was lost.");
+            System.out.println("Connection to the server was lost.\n" + e.getMessage());
             return null;
         } catch (ChannelException e) {
             System.out.println("Error communicating with the server:\n" + e.getMessage());

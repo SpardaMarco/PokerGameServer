@@ -17,8 +17,6 @@ import static poker.connection.protocol.message.Status.*;
 
 public class ServerChannel extends Channel {
 
-    Exception exception;
-
     public ServerChannel(Socket socket) throws IOException {
         super(socket);
     }
@@ -46,9 +44,9 @@ public class ServerChannel extends Channel {
         sendMessage(MATCH_DISPLAY, REQUEST, null, Map.of("gameState", new Gson().toJson(gameState)));
     }
 
-    public Message sendRequeueRequest() throws ChannelException {
+    public Message sendRequeueRequest(int timeout) throws ChannelException {
         sendMessage(REQUEUE, REQUEST, null, null);
-        return getResponse(REQUEUE);
+        return getResponse(REQUEUE, timeout);
     }
 
     public Message getPlayerMove(String body, GameState gameState, Integer timeout) throws ChannelException {

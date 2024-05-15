@@ -41,7 +41,7 @@ public class Match extends ClientState {
                 }
             }
         } catch (ClosedConnectionException e) {
-            System.out.println("Connection to the server was lost.");
+            System.out.println("Connection to the server was lost.\n" + e.getMessage());
             return null;
         } catch (ChannelException e) {
             System.out.println("Error communicating with the server:\n" + e.getMessage());
@@ -94,7 +94,7 @@ public class Match extends ClientState {
                     System.out.println("Invalid input. Please enter Y or N.");
                 }
             } catch (ClosedConnectionException e) {
-                System.out.println("Connection to the server was lost.");
+                System.out.println("Connection to the server was lost.\n" + e.getMessage());
                 return null;
             } catch (ChannelException e) {
                 System.out.println("Error communicating with the server:\n" + e.getMessage());

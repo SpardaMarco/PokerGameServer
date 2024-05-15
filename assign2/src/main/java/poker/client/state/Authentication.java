@@ -30,7 +30,7 @@ public class Authentication extends ClientState {
         try {
             response = channel.authenticate(username, password);
         } catch (ClosedConnectionException e) {
-            System.out.println("Connection to the server was lost.");
+            System.out.println("Connection to the server was lost.\n" + e.getMessage());
             return null;
         } catch (ChannelException e) {
             System.out.println("Error communicating with the server:\n" + e.getMessage());
@@ -69,7 +69,7 @@ public class Authentication extends ClientState {
                 }
             }
         } catch (ClosedConnectionException e) {
-            System.out.println("Connection to the server was lost.");
+            System.out.println("Connection to the server was lost.\n" + e.getMessage());
             return null;
         } catch (ChannelException e) {
             System.out.println("Failed communicating with the server after authentication:\n" + e.getMessage());
