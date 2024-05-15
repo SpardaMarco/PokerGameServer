@@ -5,11 +5,11 @@ import poker.connection.protocol.exceptions.ChannelException;
 import poker.connection.protocol.message.Message;
 
 public class Requeuer extends  Thread {
-    private final QueueManager queueManager;
+    private final Queuer queuer;
     private final Connection connection;
 
-    public Requeuer(QueueManager queueManager, Connection connection) {
-        this.queueManager = queueManager;
+    public Requeuer(Queuer queuer, Connection connection) {
+        this.queuer = queuer;
         this.connection = connection;
     }
 
@@ -28,7 +28,7 @@ public class Requeuer extends  Thread {
         try {
             boolean wantsToRequeue = askPlayerToRequeue();
             if (wantsToRequeue) {
-                queueManager.queuePlayer(connection);
+                queuer.queuePlayer(connection);
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
