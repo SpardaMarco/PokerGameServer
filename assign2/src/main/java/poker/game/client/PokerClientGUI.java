@@ -27,9 +27,10 @@ public class PokerClientGUI {
     private void displayGameOver(GameState gameState) {
         System.out.println("Game over!");
         ArrayList<PokerPlayer> winners = gameState.getWinners();
+        winners.sort((p1, p2) -> p2.getMoney() - p1.getMoney());
         System.out.println("Leaderboard: ");
         for (PokerPlayer winner : winners) {
-            System.out.println(winner.getUsername() + " wins with " + winner.getMoney() + " remaining");
+            System.out.println(winner.getUsername() + " finished the game with " + winner.getMoney() + " remaining");
         }
     }
 
@@ -109,14 +110,16 @@ public class PokerClientGUI {
         System.out.println();
         for (int i = 0; i < gameState.getPlayers().size(); i++) {
             PokerPlayer player = gameState.getPlayers().get(i);
-            System.out.println(player.getUsername() + "'s hand: " + showPlayerHand(player));
+            if (player.getState() != PokerPlayer.PLAYER_STATE.OUT_OF_MONEY && player.getState() != PokerPlayer.PLAYER_STATE.FOLDED)
+                System.out.println(player.getUsername() + "'s hand: " + showPlayerHand(player));
         }
         System.out.println();
         System.out.println(showCommunityCards(gameState));
         ArrayList<PokerPlayer> winners = gameState.getWinners();
+        winners.sort((p1, p2) -> p2.getMoney() - p1.getMoney());
         System.out.println("Winners: ");
         for (PokerPlayer winner : winners) {
-            System.out.println(winner.getUsername() + " wins " + pot / winners.size() + " with a " + gameState.getHandRanks().get(gameState.getPlayers().indexOf(winner)).toString());
+            System.out.println(winner.getUsername() + " won " + pot / winners.size() + " having a " + gameState.getHandRanks().get(gameState.getPlayers().indexOf(winner)).toString());
         }
         System.out.println();
     }
