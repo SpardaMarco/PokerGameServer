@@ -50,8 +50,8 @@ public class ServerChannel extends Channel {
     }
 
     public Message getPlayerMove(String body, GameState gameState, Integer timeout) throws ChannelException {
-        sendMessage(MATCH_MOVE, REQUEST, body, Map.of("gameState", new Gson().toJson(gameState)));
-        return getResponse(MATCH_MOVE, timeout);
+        sendMessage(MATCH_PLAY, REQUEST, body, Map.of("gameState", new Gson().toJson(gameState)));
+        return getResponse(MATCH_PLAY, timeout);
     }
 
     public Message getRequest(State expectedState) throws ChannelException {
@@ -77,6 +77,6 @@ public class ServerChannel extends Channel {
     }
 
     public void sendTurnTimeout() throws ClosedConnectionException {
-        sendMessage(TURN_TIMEOUT, OK, null, null);
+        sendMessage(TURN_TIMEOUT, REQUEST, null, null);
     }
 }

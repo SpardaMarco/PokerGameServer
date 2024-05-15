@@ -6,6 +6,7 @@ import poker.game.common.GameState;
 import poker.game.common.PokerPlayer;
 import poker.utils.Pair;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -13,6 +14,8 @@ import java.util.Scanner;
 import static poker.game.common.PokerConstants.*;
 
 public class PokerClientGUI {
+
+    Scanner scanner = new Scanner(System.in);
 
     public void display(GameState gameState) {
         if (gameState.isGameOver()) {
@@ -124,9 +127,8 @@ public class PokerClientGUI {
         System.out.println();
     }
 
-    public Pair<String, Integer> askMove(GameState gameState) {
+    public Pair<String, Integer> askMove(GameState gameState) throws IOException {
         StringBuilder options = new StringBuilder();
-        Scanner scanner = new Scanner(System.in);
         HashMap<Integer, PokerPlayer.PLAYER_ACTION> actions = new HashMap<Integer, PokerPlayer.PLAYER_ACTION>();
         int option = 1;
         int currBet = gameState.getCurrBet();
@@ -162,8 +164,9 @@ public class PokerClientGUI {
         System.out.println(options);
         // Read user input from console
         System.out.println("Enter your choice: ");
-        int choice = scanner.nextInt();
+        int choice;
         try {
+            choice = scanner.nextInt();
             while (!actions.containsKey(choice)) {
                 System.out.println("Invalid choice. Enter your choice: ");
                 choice = scanner.nextInt();
@@ -185,8 +188,11 @@ public class PokerClientGUI {
             }
         }
 
-        System.out.println();
+//        System.out.println();
 
         return new Pair<>(action.toString(), amount);
+    }
+
+    public void cleanInputStream() {
     }
 }

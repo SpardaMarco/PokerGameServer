@@ -38,7 +38,7 @@ public class ClientChannel extends Channel {
     }
 
     public void sendPlayerMove(String action, String amount) throws ClosedConnectionException {
-        sendMessage(MATCH_MOVE, OK, null, Map.of(
+        sendMessage(MATCH_PLAY, OK, null, Map.of(
                 "action", action,
                 "amount", amount)
         );
@@ -56,5 +56,9 @@ public class ClientChannel extends Channel {
 
     public void acceptMatchReconnect() throws ClosedConnectionException {
         sendMessage(MATCH_RECONNECT, OK, null, null);
+    }
+
+    public Message getServerTimeOut() throws ChannelException {
+        return getRequest(TURN_TIMEOUT);
     }
 }
