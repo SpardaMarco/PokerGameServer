@@ -179,9 +179,9 @@ public class Game extends VirtualThread {
     private void finishGame() {
         playerConnectionsLock.lock();
         for (Connection connection : playerConnections) {
-            server.getQueueManager().removePlayerFromRoom(connection);
+            server.getQueuer().removePlayerFromRoom(connection);
         }
-        server.getQueueManager().requeuePlayers(playerConnections);
+        server.getQueuer().requeuePlayers(playerConnections);
         playerConnectionsLock.unlock();
     }
 
