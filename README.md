@@ -16,6 +16,7 @@ The list of dependencies used are the following:
 - [jBCrypt](https://www.mindrot.org/projects/jBCrypt/)
 - [JSON](https://github.com/stleary/JSON-java)
 - [GSON](https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/Gson.html)
+
 ## Run Server
 
 ```bash
