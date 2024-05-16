@@ -6,13 +6,20 @@ import poker.game.common.GameState;
 import poker.game.common.PokerPlayer;
 import poker.utils.Pair;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Scanner;
 
 import static poker.game.common.PokerConstants.*;
 
 public class PokerClientGUI {
+
+    /*
+        Scanner scanner = new Scanner(System.in);
+    */
+    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
     public void display(GameState gameState) {
         if (gameState.isGameOver()) {
@@ -124,9 +131,8 @@ public class PokerClientGUI {
         System.out.println();
     }
 
-    public Pair<String, Integer> askMove(GameState gameState) {
+    public synchronized Pair<String, Integer> askMove(GameState gameState) throws Exception {
         StringBuilder options = new StringBuilder();
-        Scanner scanner = new Scanner(System.in);
         HashMap<Integer, PokerPlayer.PLAYER_ACTION> actions = new HashMap<Integer, PokerPlayer.PLAYER_ACTION>();
         int option = 1;
         int currBet = gameState.getCurrBet();
@@ -144,7 +150,7 @@ public class PokerClientGUI {
             options.append(option).append(". Check\n");
             actions.put(option++, PokerPlayer.PLAYER_ACTION.CHECK);
         } else if (player.getTurnBet() < currBet && player.getMoney() > currBet - player.getTurnBet()) {
-            options.append(option).append(". Call ("  + (currBet - player.getTurnBet())).append(")\n");
+            options.append(option).append(". Call (" + (currBet - player.getTurnBet())).append(")\n");
             actions.put(option++, PokerPlayer.PLAYER_ACTION.CALL);
         }
 
@@ -162,31 +168,72 @@ public class PokerClientGUI {
         System.out.println(options);
         // Read user input from console
         System.out.println("Enter your choice: ");
-        int choice = scanner.nextInt();
-        try {
-            while (!actions.containsKey(choice)) {
-                System.out.println("Invalid choice. Enter your choice: ");
-                choice = scanner.nextInt();
-            }
-        } catch (Exception e) {
-            System.out.println("Invalid choice. Enter your choice: ");
-            choice = scanner.nextInt();
-        }
-
+        int choice = getChoice(actions);
         action = actions.get(choice);
 
         if (action == PokerPlayer.PLAYER_ACTION.BET) {
             int minBet = Math.max(currBet - player.getTurnBet(), gameState.getBigBlindBet());
             System.out.println("Enter the amount you want to bet (Minimum bet: " + minBet + ")");
-            amount = scanner.nextInt();
-            while (amount < minBet) {
-                System.out.println("Invalid amount. Enter the amount you want to bet (Minimum bet: " + minBet + "): ");
-                amount = scanner.nextInt();
-            }
+            amount = this.getBet(minBet);
         }
 
-        System.out.println();
-
+//        System.out.println();
         return new Pair<>(action.toString(), amount);
     }
+
+    public int getChoice(HashMap<Integer, PokerPlayer.PLAYER_ACTION> actions) throws InterruptedException {
+        String line = getLine();
+        try {
+            int choice = Integer.parseInt(line);
+            if (!actions.containsKey(choice)) {
+                System.out.println("Invalid choice. Enter your choice: ");
+                return getChoice(actions);
+            }
+            return choice;
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Enter your choice: ");
+            return getChoice(actions);
+        }
+    }
+
+    public int getBet(int minBet) throws InterruptedException {
+        String line = getLine();
+        try {
+            int bet = Integer.parseInt(line);
+            if (bet < minBet) {
+                System.out.println("Invalid amount. Enter the amount you want to bet (Minimum bet: " + minBet + "): ");
+                return getBet(minBet);
+            }
+            return bet;
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Enter the amount you want to bet (Minimum bet: " + minBet + "): ");
+            return getBet(minBet);
+        }
+    }
+
+    public String getLine() throws InterruptedException {
+        try {
+            StringBuilder sb = new StringBuilder();
+            char character;
+            while (true) {
+                while (!reader.ready()) {
+                    Thread.sleep(200);
+                }
+
+                character = (char) reader.read();
+                if (character != '\n' && character != '\r') {
+                    sb.append(character);
+                } else {
+                    if (character == '\r' && reader.ready()) {
+                        reader.read();
+                    }
+                    break;
+                }
+            }
+            return sb.toString();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
 }
