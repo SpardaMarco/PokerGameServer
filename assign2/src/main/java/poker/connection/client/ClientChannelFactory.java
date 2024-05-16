@@ -30,9 +30,9 @@ public class ClientChannelFactory {
     }
 
     private SSLContext getSSLContext() throws Exception {
-        InputStream trustStoreInputStream = getClass().getClassLoader().getResourceAsStream("client_keystore.jks");
+        InputStream trustStoreInputStream = getClass().getClassLoader().getResourceAsStream("client_truststore.jks");
         KeyStore trustStore = KeyStore.getInstance("JKS");
-        trustStore.load(trustStoreInputStream, "client_keystore".toCharArray());
+        trustStore.load(trustStoreInputStream, "client_truststore".toCharArray());
 
         TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         trustManagerFactory.init(trustStore);
