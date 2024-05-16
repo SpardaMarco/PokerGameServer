@@ -5,6 +5,8 @@ import poker.client.state.ConnectionRecovery;
 import poker.connection.client.ClientChannelFactory;
 import poker.connection.protocol.channels.ClientChannel;
 
+import java.net.ConnectException;
+
 public class Client {
     private final ClientChannel channel;
 
@@ -19,6 +21,8 @@ public class Client {
 
         try {
             new Client(host, port).init();
+        } catch (ConnectException e) {
+            System.out.println("Server is currently offline");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -36,6 +40,6 @@ public class Client {
     private void init() {
         ClientState state = new ConnectionRecovery(channel);
 
-        while ((state = state.handle()) != null);
+        while ((state = state.handle()) != null) ;
     }
 }

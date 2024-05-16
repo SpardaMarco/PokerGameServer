@@ -11,6 +11,7 @@ import poker.connection.server.queue.SimpleQueuer;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Server {
     private final AuthenticationManager authenticationManager;
@@ -19,6 +20,7 @@ public class Server {
     private final boolean rankedMode;
     private final DatabaseInterface database = new DatabaseInterface();
     private final Set<Connection> connections = new HashSet<>();
+    private final ReentrantLock connectionLock = new ReentrantLock();
 
     public static void main(String[] args) {
         if (args.length < 1) {
@@ -95,18 +97,23 @@ public class Server {
     }
 
     public synchronized void queuePlayer(Connection connection) {
+        connectionLock.lock();
         connections.add(connection);
+        connectionLock.unlock();
         queuer.queuePlayer(connection);
     }
 
     private synchronized void disconnect() {
 
         System.out.println("Disconnecting all players...");
+        connectionLock.lock();
         for (Connection connection : connections) {
             try {
                 connection.getChannel().requestConnectionEnd("Server is shutting down");
-            } catch (ClosedConnectionException ignored) {}
+            } catch (ClosedConnectionException ignored) {
+            }
         }
+        connectionLock.unlock();
         System.out.println("Server stopped");
     }
 

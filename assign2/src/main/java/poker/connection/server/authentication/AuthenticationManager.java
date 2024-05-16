@@ -37,6 +37,7 @@ public class AuthenticationManager extends VirtualThread {
 
             while (!this.isInterrupted() && (socket = (SSLSocket) serverSocket.accept()) != null) {
                 Authenticator authenticator = new Authenticator(server, new ServerChannel(socket));
+                authenticators.add(authenticator);
                 authenticator.start();
             }
 
@@ -45,14 +46,13 @@ public class AuthenticationManager extends VirtualThread {
                     authenticator.interrupt();
                 }
             }
-        }
-        catch (SocketException e) {
+        } catch (SocketException e) {
             System.out.println("Socket application.connection closed");
-        }
-        catch (IOException | SQLException e) {
+        } catch (IOException | SQLException e) {
             throw new RuntimeException(e);
         }
     }
+
     private SSLServerSocketFactory getServerSocketFactory() {
         SSLServerSocketFactory serverSocketFactory;
 

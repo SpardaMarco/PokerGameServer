@@ -9,12 +9,16 @@ import poker.connection.utils.VirtualThread;
 import poker.game.common.PokerConstants;
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class Queuer extends VirtualThread {
 
     private final Server server;
     protected final List<Connection> queue = new ArrayList<>();
     protected final Queue<Connection> playersRequeueing = new LinkedList<>();
+    protected final ReentrantLock queueLock = new ReentrantLock();
+    protected final ReentrantLock requeueLock = new ReentrantLock();
+    protected final ReentrantLock gameRoomsLock = new ReentrantLock();
     private final Map<String, Game> gameRooms = new HashMap<>();
     private final HashSet<Requeuer> requeuers = new HashSet<>();
 
@@ -26,36 +30,45 @@ public abstract class Queuer extends VirtualThread {
     protected void run() {
         while (!this.isInterrupted()) {
             synchronized (this) {
+                queueLock.lock();
                 if (queue.size() < PokerConstants.NUM_PLAYERS) {
+                    queueLock.unlock();
                     try {
                         wait();
                     } catch (InterruptedException e) {
                         return;
                     }
-                }
-                else {
+                } else {
                     createGame();
+                    queueLock.unlock();
                 }
+                requeueLock.lock();
                 while (!this.playersRequeueing.isEmpty()) {
                     Connection connection = this.playersRequeueing.poll();
                     Requeuer requeuer = new Requeuer(this, connection);
                     requeuer.start();
                     requeuers.add(requeuer);
                 }
+                requeueLock.unlock();
             }
         }
 
+        requeueLock.lock();
         for (Requeuer requeuer : requeuers) {
             requeuer.interrupt();
         }
+        requeueLock.unlock();
     }
 
     public abstract void createGame();
 
     public synchronized void queuePlayer(Connection connection) {
+        gameRoomsLock.lock();
         if (gameRooms.get(connection.getUsername()) != null) {
             reconnectPlayerToGame(connection);
+            gameRoomsLock.unlock();
         } else {
+            gameRoomsLock.unlock();
             addToMainQueue(connection);
         }
     }
@@ -64,6 +77,7 @@ public abstract class Queuer extends VirtualThread {
 
     public synchronized void updateMainQueue(Connection connection) {
         int index = -1;
+        queueLock.lock();
         for (int i = 0; i < queue.size(); i++) {
             if (queue.get(i).getUsername().equals(connection.getUsername())) {
                 index = i;
@@ -82,23 +96,32 @@ public abstract class Queuer extends VirtualThread {
             }
         }
         queue.set(index, connection);
+        queueLock.unlock();
     }
 
     public synchronized void requeuePlayers(List<Connection> connections) {
+        requeueLock.lock();
         this.playersRequeueing.addAll(connections);
+        requeueLock.unlock();
         notify();
     }
 
     public synchronized void removePlayerFromRequeue(Connection connection) {
+        requeueLock.lock();
         this.playersRequeueing.remove(connection);
+        requeueLock.unlock();
     }
 
     public synchronized void assignPlayerToRoom(Connection connection, Game game) {
+        gameRoomsLock.lock();
         this.gameRooms.put(connection.getUsername(), game);
+        gameRoomsLock.unlock();
     }
 
     public synchronized void removePlayerFromRoom(Connection connection) {
+        gameRoomsLock.lock();
         this.gameRooms.remove(connection.getUsername());
+        gameRoomsLock.unlock();
     }
 
     public void startGame(ArrayList<Connection> connections) {
@@ -115,8 +138,10 @@ public abstract class Queuer extends VirtualThread {
 
         try {
             if (connection.getChannel().requestMatchReconnect()) {
+                gameRoomsLock.lock();
                 Game game = gameRooms.get(connection.getUsername());
                 game.reconnectPlayer(connection);
+                gameRoomsLock.unlock();
             }
         } catch (ChannelException ignored) {
         }

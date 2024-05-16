@@ -11,11 +11,14 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class RankedQueuer extends Queuer {
 
     private final Map<String, Threshold> playersThresholds = new HashMap<>();
     private final Map<String, ScheduledExecutorService> thresholdSchedulers = new HashMap<>();
+    private final ReentrantLock thresholdLock = new ReentrantLock();
+    private final ReentrantLock schedulerLock = new ReentrantLock();
 
     private static final int TIME_TO_RELAX = 10;
 
@@ -26,13 +29,16 @@ public class RankedQueuer extends Queuer {
     public void addToMainQueue(Connection connection) {
         try {
             if (connection.getChannel().requestMatchmaking()) {
+                queueLock.lock();
                 if (queue.stream().noneMatch(c -> c.getUsername().equals(connection.getUsername()))) {
                     queue.add(connection);
                     addPlayerThreshold(connection);
-                    notify();
                     schedulePlayerThresholdUpdate(connection);
+                    queueLock.unlock();
+                    notify();
                 } else {
                     updateMainQueue(connection);
+                    queueLock.unlock();
                 }
             }
         } catch (ChannelException ignored) {
@@ -41,16 +47,22 @@ public class RankedQueuer extends Queuer {
 
     public synchronized void addPlayerThreshold(Connection connection) {
         Threshold threshold = new Threshold(connection.getRank());
+        thresholdLock.lock();
         playersThresholds.put(connection.getUsername(), threshold);
+        thresholdLock.unlock();
     }
 
     public synchronized void removePlayerThreshold(Connection connection) {
+        thresholdLock.lock();
         playersThresholds.remove(connection.getUsername());
+        thresholdLock.unlock();
     }
 
     public synchronized void updatePlayerThreshold(Connection connection) {
+        thresholdLock.lock();
         Threshold threshold = playersThresholds.get(connection.getUsername());
         threshold.expand();
+        thresholdLock.unlock();
         notify();
     }
 
@@ -63,20 +75,26 @@ public class RankedQueuer extends Queuer {
                 TIME_TO_RELAX,
                 java.util.concurrent.TimeUnit.SECONDS
         );
+        thresholdLock.lock();
         thresholdSchedulers.put(connection.getUsername(), scheduler);
+        thresholdLock.unlock();
     }
 
     public void cancelPlayerThresholdUpdate(Connection connection) {
+        thresholdLock.lock();
         ScheduledExecutorService scheduler = thresholdSchedulers.get(connection.getUsername());
         if (scheduler != null) {
             scheduler.shutdown();
             thresholdSchedulers.remove(connection.getUsername());
         }
+        thresholdLock.unlock();
     }
 
     public ArrayList<Connection> tryMatchmaking() {
         ArrayList<Connection> room = new ArrayList<>();
 
+        queueLock.lock();
+        thresholdLock.lock();
         for (Connection player : queue) {
             Threshold threshold = playersThresholds.get(player.getUsername());
             room.add(player);
@@ -92,6 +110,8 @@ public class RankedQueuer extends Queuer {
             if (room.size() != PokerConstants.NUM_PLAYERS) room.clear();
             else break;
         }
+        thresholdLock.unlock();
+        queueLock.unlock();
 
         return room;
     }
@@ -103,14 +123,18 @@ public class RankedQueuer extends Queuer {
             for (Connection connection : connections) {
                 if (connection.isBroken()) {
                     allAlive = false;
+                    queueLock.lock();
                     queue.remove(connection);
+                    queueLock.unlock();
                     removePlayerThreshold(connection);
                     cancelPlayerThresholdUpdate(connection);
                 }
             }
             if (allAlive) {
                 for (Connection connection : connections) {
+                    queueLock.lock();
                     queue.remove(connection);
+                    queueLock.unlock();
                     removePlayerThreshold(connection);
                     cancelPlayerThresholdUpdate(connection);
                 }

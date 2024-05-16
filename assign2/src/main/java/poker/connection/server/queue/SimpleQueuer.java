@@ -13,12 +13,13 @@ public class SimpleQueuer extends Queuer {
         super(server);
     }
 
-    public void createGame(){
+    public void createGame() {
+        queueLock.lock();
         ArrayList<Connection> connections = new ArrayList<>(
                 queue.subList(0, PokerConstants.NUM_PLAYERS)
         );
         boolean allAlive = true;
-        for (Connection connection: connections) {
+        for (Connection connection : connections) {
             if (connection.isBroken()) {
                 allAlive = false;
                 queue.remove(connection);
@@ -27,25 +28,31 @@ public class SimpleQueuer extends Queuer {
         }
 
         if (allAlive) {
-            for (Connection connection: connections) {
+            for (Connection connection : connections) {
                 queue.remove(connection);
             }
             startGame(connections);
         }
+        queueLock.unlock();
     }
 
     @Override
     public void addToMainQueue(Connection connection) {
 
         try {
+            queueLock.lock();
             if (connection.getChannel().requestMatchmaking()) {
                 if (queue.stream().noneMatch(c -> c.getUsername().equals(connection.getUsername()))) {
                     queue.add(connection);
+                    queueLock.unlock();
                     notify();
                 } else {
                     updateMainQueue(connection);
+                    queueLock.unlock();
                 }
             }
-        } catch (ChannelException ignored) {}
+        } catch (ChannelException e) {
+            queueLock.unlock();
+        }
     }
 }
