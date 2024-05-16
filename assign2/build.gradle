@@ -6,7 +6,7 @@
  */
 
 plugins {
-    id 'java'
+    id 'application'
 }
 
 version = '1.0-SNAPSHOT'
@@ -29,24 +29,22 @@ test {
     useJUnitPlatform()
 }
 
-tasks.register("simple_server", JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    setMainClass('poker.Server')
-    standardInput = System.in
-    args('8080')
-}
 
-tasks.register("ranked_server", JavaExec) {
+tasks.register("server", JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     setMainClass('poker.Server')
     standardInput = System.in
-    args('8080', '-r')
 }
 
 tasks.register('client', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     setMainClass('poker.Client')
-    args('localhost', '8080')
+    standardInput = System.in
+}
+
+tasks.register("database", JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    setMainClass('database.DatabaseInitializer')
     standardInput = System.in
 }
 
@@ -100,9 +98,8 @@ tasks.register('client', JavaExec) {
 //}
 //
 //tasks.register('server', ServerTask) {
-//    clear()
 //    classpath = sourceSets.main.runtimeClasspath
 //}
-//
+
 
 

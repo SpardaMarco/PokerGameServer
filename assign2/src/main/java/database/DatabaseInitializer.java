@@ -1,4 +1,6 @@
-package poker.connection.server.database;
+package database;
+
+import poker.connection.server.database.DatabaseInterface;
 
 import java.io.IOException;
 import java.sql.SQLException;

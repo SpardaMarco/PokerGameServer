@@ -9,9 +9,9 @@ import java.sql.*;
 
 public class DatabaseInterface {
     private final Connection database;
+    private final String path = System.getProperty("user.dir") + "/database/";
 
     public DatabaseInterface() {
-        String path = System.getProperty("user.dir") + "/src/database/";
         String dbFile = path + "poker.db";
 
         try {
@@ -144,7 +144,7 @@ public class DatabaseInterface {
     }
 
     public void reset() throws IOException, SQLException {
-        String sqlFile = System.getProperty("user.dir") + "/src/database/poker.sql";
+        String sqlFile = path + "poker.sql";
 
         String sql = Files.readString(Paths.get(sqlFile));
 
