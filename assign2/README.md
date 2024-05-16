@@ -22,3 +22,8 @@ keytool -importcert -file server_certificate.cer -alias server-cert -keystore cl
 ```
 A TLS based SSLContext is created for the server and client, using the server keystore and client truststore respectively.
 The server and client are then able to establish a secure connection using the SSLSockets.
+
+### Authentication
+
+Upon starting the client application, a connection is established with the server. 
+The user is then prompted to enter their username and password.

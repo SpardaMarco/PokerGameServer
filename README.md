@@ -24,7 +24,7 @@ $ java Server <port> [-l] [-r]
 
 - \<port\> must be a valid port, ex: 8000
 - [-l] is optional and enables logging
-- [-r] is optional and enables the server in ranked mode
+- [-r] is optional and enables ranked mode
 
 ## Run Client
 
@@ -76,8 +76,8 @@ The token can be used to reconnect to the server without the need to authenticat
 
 ## Communication
 
-The communication between the server and the client is done using a custom message protocol and channels
-Most of the classes implemented for this purpose are inside `connection/protocol` directory.
+The communication between the server and the client is done using a custom message protocol and channels.
+Most of the classes implemented for this purpose are within the `poker.connection.protocol` package.
 
 The communication can be divided into two main parts:
 - **Messages**
@@ -86,26 +86,30 @@ The communication can be divided into two main parts:
 ### Messages
 
 Messages are the objects that are sent between the server and the client. They contain 4 important fields:
-- **State**: that represents the type of message (e.g. CONNECTION_END, AUTHENTICATION, MATCH_RECONNECT, etc.)
-- **Status**: that represents the status of the message (REQUEST, OK, ERROR)
-- **Body**: that contains a string associated with the message (e.g. *"User successfully logged in"*, etc.)
-- **Data**: that contains the data associated with the message (e.g. username and password, etc.)
+- **State**: represents the stage of the application in which the message is being sent (e.g. CONNECTION_END, AUTHENTICATION, MATCH_RECONNECT, etc.)
+- **Status**: represents the status of the message (REQUEST, OK, ERROR)
+- **Body**: a string that contains direct feedback about the message, usually provided by the server (e.g. *"User successfully logged in"*, etc.).
+- **Data**: contains differnt attributes that are specific to the message being sent (e.g. username and password, etc.)
 
 This messages are being sent using the JSON format. The GSON library is used for the serialization and deserialization of more complex objects.
 
 ### Channels
 
-The channels are the classes that are responsible for the communication between the server and the client. They can are divided into two different types:
-- **ClientChannel**: that is responsible for the communication between the client and the server
-- **ServerChannel**: that is responsible for the communication between the server and the client
+The channels are objects of the abstract class `Channel`. 
+This class is extended by two other classes:
+- **ClientChannel**: represents the channel that is used by the client to communicate with the server.
+- **ServerChannel**: represents the channel that is used by the server to communicate with the client.
 
-Most of the channels API is defined in the `Channel` interface.
+The channel stores the Socket and the associated Input and Output streams, and creates a new layer of abstraction for the communication between both parties.
 
-The channel stores the Socket and the associated Input and Output streams, and creates a new layer of abstraction for the communication between both parts.
+### Channel Exceptions
 
-### Exceptions
-
-During the communication many different types of errors can occur and for a multitude of reasons. In order to classify these errors many types of exceptions were defined in the `connection/protocol/exceptions` directory.
+During the communication, many different types of errors can occur and for a multitude of reasons. In order to classify these errors many types of exceptions were defined within the `poker.connection.protocol.exceptions` package.
+These exceptions are thrown when an error occurs and are caught by the server or the client, depending on the context. They include:
+- **ClosedConnectionException**: thrown when the channel is closed.
+- **RequestTimeoutException**: thrown when a request times out.
+- **TokenMismatchException**: thrown when one of the parties does not recognize the received token.
+- **UnexpectedMessageException**: thrown when an unexpected message is received, depending on both the state and the status of the message.
 
 ## Game
 
@@ -113,7 +117,7 @@ The game implemented is a simple version of "Poker Texas Hold'em". The game is p
 
 The most of the game logic and model is implemented in the `game` directory.
 
-The number of players is easily configurable by changing the value of the constant `NUM_PLAYERS` in the `game/common/PokerConstants.java` class.
+The number of players is easily configurable by changing the value of the constant `NUM_PLAYERS` in the `poker.game.common.PokerConstants.java` class.
 
 For easier manipulation of the game by the server, the main class `Poker` represents the current game instance state.
 
