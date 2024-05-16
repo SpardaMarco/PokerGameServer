@@ -4,6 +4,7 @@ import poker.client.LocalToken;
 import poker.connection.protocol.channels.ClientChannel;
 import poker.connection.protocol.exceptions.ChannelException;
 import poker.connection.protocol.exceptions.ClosedConnectionException;
+import poker.connection.protocol.exceptions.UnexpectedMessageException;
 import poker.connection.protocol.message.Message;
 import poker.utils.UserInput;
 
@@ -54,7 +55,29 @@ public class ConnectionRecovery extends ClientState {
             String sessionToken = response.getAttribute("sessionToken");
             new LocalToken(sessionToken).save();
             channel.setSessionToken(sessionToken);
-            return new Matchmaking(channel);
+            try {
+                Message message = channel.getRequest();
+
+                switch (message.getState()) {
+                    case MATCHMAKING -> {
+                        channel.acceptMatchmaking();
+                        return new Matchmaking(channel);
+                    }
+                    case MATCH_RECONNECT -> {
+                        channel.acceptMatchReconnect();
+                        return new Match(channel);
+                    }
+                    default -> {
+                        throw new UnexpectedMessageException("Unexpected message received after authentication: " + message);
+                    }
+                }
+            } catch (ClosedConnectionException e) {
+                System.out.println("Connection to the server was lost.\n" + e.getMessage());
+                return null;
+            } catch (ChannelException e) {
+                System.out.println("Failed communicating with the server after authentication:\n" + e.getMessage());
+                return null;
+            }
         }
         return new Authentication(channel);
     }

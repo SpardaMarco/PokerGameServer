@@ -18,8 +18,7 @@ public class DatabaseInterface {
             if (!Files.exists(Paths.get(dbFile))) {
                 database = DriverManager.getConnection("jdbc:sqlite:" + dbFile);
                 reset();
-            }
-            else {
+            } else {
                 database = DriverManager.getConnection("jdbc:sqlite:" + dbFile);
             }
         } catch (SQLException | IOException e) {
@@ -59,6 +58,22 @@ public class DatabaseInterface {
             PreparedStatement stmt = database.prepareStatement(query);
             stmt.setString(1, username);
             stmt.setString(2, hashedPassword);
+            stmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    public boolean registerUserWithRank(String username, String password, int rank) {
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        String query = "INSERT INTO User (username, password, rank) VALUES (?, ?, ?)";
+
+        try {
+            PreparedStatement stmt = database.prepareStatement(query);
+            stmt.setString(1, username);
+            stmt.setString(2, hashedPassword);
+            stmt.setInt(3, rank);
             stmt.executeUpdate();
             return true;
         } catch (SQLException e) {

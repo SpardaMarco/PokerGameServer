@@ -6,6 +6,8 @@ build
 
 .idea
 
+out
+
 database/poker.db
 
 src/main/java/poker/client/session.txt
