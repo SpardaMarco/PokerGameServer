@@ -65,7 +65,7 @@ public class DatabaseInterface {
         }
     }
 
-    public boolean registerUserWithRank(String username, String password, int rank) {
+    public boolean registerUser(String username, String password, int rank) {
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
         String query = "INSERT INTO User (username, password, rank) VALUES (?, ?, ?)";
 
