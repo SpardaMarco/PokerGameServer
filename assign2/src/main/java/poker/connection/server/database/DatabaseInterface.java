@@ -9,9 +9,9 @@ import java.sql.*;
 
 public class DatabaseInterface {
     private final Connection database;
+    private final String path = System.getProperty("user.dir") + "/database/";
 
     public DatabaseInterface() {
-        String path = System.getProperty("user.dir") + "/src/database/";
         String dbFile = path + "poker.db";
 
         try {
@@ -65,7 +65,7 @@ public class DatabaseInterface {
         }
     }
 
-    public boolean registerUserWithRank(String username, String password, int rank) {
+    public boolean registerUser(String username, String password, int rank) {
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
         String query = "INSERT INTO User (username, password, rank) VALUES (?, ?, ?)";
 
@@ -159,7 +159,7 @@ public class DatabaseInterface {
     }
 
     public void reset() throws IOException, SQLException {
-        String sqlFile = System.getProperty("user.dir") + "/src/database/poker.sql";
+        String sqlFile = path + "poker.sql";
 
         String sql = Files.readString(Paths.get(sqlFile));
 

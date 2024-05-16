@@ -11,7 +11,7 @@ openssl req -new -key server_private_key.pem -out server_certificate_request.csr
 
 ## Generate a self-signed certificate for the server
 ```shell
-openssl x509 -req -days 365 -in server.csr -signkey server_private_key.pem -out server_certificate.pem
+openssl x509 -req -days 365 -in server_certificate_request.csr -signkey server_private_key.pem -out server_certificate.pem
 ```
 
 # Generate server keystore
@@ -25,8 +25,7 @@ openssl pkcs12 -export -in server_certificate.pem -inkey server_private_key.pem 
 openssl x509 -outform der -in server_certificate.pem -out server_certificate.cer
 ```
 
-
 ## Import the server certificate into the client truststore
 ```shell
-keytool -importcert -file server_certificate.cer -alias server-cert -keystore client_keystore.jks -storetype JKS
+keytool -importcert -file server_certificate.cer -alias server-cert -keystore client_truststore.jks -storetype JKS
 ```
