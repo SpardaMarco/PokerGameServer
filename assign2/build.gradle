@@ -42,64 +42,10 @@ tasks.register('client', JavaExec) {
     standardInput = System.in
 }
 
-tasks.register("database", JavaExec) {
+tasks.register("databaseInit", JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     setMainClass('database.DatabaseInitializer')
     standardInput = System.in
 }
-
-//class ServerTask extends JavaExec {
-//
-//    private String port;
-//    private Boolean log = false;
-//    private Boolean ranked = false;
-//
-//    ServerTask() {
-//        setMainClass('poker.Server')
-//    }
-//
-//    @Option(option = "port", description = "Port to listen on")
-//    void setPort(String port) {
-//        this.port = port;
-//    }
-//
-//    @Option(option = "l", description = "Enable logging")
-//    void setLog(Boolean log) {
-//        this.log = log;
-//    }
-//
-//    @Option(option = "r", description = "Enable ranked mode")
-//    void setRanked(Boolean ranked) {
-//        this.ranked = ranked;
-//    }
-//
-//    @Input
-//    String getPort() {
-//        return port;
-//    }
-//
-//    @Input
-//    String getLog() {
-//        return log ? "-l" : "";
-//    }
-//
-//    @Input
-//    String getRanked() {
-//        return ranked ? "-r" : "";
-//    }
-//
-//    @TaskAction
-//    void run() {
-//        println "ServerTask created with port ${getPort()}"
-//        args(getPort(), getLog(), getRanked()) // Set arguments here
-//        println "Running server on port ${getPort()}"
-//        super.exec()
-//    }
-//}
-//
-//tasks.register('server', ServerTask) {
-//    classpath = sourceSets.main.runtimeClasspath
-//}
-
 
 
