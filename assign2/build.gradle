@@ -29,11 +29,18 @@ test {
     useJUnitPlatform()
 }
 
-tasks.register('server', JavaExec) {
+tasks.register("simple_server", JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     setMainClass('poker.Server')
-    args project.hasProperty('args') ? project.args : ['8080']
     standardInput = System.in
+    args('8080')
+}
+
+tasks.register("ranked_server", JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    setMainClass('poker.Server')
+    standardInput = System.in
+    args('8080', '-r')
 }
 
 tasks.register('client', JavaExec) {
@@ -42,4 +49,60 @@ tasks.register('client', JavaExec) {
     args('localhost', '8080')
     standardInput = System.in
 }
+
+//class ServerTask extends JavaExec {
+//
+//    private String port;
+//    private Boolean log = false;
+//    private Boolean ranked = false;
+//
+//    ServerTask() {
+//        setMainClass('poker.Server')
+//    }
+//
+//    @Option(option = "port", description = "Port to listen on")
+//    void setPort(String port) {
+//        this.port = port;
+//    }
+//
+//    @Option(option = "l", description = "Enable logging")
+//    void setLog(Boolean log) {
+//        this.log = log;
+//    }
+//
+//    @Option(option = "r", description = "Enable ranked mode")
+//    void setRanked(Boolean ranked) {
+//        this.ranked = ranked;
+//    }
+//
+//    @Input
+//    String getPort() {
+//        return port;
+//    }
+//
+//    @Input
+//    String getLog() {
+//        return log ? "-l" : "";
+//    }
+//
+//    @Input
+//    String getRanked() {
+//        return ranked ? "-r" : "";
+//    }
+//
+//    @TaskAction
+//    void run() {
+//        println "ServerTask created with port ${getPort()}"
+//        args(getPort(), getLog(), getRanked()) // Set arguments here
+//        println "Running server on port ${getPort()}"
+//        super.exec()
+//    }
+//}
+//
+//tasks.register('server', ServerTask) {
+//    clear()
+//    classpath = sourceSets.main.runtimeClasspath
+//}
+//
+
 
