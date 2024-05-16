@@ -22,7 +22,7 @@ public class Server {
 
     public static void main(String[] args) {
         if (args.length < 1) {
-            System.out.println("Usage: java TimeServer <port> [-l] [-r]");
+            System.out.println("Arguments: <port> [-l] [-r]");
             return;
         }
 

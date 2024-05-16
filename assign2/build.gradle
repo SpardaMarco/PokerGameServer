@@ -29,4 +29,17 @@ test {
     useJUnitPlatform()
 }
 
+tasks.register('server', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    setMainClass('poker.Server')
+    args('8080')
+    standardInput = System.in
+}
+
+tasks.register('client', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    setMainClass('poker.Client')
+    args('localhost', '8080')
+    standardInput = System.in
+}
 
