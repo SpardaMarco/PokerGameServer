@@ -157,6 +157,7 @@ As a means of establishing secure communication between both the client and the 
 They provide an additional layer of security to the connection by using the Secure Sockets Layer (SSL) or Transport Layer Security (TLS) protocols.
 The **SSLSocket** class is used to create a socket that is capable of communicating over a secure connection.
 To establish a secure connection between the server and the client, the following steps were taken:
+
 A private key was generated for the server.
 ```shell
 openssl genpkey -algorithm RSA -out server_private_key.pem -pkeyopt rsa_keygen_bits:2048
