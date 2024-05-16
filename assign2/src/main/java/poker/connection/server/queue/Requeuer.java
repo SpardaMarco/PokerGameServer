@@ -34,7 +34,9 @@ public class Requeuer extends  Thread {
     @Override
     public void run() {
         if (playerToRequeue()) {
-            queuer.queuePlayer(connection);
+            if (!this.isInterrupted()) {
+                queuer.queuePlayer(connection);
+            }
         }
     }
 }

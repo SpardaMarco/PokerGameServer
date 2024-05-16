@@ -120,6 +120,9 @@ public class Game extends VirtualThread {
     private void play() {
         while (!poker.getIsGameOver()) {
             while (!poker.getIsHandOver()) {
+                if (this.isInterrupted()) {
+                    return;
+                }
                 int currentPlayer = poker.getCurrPlayer();
                 sendGameState();
                 makePlay(currentPlayer);
@@ -152,6 +155,9 @@ public class Game extends VirtualThread {
             poker.takeAction(playerAction, amount);
 
         } catch (RequestTimeoutException e) {
+            try {
+                channel.requestConnectionEnd("Player timed out while playing. May reconnect to continue");
+            } catch (ClosedConnectionException ignored) {}
             if (server.isLoggingEnabled()) {
                 System.out.println("Player " + player + " timed out while playing");
             }

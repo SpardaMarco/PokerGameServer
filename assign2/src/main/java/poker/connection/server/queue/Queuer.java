@@ -6,6 +6,7 @@ import poker.connection.protocol.exceptions.ChannelException;
 import poker.connection.protocol.exceptions.ClosedConnectionException;
 import poker.connection.server.game.Game;
 import poker.connection.utils.VirtualThread;
+import poker.game.common.PokerConstants;
 
 import java.util.*;
 
@@ -15,13 +16,41 @@ public abstract class Queuer extends VirtualThread {
     protected final List<Connection> queue = new ArrayList<>();
     protected final Queue<Connection> playersRequeueing = new LinkedList<>();
     private final Map<String, Game> gameRooms = new HashMap<>();
+    private final HashSet<Requeuer> requeuers = new HashSet<>();
 
     public Queuer(Server server) {
         this.server = server;
     }
 
     @Override
-    protected abstract void run();
+    protected void run() {
+        while (!this.isInterrupted()) {
+            synchronized (this) {
+                if (queue.size() < PokerConstants.NUM_PLAYERS) {
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                }
+                else {
+                    createGame();
+                }
+                while (!this.playersRequeueing.isEmpty()) {
+                    Connection connection = this.playersRequeueing.poll();
+                    Requeuer requeuer = new Requeuer(this, connection);
+                    requeuer.start();
+                    requeuers.add(requeuer);
+                }
+            }
+        }
+
+        for (Requeuer requeuer : requeuers) {
+            requeuer.interrupt();
+        }
+    }
+
+    public abstract void createGame();
 
     public synchronized void queuePlayer(Connection connection) {
         if (gameRooms.get(connection.getUsername()) != null) {

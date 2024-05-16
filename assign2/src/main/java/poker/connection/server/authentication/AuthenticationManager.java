@@ -35,10 +35,15 @@ public class AuthenticationManager extends VirtualThread {
 
             SSLSocket socket;
 
-            while ((socket = (SSLSocket) serverSocket.accept()) != null) {
+            while (!this.isInterrupted() && (socket = (SSLSocket) serverSocket.accept()) != null) {
                 Authenticator authenticator = new Authenticator(server, new ServerChannel(socket));
-                authenticators.add(authenticator);
                 authenticator.start();
+            }
+
+            if (this.isInterrupted()) {
+                for (Authenticator authenticator : authenticators) {
+                    authenticator.interrupt();
+                }
             }
         }
         catch (SocketException e) {

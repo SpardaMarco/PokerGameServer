@@ -91,44 +91,25 @@ public class RankedQueuer extends Queuer {
         return room;
     }
 
-    @Override
-    protected void run() {
-        while (true) {
-            synchronized (this) {
-                if (queue.size() < PokerConstants.NUM_PLAYERS) {
-                    try {
-                        wait();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+    public void createGame() {
+        ArrayList<Connection> connections = tryMatchmaking();
+        if (!connections.isEmpty()) {
+            boolean allAlive = true;
+            for (Connection connection : connections) {
+                if (connection.isBroken()) {
+                    allAlive = false;
+                    queue.remove(connection);
+                    removePlayerThreshold(connection);
+                    cancelPlayerThresholdUpdate(connection);
                 }
-                else {
-                    ArrayList<Connection> connections = tryMatchmaking();
-                    if (!connections.isEmpty()) {
-                        boolean allAlive = true;
-                        for (Connection connection : connections) {
-                            if (connection.isBroken()) {
-                                allAlive = false;
-                                queue.remove(connection);
-                                removePlayerThreshold(connection);
-                                cancelPlayerThresholdUpdate(connection);
-                            }
-                        }
-                        if (allAlive) {
-                            for (Connection connection : connections) {
-                                queue.remove(connection);
-                                removePlayerThreshold(connection);
-                                cancelPlayerThresholdUpdate(connection);
-                            }
-                            startGame(connections);
-                        }
-                    }
+            }
+            if (allAlive) {
+                for (Connection connection : connections) {
+                    queue.remove(connection);
+                    removePlayerThreshold(connection);
+                    cancelPlayerThresholdUpdate(connection);
                 }
-
-                while (!this.playersRequeueing.isEmpty()) {
-                    Connection connection = this.playersRequeueing.poll();
-                    new Requeuer(this, connection).start();
-                }
+                startGame(connections);
             }
         }
     }

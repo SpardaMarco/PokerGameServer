@@ -40,7 +40,7 @@ public class Authenticator extends VirtualThread {
     private Connection handleRequests() throws ClosedConnectionException {
         Connection connection = null;
         Message request;
-        while (channel.isOpen() && connection == null) {
+        while (channel.isOpen() && connection == null && !this.isInterrupted()) {
             try {
                 request = channel.getRequest(30);
             } catch (RequestTimeoutException e) {

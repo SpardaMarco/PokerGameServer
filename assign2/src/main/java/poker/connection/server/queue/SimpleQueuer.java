@@ -13,42 +13,24 @@ public class SimpleQueuer extends Queuer {
         super(server);
     }
 
-    @Override
-    protected void run() {
-        while (true) {
-            synchronized (this) {
-                if (queue.size() < PokerConstants.NUM_PLAYERS) {
-                    try {
-                        wait();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                } else {
-                    ArrayList<Connection> connections = new ArrayList<>(
-                            queue.subList(0, PokerConstants.NUM_PLAYERS)
-                    );
-                    boolean allAlive = true;
-                    for (Connection connection: connections) {
-                        if (connection.isBroken()) {
-                            allAlive = false;
-                            queue.remove(connection);
-                            break;
-                        }
-                    }
-
-                    if (allAlive) {
-                        for (Connection connection: connections) {
-                            queue.remove(connection);
-                        }
-                        startGame(connections);
-                    }
-                }
-
-                while (!this.playersRequeueing.isEmpty()) {
-                    Connection connection = this.playersRequeueing.poll();
-                    new Requeuer(this, connection).start();
-                }
+    public void createGame(){
+        ArrayList<Connection> connections = new ArrayList<>(
+                queue.subList(0, PokerConstants.NUM_PLAYERS)
+        );
+        boolean allAlive = true;
+        for (Connection connection: connections) {
+            if (connection.isBroken()) {
+                allAlive = false;
+                queue.remove(connection);
+                break;
             }
+        }
+
+        if (allAlive) {
+            for (Connection connection: connections) {
+                queue.remove(connection);
+            }
+            startGame(connections);
         }
     }
 

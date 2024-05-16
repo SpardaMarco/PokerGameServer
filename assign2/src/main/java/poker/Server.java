@@ -1,14 +1,16 @@
 package poker;
 
 import poker.connection.protocol.Connection;
+import poker.connection.protocol.exceptions.ClosedConnectionException;
 import poker.connection.server.authentication.AuthenticationManager;
 import poker.connection.server.database.DatabaseInterface;
 import poker.connection.server.queue.Queuer;
 import poker.connection.server.queue.RankedQueuer;
 import poker.connection.server.queue.SimpleQueuer;
 
-import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 
 public class Server {
     private final AuthenticationManager authenticationManager;
@@ -16,6 +18,7 @@ public class Server {
     private final boolean loggingEnabled;
     private final boolean rankedMode;
     private final DatabaseInterface database = new DatabaseInterface();
+    private final Set<Connection> connections = new HashSet<>();
 
     public static void main(String[] args) {
         if (args.length < 1) {
@@ -74,18 +77,37 @@ public class Server {
     }
 
     private void init() {
-        authenticationManager.start();
-        queuer.start();
+        startServices();
         System.out.println("Press [ENTER] to stop the server\n");
         new Scanner(System.in).nextLine();
+        interruptServices();
         disconnect();
     }
 
+    private void startServices() {
+        authenticationManager.start();
+        queuer.start();
+    }
+
+    private void interruptServices() {
+        authenticationManager.interrupt();
+        queuer.interrupt();
+    }
+
     public synchronized void queuePlayer(Connection connection) {
+        connections.add(connection);
         queuer.queuePlayer(connection);
     }
 
     private synchronized void disconnect() {
-        // send disconnect message to all clients
+
+        System.out.println("Disconnecting all players...");
+        for (Connection connection : connections) {
+            try {
+                connection.getChannel().requestConnectionEnd("Server is shutting down");
+            } catch (ClosedConnectionException ignored) {}
+        }
+        System.out.println("Server stopped");
     }
+
 }
