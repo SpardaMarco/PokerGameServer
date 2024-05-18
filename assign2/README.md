@@ -1,4 +1,4 @@
-# Distributed Systems Assignment - Client-server system to play Poker
+# Distributed Systems Assignment <br> Client-server System to Play Poker
 
 ## Group Members (T12-G15):
 
