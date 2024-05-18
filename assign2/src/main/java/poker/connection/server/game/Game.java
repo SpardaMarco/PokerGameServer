@@ -13,18 +13,15 @@ import poker.game.common.PokerPlayer;
 import poker.game.server.Poker;
 
 import java.util.ArrayList;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class Game extends VirtualThread {
     private final Server server;
     private final ArrayList<Connection> playerConnections;
     private final Poker poker;
-    private final ReentrantLock playerConnectionsLock;
 
     public Game(Server server, ArrayList<Connection> playerConnections) {
         this.server = server;
         this.playerConnections = playerConnections;
-        this.playerConnectionsLock = new ReentrantLock();
         ArrayList<String> playerUsernames = new ArrayList<>();
         for (Connection connection : playerConnections) {
             playerUsernames.add(connection.getUsername());
@@ -33,7 +30,6 @@ public class Game extends VirtualThread {
     }
 
     public boolean reconnectPlayer(Connection newConnection) {
-        playerConnectionsLock.lock();
         int index = -1;
 
         for (int i = 0; i < playerConnections.size(); i++) {
@@ -43,7 +39,6 @@ public class Game extends VirtualThread {
             }
         }
         if (index == -1) {
-            playerConnectionsLock.unlock();
             return false;
         }
         ServerChannel channel = playerConnections.get(index).getChannel();
@@ -55,7 +50,6 @@ public class Game extends VirtualThread {
             }
         }
         playerConnections.set(index, newConnection);
-        playerConnectionsLock.unlock();
         try {
             newConnection.getChannel().sendGameState(poker.getGameStateToSend(index));
         } catch (ClosedConnectionException e) {
@@ -65,17 +59,13 @@ public class Game extends VirtualThread {
     }
 
     private void sendGameState() {
-        playerConnectionsLock.lock();
         for (int i = 0; i < playerConnections.size(); i++) {
             sendGameState(i);
         }
-        playerConnectionsLock.unlock();
     }
 
     private void sendGameState(int player) {
-        playerConnectionsLock.lock();
         ServerChannel channel = playerConnections.get(player).getChannel();
-        playerConnectionsLock.unlock();
         GameState gameState = poker.getGameStateToSend(player);
 
         try {
@@ -134,9 +124,7 @@ public class Game extends VirtualThread {
     }
 
     private void makePlay(int player) {
-        playerConnectionsLock.lock();
         ServerChannel channel = playerConnections.get(player).getChannel();
-        playerConnectionsLock.unlock();
 
         try {
             Message message = channel.getPlayerMove("It's your turn", poker.getGameStateToSend(player), 10);
@@ -171,19 +159,16 @@ public class Game extends VirtualThread {
     }
 
     private void finishGame() {
-        playerConnectionsLock.lock();
         for (Connection connection : playerConnections) {
             server.getQueuer().removePlayerFromRoom(connection);
         }
         server.getQueuer().requeuePlayers(playerConnections);
-        playerConnectionsLock.unlock();
     }
 
     private void updateRanks() {
         if (server.isLoggingEnabled()) {
             System.out.println("Updating rankings");
         }
-        playerConnectionsLock.lock();
         for (PokerPlayer player : poker.getGameWinners()) {
             Connection connection = null;
             for (Connection c : playerConnections) {
@@ -197,6 +182,5 @@ public class Game extends VirtualThread {
                 connection.setRank(server.getDatabase().getUserRank(connection.getUsername()));
             }
         }
-        playerConnectionsLock.unlock();
     }
 }

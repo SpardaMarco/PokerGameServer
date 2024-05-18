@@ -12,7 +12,6 @@ import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class Queuer extends VirtualThread {
-
     private final Server server;
     protected final List<Connection> queue = new ArrayList<>();
     protected final Queue<Connection> playersRequeueing = new LinkedList<>();
