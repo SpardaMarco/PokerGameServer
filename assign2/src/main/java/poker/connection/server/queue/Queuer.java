@@ -36,6 +36,7 @@ public abstract class Queuer extends VirtualThread {
                     try {
                         wait();
                     } catch (InterruptedException e) {
+                        stop();
                         return;
                     }
                 } else {
@@ -60,7 +61,10 @@ public abstract class Queuer extends VirtualThread {
                 requeueLock.unlock();
             }
         }
+        stop();
+    }
 
+    public void stop() {
         requeueLock.lock();
         for (Requeuer requeuer : requeuers) {
             requeuer.interrupt();

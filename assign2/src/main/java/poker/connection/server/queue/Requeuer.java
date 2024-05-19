@@ -7,7 +7,7 @@ import poker.connection.protocol.exceptions.ClosedConnectionException;
 import poker.connection.protocol.exceptions.RequestTimeoutException;
 import poker.connection.protocol.message.Message;
 
-public class Requeuer extends  Thread {
+public class Requeuer extends Thread {
     private final Server server;
     private final Queuer queuer;
     private final Connection connection;
@@ -20,7 +20,7 @@ public class Requeuer extends  Thread {
 
     private boolean playerToRequeue() {
         try {
-            Message response = connection.getChannel().sendRequeueRequest(10);
+            Message response = connection.getChannel().sendRequeueRequest(30);
             return response.getBooleanAttribute("requeue");
         } catch (RequestTimeoutException e) {
             try {

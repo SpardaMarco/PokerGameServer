@@ -108,11 +108,11 @@ public class Server {
         log("Disconnecting all players\n");
         connectionLock.lock();
         for (Connection connection : connections) {
-            log ("Disconnecting " + connection.getUsername());
+            log("Disconnecting " + connection.getUsername());
             try {
                 connection.getChannel().requestConnectionEnd("Server is shutting down");
             } catch (ClosedConnectionException ignored) {
-                log ("Channel was already closed for " + connection.getUsername() + "\n");
+                log("Channel was already closed for " + connection.getUsername() + "\n");
             }
         }
         connectionLock.unlock();

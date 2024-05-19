@@ -67,8 +67,8 @@ public class RankedQueuer extends Queuer {
         for (Connection player : queue) {
             System.out.println(
                     player.getUsername() + ": " + player.getRank() + " | " +
-                    playersThresholds.get(player.getUsername()).getLowerBound() + " - " +
-                    playersThresholds.get(player.getUsername()).getUpperBound()
+                            playersThresholds.get(player.getUsername()).getLowerBound() + " - " +
+                            playersThresholds.get(player.getUsername()).getUpperBound()
             );
         }
         thresholdLock.unlock();
@@ -115,7 +115,7 @@ public class RankedQueuer extends Queuer {
                     break;
                 }
             }
-            if (suitable)  {
+            if (suitable) {
                 currentRoom.add(player);
                 List<Connection> remainingPlayers = new ArrayList<>(players);
                 remainingPlayers.remove(player);
@@ -171,5 +171,18 @@ public class RankedQueuer extends Queuer {
             }
         }
         return false;
+    }
+
+    @Override
+    public void stop() {
+        queueLock.lock();
+        thresholdLock.lock();
+        for (Connection connection : queue) {
+            removePlayerThreshold(connection);
+            cancelPlayerThresholdUpdate(connection);
+        }
+        queueLock.unlock();
+        thresholdLock.unlock();
+        super.stop();
     }
 }
