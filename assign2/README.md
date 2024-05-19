@@ -224,7 +224,9 @@ The access to shared resources is controlled by the use of locks. The `Reentrant
 
 The **set of connections to the server** belongs to the `Server` class and is shared between the `Server` and the `Authenticator` threads. The `Authenticator` adds the connections to this set after the players are authenticated, and then it is used by the `Server` to disconnect clients when the server is closed. 
 
-All the remaining data structures belong to the `Queuer` class and are shared between the `Queuer`, the `Requeuer` and the `Game` threads. A player is added to the **main queue** when they are authenticated and the `Queuer` thread is started, and removed from it when they are matched with other players and a `Game` thread starts. The **requeue** is used to store players that want to requeue after a game ends, and the **game rooms** map the players to the game thread they are currently playing in, allowing for a simpler way to reconnect a client to a game.
+The remaining data structures belong to the `Queuer` class and are shared between the `Queuer`, the `Requeuer` and the `Game` threads. A player is added to the **main queue** when they are authenticated and the `Queuer` thread is started, and removed from it when they are matched with other players and a `Game` thread starts. The **requeue** is used to store players that want to requeue after a game ends, and the **game rooms** map the players to the game thread they are currently playing in, allowing for a simpler way to reconnect a client to a game.
+
+Additionally, the `RankedQueuer` class has a **map of players to thresholds** and a **map of players to schedulers** that are tasked to update those thresholds over time. These resources are shared between the `RankedQueuer` and the `Task` threads. Both are created when a player enters the queue in ranked mode and are removed when the player is matched with other players.
 
 The synchronization between the threads is done by acquiring the lock before accessing the shared resource and releasing it after the access is done.
 
