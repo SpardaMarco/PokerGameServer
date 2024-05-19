@@ -31,6 +31,11 @@ public class Authenticator extends VirtualThread {
         try {
             Connection connection = handleRequests();
             if (connection != null) {
+                server.log(
+                        "Authentication completed for " + connection.getUsername(),
+                        "From address: " + channel.getAddress(),
+                        "With session token: " + connection.getSession()
+                );
                 channel.setSessionToken(connection.getSession());
                 server.queuePlayer(connection);
             }
@@ -44,12 +49,14 @@ public class Authenticator extends VirtualThread {
             try {
                 request = channel.getRequest(30);
             } catch (RequestTimeoutException e) {
-                terminateConnection("Authentication timed out");
+                server.log("Authentication timed out for " + channel.getAddress());
                 return null;
             } catch (ClosedConnectionException e) {
+                server.log("Connection with " + channel.getAddress() + " closed during authentication");
                 return null;
             } catch (ChannelException e) {
                 terminateConnection(e.getMessage());
+                server.log("Error while reading request from " + channel.getAddress() + " during authentication");
                 return null;
             }
             switch (request.getState()) {
@@ -61,6 +68,7 @@ public class Authenticator extends VirtualThread {
                 }
                 case null, default -> {
                     terminateConnection("Invalid request");
+                    server.log("Invalid request from " + channel.getAddress() + " during authentication");
                     return null;
                 }
             }

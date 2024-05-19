@@ -45,9 +45,7 @@ public class Game extends VirtualThread {
         try {
             channel.requestConnectionEnd("Another connection was found for your account");
         } catch (ChannelException e) {
-            if (server.isLoggingEnabled()) {
-                System.out.println("Error while disconnecting old connection for player " + newConnection.getUsername());
-            }
+            server.log("Error while disconnecting old connection for player " + newConnection.getUsername());
         }
         playerConnections.set(index, newConnection);
         try {
@@ -71,9 +69,7 @@ public class Game extends VirtualThread {
         try {
             channel.sendGameState(gameState);
         } catch (ClosedConnectionException e) {
-            if (server.isLoggingEnabled()) {
-                System.out.println("Player " + player + " disconnected while sending game state");
-            }
+            server.log("Player " + player + " disconnected while sending game state");
         }
     }
 
@@ -82,25 +78,18 @@ public class Game extends VirtualThread {
             try {
                 connection.getChannel().notifyGameStart();
             } catch (ChannelException e) {
-                if (server.isLoggingEnabled()) {
-                    System.out.println("Player " + connection.getUsername() + " disconnected while notifying game start");
-                }
+                server.log("Player " + connection.getUsername() + " disconnected while notifying game start");
             }
         }
     }
 
     @Override
     protected void run() {
-        // Assumes that all players have joined (i.e. we sent a message to confirm connection before starting the game)
-        if (server.isLoggingEnabled()) {
-            System.out.println("Starting game with " + playerConnections.size() + " players");
-        }
 
         notifyPlayers();
         play();
-        if (server.isLoggingEnabled()) {
-            System.out.println("Game finished");
-        }
+        server.log("Game finished");
+
         if (server.isRankedMode()) {
             updateRanks();
         }
@@ -145,14 +134,10 @@ public class Game extends VirtualThread {
             try {
                 channel.requestConnectionEnd("Player timed out while playing. May reconnect to continue");
             } catch (ClosedConnectionException ignored) {}
-            if (server.isLoggingEnabled()) {
-                System.out.println("Player " + player + " timed out while playing");
-            }
+            server.log("Player " + playerConnections.get(player).getUsername() + " timed out. FOLDING");
             poker.takeAction(PokerPlayer.PLAYER_ACTION.FOLD, 0);
         } catch (ChannelException e) {
-            if (server.isLoggingEnabled()) {
-                System.out.println("Player " + player + " disconnected while playing");
-            }
+            server.log("Player " + playerConnections.get(player).getUsername() + " is disconnected. FOLDING");
             poker.takeAction(PokerPlayer.PLAYER_ACTION.FOLD, 0);
         }
     }
@@ -165,9 +150,7 @@ public class Game extends VirtualThread {
     }
 
     private void updateRanks() {
-        if (server.isLoggingEnabled()) {
-            System.out.println("Updating rankings");
-        }
+        server.log("Updating rankings");
         for (PokerPlayer player : poker.getGameWinners()) {
             Connection connection = null;
             for (Connection c : playerConnections) {

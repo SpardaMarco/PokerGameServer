@@ -135,21 +135,12 @@ public class RankedQueuer extends Queuer {
         ArrayList<Connection> room = findSuitableOpponents(new ArrayList<>(queue), new ArrayList<>());
         thresholdLock.unlock();
 
-        if (server.isLoggingEnabled()) {
-            if (room.isEmpty()) {
-                server.log("No suitable opponents found\n");
-            } else {
-                server.log("Room created with players:");
-                thresholdLock.lock();
-                for (Connection roomPlayer : room) {
-                    server.log(roomPlayer.getUsername() + ": " +
-                            playersThresholds.get(roomPlayer.getUsername()).getLowerBound() + " - " +
-                            playersThresholds.get(roomPlayer.getUsername()).getUpperBound());
-                }
-                thresholdLock.unlock();
-                server.log("");
-            }
+        if (room.isEmpty()) {
+            server.log("No suitable opponents found");
+        } else {
+            server.log("Matchmaking found");
         }
+
         return room;
     }
 

@@ -53,7 +53,7 @@ public abstract class Queuer extends VirtualThread {
                 requeueLock.lock();
                 while (!this.playersRequeueing.isEmpty()) {
                     Connection connection = this.playersRequeueing.poll();
-                    Requeuer requeuer = new Requeuer(this, connection);
+                    Requeuer requeuer = new Requeuer(server, this, connection);
                     requeuer.start();
                     requeuers.add(requeuer);
                 }
@@ -73,11 +73,13 @@ public abstract class Queuer extends VirtualThread {
     public void queuePlayer(Connection connection) {
         gameRoomsLock.lock();
         if (gameRooms.get(connection.getUsername()) != null) {
+            server.log("Player " + connection.getUsername() + " is reconnecting to a match");
             reconnectPlayerToGame(connection);
             gameRoomsLock.unlock();
         } else {
             gameRoomsLock.unlock();
             addToMainQueue(connection);
+            server.log("Player " + connection.getUsername() + " queued");
         }
     }
 
@@ -92,22 +94,27 @@ public abstract class Queuer extends VirtualThread {
                 break;
             }
         }
-        if (index != -1 && this.server.isLoggingEnabled()) {
-            System.out.println("Player not found in queue when updating main queue");
+        if (index == -1) {
+            server.log("Player not found in queue when updating main queue");
+            return;
         }
         Connection oldConnection = queue.get(index);
         try {
             oldConnection.getChannel().requestConnectionEnd("Another connection was found for your account");
+            server.log("Replaced old connection for player " + connection.getUsername() + " in main queue");
         } catch (ClosedConnectionException e) {
-            if (server.isLoggingEnabled()) {
-                System.out.println("Error while disconnecting old connection for player " + connection.getUsername());
-            }
+            server.log("Error while disconnecting old connection for player " + connection.getUsername());
         }
         queue.set(index, connection);
         queueLock.unlock();
     }
 
     public synchronized void requeuePlayers(List<Connection> connections) {
+        List<String> logMessage = new ArrayList<>(List.of("Requeueing players: "));
+        for (Connection connection : connections) {
+            logMessage.add(connection.getUsername());
+        }
+        server.log(logMessage.toArray(new String[0]));
         requeueLock.lock();
         this.playersRequeueing.addAll(connections);
         requeueLock.unlock();
@@ -129,9 +136,12 @@ public abstract class Queuer extends VirtualThread {
     public void startGame(ArrayList<Connection> connections) {
         Game game = new Game(server, connections);
 
+        List<String> logMessage = new ArrayList<>(List.of("Starting game with players: "));
         for (Connection connection : connections) {
             assignPlayerToRoom(connection, game);
+            logMessage.add(connection.getUsername());
         }
+        server.log(logMessage.toArray(new String[0]));
 
         game.start();
     }
@@ -142,7 +152,10 @@ public abstract class Queuer extends VirtualThread {
             if (connection.getChannel().requestMatchReconnect()) {
                 gameRoomsLock.lock();
                 Game game = gameRooms.get(connection.getUsername());
-                game.reconnectPlayer(connection);
+                if (game.reconnectPlayer(connection))
+                    server.log("Player " + connection.getUsername() + " reconnected to respective match");
+                else
+                    server.log("Player " + connection.getUsername() + " could not reconnect to match");
                 gameRoomsLock.unlock();
             }
         } catch (ChannelException ignored) {

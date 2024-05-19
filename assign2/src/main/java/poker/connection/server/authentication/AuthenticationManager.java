@@ -37,11 +37,14 @@ public class AuthenticationManager extends VirtualThread {
 
             while (!this.isInterrupted() && (socket = (SSLSocket) serverSocket.accept()) != null) {
                 Authenticator authenticator = new Authenticator(server, new ServerChannel(socket));
+                server.log("New connection from " + socket.getInetAddress().getHostAddress());
                 authenticators.add(authenticator);
                 authenticator.start();
             }
 
             if (this.isInterrupted()) {
+                server.log("Authentication manager interrupted");
+                server.log("Closing all connections");
                 for (Authenticator authenticator : authenticators) {
                     authenticator.interrupt();
                 }
@@ -55,7 +58,6 @@ public class AuthenticationManager extends VirtualThread {
 
     private SSLServerSocketFactory getServerSocketFactory() {
         SSLServerSocketFactory serverSocketFactory;
-
         try {
             InputStream keyStoreInputStream = getClass().getClassLoader().getResourceAsStream("server_keystore.p12");
             KeyStore keyStore = KeyStore.getInstance("PKCS12");

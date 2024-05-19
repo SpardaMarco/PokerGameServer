@@ -105,21 +105,23 @@ public class Server {
 
     private void disconnect() {
 
-        System.out.println("Disconnecting all players...");
+        log("Disconnecting all players\n");
         connectionLock.lock();
         for (Connection connection : connections) {
+            log ("Disconnecting " + connection.getUsername());
             try {
                 connection.getChannel().requestConnectionEnd("Server is shutting down");
             } catch (ClosedConnectionException ignored) {
+                log ("Channel was already closed for " + connection.getUsername() + "\n");
             }
         }
         connectionLock.unlock();
-        System.out.println("Server stopped");
+        log("Server stopped");
     }
 
-    public void log(String message) {
+    public synchronized void log(String... message) {
         if (isLoggingEnabled()) {
-            System.out.println(message);
+            System.out.println(String.join("\n", message) + "\n");
         }
     }
 }

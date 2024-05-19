@@ -31,6 +31,10 @@ public abstract class Channel {
         sessionToken = null;
     }
 
+    public String getAddress() {
+        return socket.getInetAddress().getHostAddress();
+    }
+
     public void setSessionToken(String sessionToken) {
         this.sessionToken = sessionToken;
     }
