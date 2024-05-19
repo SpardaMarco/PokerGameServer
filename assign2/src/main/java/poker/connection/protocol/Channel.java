@@ -140,10 +140,6 @@ public abstract class Channel {
         sendMessage(CONNECTION_END, REQUEST, body, null);
     }
 
-    protected void acceptConnectionEnd() throws ClosedConnectionException {
-        sendMessage(CONNECTION_END, OK, null, null);
-    }
-
     private Message requestConnectionCheck() throws ChannelException {
         sendMessage(CONNECTION_CHECK, REQUEST, null, null);
         return getResponse(CONNECTION_CHECK, 3);

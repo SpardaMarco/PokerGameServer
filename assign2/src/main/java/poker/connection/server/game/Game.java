@@ -127,7 +127,7 @@ public class Game extends VirtualThread {
         ServerChannel channel = playerConnections.get(player).getChannel();
 
         try {
-            Message message = channel.getPlayerMove("It's your turn", poker.getGameStateToSend(player), 10);
+            Message message = channel.getPlayerMove("It's your turn", poker.getGameStateToSend(player), 30);
             String action = message.getAttribute("action");
             Integer amount = message.getIntAttribute("amount");
 
@@ -141,7 +141,6 @@ public class Game extends VirtualThread {
             }
             PokerPlayer.PLAYER_ACTION playerAction = PokerPlayer.PLAYER_ACTION.fromString(action);
             poker.takeAction(playerAction, amount);
-
         } catch (RequestTimeoutException e) {
             try {
                 channel.requestConnectionEnd("Player timed out while playing. May reconnect to continue");

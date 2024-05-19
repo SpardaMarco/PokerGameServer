@@ -48,7 +48,7 @@ public class AuthenticationManager extends VirtualThread {
             }
         } catch (SocketException e) {
             System.out.println("Socket application.connection closed");
-        } catch (IOException | SQLException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

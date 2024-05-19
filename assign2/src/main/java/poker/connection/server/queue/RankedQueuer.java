@@ -27,7 +27,7 @@ public class RankedQueuer extends Queuer {
         super(server);
     }
 
-    public void addToMainQueue(Connection connection) {
+    public synchronized void addToMainQueue(Connection connection) {
         try {
             if (connection.getChannel().requestMatchmaking()) {
                 queueLock.lock();
@@ -46,14 +46,14 @@ public class RankedQueuer extends Queuer {
         }
     }
 
-    public synchronized void addPlayerThreshold(Connection connection) {
+    public void addPlayerThreshold(Connection connection) {
         Threshold threshold = new Threshold(connection.getRank());
         thresholdLock.lock();
         playersThresholds.put(connection.getUsername(), threshold);
         thresholdLock.unlock();
     }
 
-    public synchronized void removePlayerThreshold(Connection connection) {
+    public void removePlayerThreshold(Connection connection) {
         thresholdLock.lock();
         playersThresholds.remove(connection.getUsername());
         thresholdLock.unlock();
@@ -84,19 +84,19 @@ public class RankedQueuer extends Queuer {
                 TIME_TO_RELAX,
                 java.util.concurrent.TimeUnit.SECONDS
         );
-        thresholdLock.lock();
+        schedulerLock.lock();
         thresholdSchedulers.put(connection.getUsername(), scheduler);
-        thresholdLock.unlock();
+        schedulerLock.unlock();
     }
 
     public void cancelPlayerThresholdUpdate(Connection connection) {
-        thresholdLock.lock();
+        schedulerLock.lock();
         ScheduledExecutorService scheduler = thresholdSchedulers.get(connection.getUsername());
         if (scheduler != null) {
             scheduler.shutdown();
             thresholdSchedulers.remove(connection.getUsername());
         }
-        thresholdLock.unlock();
+        schedulerLock.unlock();
     }
 
     public ArrayList<Connection> findSuitableOpponents(List<Connection> players, ArrayList<Connection> currentRoom) {
@@ -105,12 +105,14 @@ public class RankedQueuer extends Queuer {
             return currentRoom;
         }
 
+
         Connection suitablePlayer = null;
         for (Connection player : players) {
             boolean suitable = true;
             for (Connection roomPlayer : currentRoom) {
-                if (!playersThresholds.get(player.getUsername()).contains(roomPlayer.getRank()) ||
-                        !playersThresholds.get(roomPlayer.getUsername()).contains(player.getRank())) {
+                Threshold playerThreshold = playersThresholds.get(player.getUsername());
+                Threshold roomPlayerThreshold = playersThresholds.get(roomPlayer.getUsername());
+                if (!playerThreshold.contains(roomPlayer.getRank()) || !roomPlayerThreshold.contains(player.getRank())) {
                     suitable = false;
                     break;
                 }
@@ -120,6 +122,7 @@ public class RankedQueuer extends Queuer {
                 break;
             }
         }
+
         if (suitablePlayer == null) {
             return new ArrayList<>();
         }
@@ -129,17 +132,23 @@ public class RankedQueuer extends Queuer {
     }
 
     public ArrayList<Connection> tryMatchmaking() {
+
+        thresholdLock.lock();
         ArrayList<Connection> room = findSuitableOpponents(new ArrayList<>(queue), new ArrayList<>());
+        thresholdLock.unlock();
+
         if (server.isLoggingEnabled()) {
             if (room.isEmpty()) {
                 System.out.println("No suitable opponents found\n");
             } else {
                 System.out.println("Room created with players:");
+                thresholdLock.lock();
                 for (Connection roomPlayer : room) {
                     System.out.println(roomPlayer.getUsername() + ": " +
                             playersThresholds.get(roomPlayer.getUsername()).getLowerBound() + " - " +
                             playersThresholds.get(roomPlayer.getUsername()).getUpperBound());
                 }
+                thresholdLock.unlock();
                 System.out.println();
             }
         }

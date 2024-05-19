@@ -29,10 +29,6 @@ public class Card {
         return "| " + rank + " of " + suit + " |";
     }
 
-    public boolean equals(Card other) {
-        return suit == other.suit && rank == other.rank;
-    }
-
     public boolean isSameRank(Card other) {
         return rank == other.rank;
     }

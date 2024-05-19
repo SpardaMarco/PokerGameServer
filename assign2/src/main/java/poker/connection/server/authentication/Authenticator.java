@@ -20,7 +20,7 @@ public class Authenticator extends VirtualThread {
 
     private int authenticationAttempts = 3;
 
-    public Authenticator(Server server, ServerChannel channel) throws SQLException {
+    public Authenticator(Server server, ServerChannel channel) {
         this.server = server;
         this.channel = channel;
         this.database = server.getDatabase();

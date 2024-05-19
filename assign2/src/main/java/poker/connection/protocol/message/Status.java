@@ -11,7 +11,7 @@ public enum Status {
         this.value = value;
     }
 
-    public Boolean equals(String value) {
-        return this.value.equals(value);
+    public Boolean equals(Status status) {
+        return this.value.equals(status.value);
     }
 }

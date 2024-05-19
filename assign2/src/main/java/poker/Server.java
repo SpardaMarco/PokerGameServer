@@ -96,14 +96,14 @@ public class Server {
         queuer.interrupt();
     }
 
-    public synchronized void queuePlayer(Connection connection) {
+    public void queuePlayer(Connection connection) {
         connectionLock.lock();
         connections.add(connection);
         connectionLock.unlock();
         queuer.queuePlayer(connection);
     }
 
-    private synchronized void disconnect() {
+    private void disconnect() {
 
         System.out.println("Disconnecting all players...");
         connectionLock.lock();

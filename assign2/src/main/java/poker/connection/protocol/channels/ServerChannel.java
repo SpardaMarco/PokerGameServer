@@ -57,10 +57,6 @@ public class ServerChannel extends Channel {
         return getRequest(expectedState, null);
     }
 
-    public Message getRequest(State expectedState, Integer timeout) throws ChannelException {
-        return getMessage(expectedState, true, timeout);
-    }
-
     public boolean requestMatchReconnect() throws ChannelException {
         sendMessage(MATCH_RECONNECT, REQUEST, null, null);
         return getResponse(MATCH_RECONNECT).isOk();
@@ -73,9 +69,5 @@ public class ServerChannel extends Channel {
 
     public void notifyGameStart() throws ClosedConnectionException {
         sendMessage(MATCH_START, REQUEST, null, null);
-    }
-
-    public void sendTurnTimeout() throws ClosedConnectionException {
-        sendMessage(TURN_TIMEOUT, REQUEST, null, null);
     }
 }

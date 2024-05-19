@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class Queuer extends VirtualThread {
+
     protected final Server server;
     protected final List<Connection> queue = new ArrayList<>();
     protected final Queue<Connection> playersRequeueing = new LinkedList<>();
@@ -67,7 +68,7 @@ public abstract class Queuer extends VirtualThread {
 
     public abstract boolean createGame();
 
-    public synchronized void queuePlayer(Connection connection) {
+    public void queuePlayer(Connection connection) {
         gameRoomsLock.lock();
         if (gameRooms.get(connection.getUsername()) != null) {
             reconnectPlayerToGame(connection);
@@ -80,7 +81,7 @@ public abstract class Queuer extends VirtualThread {
 
     public abstract void addToMainQueue(Connection connection);
 
-    public synchronized void updateMainQueue(Connection connection) {
+    public void updateMainQueue(Connection connection) {
         int index = -1;
         queueLock.lock();
         for (int i = 0; i < queue.size(); i++) {
@@ -111,19 +112,13 @@ public abstract class Queuer extends VirtualThread {
         notify();
     }
 
-    public synchronized void removePlayerFromRequeue(Connection connection) {
-        requeueLock.lock();
-        this.playersRequeueing.remove(connection);
-        requeueLock.unlock();
-    }
-
-    public synchronized void assignPlayerToRoom(Connection connection, Game game) {
+    public void assignPlayerToRoom(Connection connection, Game game) {
         gameRoomsLock.lock();
         this.gameRooms.put(connection.getUsername(), game);
         gameRoomsLock.unlock();
     }
 
-    public synchronized void removePlayerFromRoom(Connection connection) {
+    public void removePlayerFromRoom(Connection connection) {
         gameRoomsLock.lock();
         this.gameRooms.remove(connection.getUsername());
         gameRoomsLock.unlock();

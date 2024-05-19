@@ -38,7 +38,7 @@ public class SimpleQueuer extends Queuer {
     }
 
     @Override
-    public void addToMainQueue(Connection connection) {
+    public synchronized void addToMainQueue(Connection connection) {
 
         try {
             queueLock.lock();

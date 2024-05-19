@@ -11,7 +11,7 @@ public class PokerPlayer {
     private PLAYER_STATE state;
 
     public enum PLAYER_STATE {
-        FOLDED, BETTING, ALL_IN, WAITING, PASS, OUT_OF_MONEY
+        FOLDED, BETTING, ALL_IN, WAITING, OUT_OF_MONEY
     }
 
     public enum PLAYER_ACTION {
