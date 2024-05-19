@@ -13,7 +13,7 @@ public class SimpleQueuer extends Queuer {
         super(server);
     }
 
-    public void createGame() {
+    public boolean createGame() {
         queueLock.lock();
         ArrayList<Connection> connections = new ArrayList<>(
                 queue.subList(0, PokerConstants.NUM_PLAYERS)
@@ -34,6 +34,7 @@ public class SimpleQueuer extends Queuer {
             startGame(connections);
         }
         queueLock.unlock();
+        return allAlive;
     }
 
     @Override

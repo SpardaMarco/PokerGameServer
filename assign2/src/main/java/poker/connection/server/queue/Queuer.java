@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class Queuer extends VirtualThread {
-    private final Server server;
+    protected final Server server;
     protected final List<Connection> queue = new ArrayList<>();
     protected final Queue<Connection> playersRequeueing = new LinkedList<>();
     protected final ReentrantLock queueLock = new ReentrantLock();
@@ -38,8 +38,14 @@ public abstract class Queuer extends VirtualThread {
                         return;
                     }
                 } else {
-                    createGame();
-                    queueLock.unlock();
+                    if (!createGame()) {
+                        queueLock.unlock();
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {
+                            return;
+                        }
+                    }
                 }
                 requeueLock.lock();
                 while (!this.playersRequeueing.isEmpty()) {
@@ -59,7 +65,7 @@ public abstract class Queuer extends VirtualThread {
         requeueLock.unlock();
     }
 
-    public abstract void createGame();
+    public abstract boolean createGame();
 
     public synchronized void queuePlayer(Connection connection) {
         gameRoomsLock.lock();

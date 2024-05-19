@@ -1,6 +1,6 @@
 package poker.connection.server.queue;
 
-public class Threshold {
+public class    Threshold {
     private int lowerBound;
     private int upperBound;
 
@@ -25,6 +25,10 @@ public class Threshold {
 
     public boolean overlaps(Threshold other) {
         return this.isWithinThreshold(other.getLowerBound()) || this.isWithinThreshold(other.getUpperBound());
+    }
+
+    public boolean contains(int value) {
+        return value >= lowerBound && value <= upperBound;
     }
 
     public void expand() {

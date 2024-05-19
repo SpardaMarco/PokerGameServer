@@ -19,7 +19,7 @@ public class DatabaseInitializer {
         database.registerUser("ramos", "ramos", 1000);
         database.registerUser("joao", "joao", 1500);
         database.registerUser("rita", "rita", 500);
-        database.registerUser("jorge", "jorge", -10000);
+        database.registerUser("jorge", "jorge", 0);
         database.registerUser("afonso", "afonso", 5000);
         database.registerUser("camilla", "camilla", 5000);
         database.registerUser("baquero", "baquero");

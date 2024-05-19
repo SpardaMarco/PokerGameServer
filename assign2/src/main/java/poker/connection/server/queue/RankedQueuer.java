@@ -7,6 +7,7 @@ import poker.game.common.PokerConstants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -62,6 +63,14 @@ public class RankedQueuer extends Queuer {
         thresholdLock.lock();
         Threshold threshold = playersThresholds.get(connection.getUsername());
         threshold.expand();
+        System.out.println("Current updated thresholds:");
+        for (Connection player : queue) {
+            System.out.println(
+                    player.getUsername() + ": " + player.getRank() + " | " +
+                    playersThresholds.get(player.getUsername()).getLowerBound() + " - " +
+                    playersThresholds.get(player.getUsername()).getUpperBound()
+            );
+        }
         thresholdLock.unlock();
         notify();
     }
@@ -90,33 +99,54 @@ public class RankedQueuer extends Queuer {
         thresholdLock.unlock();
     }
 
-    public ArrayList<Connection> tryMatchmaking() {
-        ArrayList<Connection> room = new ArrayList<>();
+    public ArrayList<Connection> findSuitableOpponents(List<Connection> players, ArrayList<Connection> currentRoom) {
 
-        queueLock.lock();
-        thresholdLock.lock();
-        for (Connection player : queue) {
-            Threshold threshold = playersThresholds.get(player.getUsername());
-            room.add(player);
-            for (Connection opponent : queue) {
-                if (player.getUsername().equals(opponent.getUsername())) continue;
-                if (threshold.overlaps(playersThresholds.get(opponent.getUsername()))) {
-                    room.add(opponent);
-                    if (room.size() == PokerConstants.NUM_PLAYERS) {
-                        break;
-                    }
+        if (currentRoom.size() == PokerConstants.NUM_PLAYERS) {
+            return currentRoom;
+        }
+
+        Connection suitablePlayer = null;
+        for (Connection player : players) {
+            boolean suitable = true;
+            for (Connection roomPlayer : currentRoom) {
+                if (!playersThresholds.get(player.getUsername()).contains(roomPlayer.getRank()) ||
+                        !playersThresholds.get(roomPlayer.getUsername()).contains(player.getRank())) {
+                    suitable = false;
+                    break;
                 }
             }
-            if (room.size() != PokerConstants.NUM_PLAYERS) room.clear();
-            else break;
+            if (suitable)  {
+                suitablePlayer = player;
+                break;
+            }
         }
-        thresholdLock.unlock();
-        queueLock.unlock();
+        if (suitablePlayer == null) {
+            return new ArrayList<>();
+        }
+        currentRoom.add(suitablePlayer);
+        players.remove(suitablePlayer);
+        return findSuitableOpponents(players, currentRoom);
+    }
 
+    public ArrayList<Connection> tryMatchmaking() {
+        ArrayList<Connection> room = findSuitableOpponents(new ArrayList<>(queue), new ArrayList<>());
+        if (server.isLoggingEnabled()) {
+            if (room.isEmpty()) {
+                System.out.println("No suitable opponents found\n");
+            } else {
+                System.out.println("Room created with players:");
+                for (Connection roomPlayer : room) {
+                    System.out.println(roomPlayer.getUsername() + ": " +
+                            playersThresholds.get(roomPlayer.getUsername()).getLowerBound() + " - " +
+                            playersThresholds.get(roomPlayer.getUsername()).getUpperBound());
+                }
+                System.out.println();
+            }
+        }
         return room;
     }
 
-    public void createGame() {
+    public boolean createGame() {
         ArrayList<Connection> connections = tryMatchmaking();
         if (!connections.isEmpty()) {
             boolean allAlive = true;
@@ -139,7 +169,9 @@ public class RankedQueuer extends Queuer {
                     cancelPlayerThresholdUpdate(connection);
                 }
                 startGame(connections);
+                return true;
             }
         }
+        return false;
     }
 }

@@ -53,19 +53,19 @@ The database contains only one table, `User`, capable of storing the following d
 
 For the purpose of streamlining the demonstration and evaluation of this system, the database was pre-populated with the following users:
 
-| username | password (on login) | rank   |
-|----------|----------|--------|
-| marco    | marco    | 1000   |
-| tiago    | tiago    | 2000   |
-| ramos    | ramos    | 1000   |
-| joao     | joao     | 1500   |
-| rita     | rita     | 500    |
-| jorge    | jorge    | -10000 |
-| afonso   | afonso   | 5000   |
-| camilla  | camilla  | 5000   |
-| baquero  | baquero  | 0      |
-| alberto  | alberto  | 0      |
-| veronica | veronica | 0      |
+| username | password (on login) | rank |
+|----------|----------|------|
+| marco    | marco    | 1000 |
+| tiago    | tiago    | 2000 |
+| ramos    | ramos    | 1000 |
+| joao     | joao     | 1500 |
+| rita     | rita     | 500  |
+| jorge    | jorge    | 0    |
+| afonso   | afonso   | 5000 |
+| camilla  | camilla  | 5000 |
+| baquero  | baquero  | 0    |
+| alberto  | alberto  | 0    |
+| veronica | veronica | 0    |
 
 The passwords are stored using BCrypt hash with *salt*.
 
