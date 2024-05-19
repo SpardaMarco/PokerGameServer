@@ -105,8 +105,6 @@ public class RankedQueuer extends Queuer {
             return currentRoom;
         }
 
-
-        Connection suitablePlayer = null;
         for (Connection player : players) {
             boolean suitable = true;
             for (Connection roomPlayer : currentRoom) {
@@ -118,17 +116,17 @@ public class RankedQueuer extends Queuer {
                 }
             }
             if (suitable)  {
-                suitablePlayer = player;
-                break;
+                currentRoom.add(player);
+                List<Connection> remainingPlayers = new ArrayList<>(players);
+                remainingPlayers.remove(player);
+                ArrayList<Connection> room = findSuitableOpponents(remainingPlayers, currentRoom);
+                if (!room.isEmpty()) {
+                    return room;
+                }
+                currentRoom.remove(player);
             }
         }
-
-        if (suitablePlayer == null) {
-            return new ArrayList<>();
-        }
-        currentRoom.add(suitablePlayer);
-        players.remove(suitablePlayer);
-        return findSuitableOpponents(players, currentRoom);
+        return new ArrayList<>();
     }
 
     public ArrayList<Connection> tryMatchmaking() {
@@ -139,17 +137,17 @@ public class RankedQueuer extends Queuer {
 
         if (server.isLoggingEnabled()) {
             if (room.isEmpty()) {
-                System.out.println("No suitable opponents found\n");
+                server.log("No suitable opponents found\n");
             } else {
-                System.out.println("Room created with players:");
+                server.log("Room created with players:");
                 thresholdLock.lock();
                 for (Connection roomPlayer : room) {
-                    System.out.println(roomPlayer.getUsername() + ": " +
+                    server.log(roomPlayer.getUsername() + ": " +
                             playersThresholds.get(roomPlayer.getUsername()).getLowerBound() + " - " +
                             playersThresholds.get(roomPlayer.getUsername()).getUpperBound());
                 }
                 thresholdLock.unlock();
-                System.out.println();
+                server.log("");
             }
         }
         return room;

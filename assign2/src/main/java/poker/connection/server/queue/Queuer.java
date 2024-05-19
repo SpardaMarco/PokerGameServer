@@ -40,12 +40,14 @@ public abstract class Queuer extends VirtualThread {
                     }
                 } else {
                     if (!createGame()) {
-                        queueLock.unlock();
                         try {
+                            queueLock.unlock();
                             wait();
                         } catch (InterruptedException e) {
                             return;
                         }
+                    } else {
+                        queueLock.unlock();
                     }
                 }
                 requeueLock.lock();

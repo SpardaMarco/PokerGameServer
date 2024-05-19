@@ -117,4 +117,9 @@ public class Server {
         System.out.println("Server stopped");
     }
 
+    public void log(String message) {
+        if (isLoggingEnabled()) {
+            System.out.println(message);
+        }
+    }
 }
