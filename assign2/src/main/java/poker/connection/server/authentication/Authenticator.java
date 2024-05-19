@@ -87,7 +87,8 @@ public class Authenticator extends VirtualThread {
         if (username != null) {
             String newToken = generateSession(username);
             if (newToken != null) {
-                channel.acceptConnectionRecovery("Session successfully recovered", username, newToken);
+                String body = "Session recovered successfully. Welcome back, " + username + "!";
+                channel.acceptConnectionRecovery(body, newToken);
                 return new Connection(username, newToken, channel, database.getUserRank(username));
             }
             else

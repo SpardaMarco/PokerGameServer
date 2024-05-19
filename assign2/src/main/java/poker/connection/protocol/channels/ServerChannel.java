@@ -21,9 +21,8 @@ public class ServerChannel extends Channel {
         super(socket);
     }
 
-    public void acceptConnectionRecovery(String body, String username, String sessionToken) throws ClosedConnectionException {
+    public void acceptConnectionRecovery(String body, String sessionToken) throws ClosedConnectionException {
         sendMessage(CONNECTION_RECOVERY, OK, body, Map.of(
-                "username", username,
                 "sessionToken", sessionToken
         ));
     }
