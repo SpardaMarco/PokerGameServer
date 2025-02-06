@@ -7,3 +7,11 @@ Group members:
 1. João Ramos (up202108743@edu.fe.up.pt)
 2. Marco Costa (up202108821@edu.fe.up.pt)
 3. Tiago Viana (up201807126@edu.fe.up.pt)
+
+# Assign 1
+
+Study on cache misses in multi-thread environments
+
+# Assign 2
+
+Poker Game Server
